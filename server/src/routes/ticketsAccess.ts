@@ -46,8 +46,10 @@ interface MockTicket {
   eventId: number
   eventName: string
   sector: string
+  seat?: string
   lot: string
   modality: 'INTEIRA' | 'MEIA_ENTRADA' | 'CORTESIA' | 'PROMO'
+  modalityLabel?: string
   priceCents: number
   feeCents: number
   currency: 'BRL'
@@ -71,12 +73,20 @@ interface MockTicket {
   createdAt: string
   updatedAt: string
   sacProtocol?: string
+  canceledByDepartment?: string
+  cancellationReason?: string
 }
 
 let sequentialCounter = 10486
 function nextSequentialTicketNumber(): string {
   sequentialCounter += 1
   return String(sequentialCounter).padStart(8, '0')
+}
+
+function computeDaysSincePurchase(createdAtIso: string): number {
+  const createdMs = new Date(createdAtIso).getTime()
+  if (Number.isNaN(createdMs)) return 0
+  return Math.max(0, Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24)))
 }
 
 const CPF_ALLOWED_DEPARTMENTS = new Set(['SAC', 'ESTORNO', 'FINANCEIRO', 'ADMIN'])
@@ -522,8 +532,9 @@ let conflicts: any[] = [
   }
 ]
 
-function findTicketIndexByIdOrSequential(idOrSeq: string): number {
-  const clean = idOrSeq.trim()
+function findTicketIndexByIdOrSequential(idOrSeq: string | string[] | undefined): number {
+  const raw = Array.isArray(idOrSeq) ? idOrSeq[0] : idOrSeq || ''
+  const clean = String(raw).trim()
   return tickets.findIndex(
     t => t.id.toLowerCase() === clean.toLowerCase() || t.sequentialNumber === clean
   )
@@ -637,6 +648,7 @@ ticketsAccessRouter.post('/issue', (req: Request, res: Response) => {
   const credCode = `SEC-TKT-${seqNum}-V1-${randomSalt}`
   const nowIso = new Date().toISOString()
 
+  const priceCentsVal = isCortesia ? 0 : Math.round(Number(pricePaid ?? 340) * 100)
   const newTicket: MockTicket = {
     id: ticketId,
     sequentialNumber: seqNum,
@@ -645,12 +657,16 @@ ticketsAccessRouter.post('/issue', (req: Request, res: Response) => {
     eventName,
     sector,
     seat,
+    lot: isCortesia ? 'Cota Cortesia Eventos' : 'Lote Vigente',
     modality,
     modalityLabel: modalityLabels[modality] || 'Inteira',
-    pricePaid: isCortesia ? 0 : Number(pricePaid ?? 340),
+    priceCents: priceCentsVal,
+    feeCents: isCortesia ? 0 : Math.round(priceCentsVal * 0.1),
+    currency: 'BRL',
     buyerName,
     buyerDocument,
     buyerEmail,
+    buyerPhone: holderPhone,
     holderName: holderName || buyerName,
     holderDocument: holderDocument || buyerDocument,
     holderEmail: holderEmail || buyerEmail,

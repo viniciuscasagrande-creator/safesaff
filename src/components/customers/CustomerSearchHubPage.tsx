@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import type { CustomerMasterRecord, CustomerServiceDeskSummary } from '../../types/customer-service-itil.types'
 import { customerServiceItilService } from '../../services/customerServiceItil.service'
+import { canDepartmentConsultCpf, isCpfSearchTerm, maskCpfString } from '../../services/ticketsAccess.service'
 import { CustomerDossierModal } from './CustomerDossierModal'
 import { NewItilCaseModal } from './NewItilCaseModal'
 
@@ -32,6 +33,10 @@ export const CustomerSearchHubPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSegment, setSelectedSegment] = useState('TODOS')
+  const [activeDepartment, setActiveDepartment] = useState<'SAC' | 'ESTORNO' | 'FINANCEIRO' | 'SUPORTE_EVENTOS'>('SAC')
+  const [cpfRestrictionError, setCpfRestrictionError] = useState<string | null>(null)
+
+  const cpfAllowed = canDepartmentConsultCpf(activeDepartment)
 
   // Modais
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerMasterRecord | null>(null)
@@ -61,6 +66,13 @@ export const CustomerSearchHubPage: React.FC = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setCpfRestrictionError(null)
+    if (searchQuery.trim() && isCpfSearchTerm(searchQuery) && !canDepartmentConsultCpf(activeDepartment)) {
+      setCpfRestrictionError(
+        'Consulta de CPF é exclusiva dos setores de SAC, Estorno e Financeiro. Para outros setores, consulte pelo número sequencial de 8 dígitos do ingresso.'
+      )
+      return
+    }
     loadData()
   }
 
@@ -146,6 +158,54 @@ export const CustomerSearchHubPage: React.FC = () => {
         </div>
       )}
 
+      {/* Governança de Consulta de CPF: Exclusivo SAC, Estorno e Financeiro */}
+      <div className="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
+          <div>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 block">
+              Governança LGPD • Restrição de Consulta de CPF por Setor
+            </span>
+            <p className="text-xs text-slate-300">
+              A consulta por CPF é autorizada <strong>exclusivamente para os setores de SAC, Estorno e Financeiro</strong>. Demais setores consultam pelo número sequencial de 8 dígitos do ingresso.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {(['SAC', 'ESTORNO', 'FINANCEIRO', 'SUPORTE_EVENTOS'] as const).map(dept => (
+            <button
+              key={dept}
+              type="button"
+              onClick={() => {
+                setActiveDepartment(dept)
+                setCpfRestrictionError(null)
+              }}
+              className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition ${
+                activeDepartment === dept
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              {dept === 'SUPORTE_EVENTOS' ? 'Suporte Eventos (Sem CPF)' : `${dept} (CPF Liberado)`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {cpfRestrictionError && (
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 text-xs font-bold flex items-center justify-between">
+          <span>{cpfRestrictionError}</span>
+          <button
+            type="button"
+            onClick={() => setCpfRestrictionError(null)}
+            className="underline text-[11px]"
+          >
+            Fechar
+          </button>
+        </div>
+      )}
+
       {/* Barra de Busca Universal & Filtros */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-center justify-between gap-3">
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full flex items-center gap-2">
@@ -153,7 +213,11 @@ export const CustomerSearchHubPage: React.FC = () => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
             <input
               type="text"
-              placeholder="Busca Universal por CPF, Nome, E-mail, Telefone ou ID do Cliente..."
+              placeholder={
+                cpfAllowed
+                  ? `Busca por CPF (Autorizado p/ ${activeDepartment}), Nome, E-mail, Telefone ou ID...`
+                  : 'Busca por CPF BLOQUEADA para este setor (Exclusivo SAC, Estorno e Financeiro)...'
+              }
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -192,7 +256,7 @@ export const CustomerSearchHubPage: React.FC = () => {
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-50 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 border-b border-slate-200">
               <tr>
-                <th className="py-3 px-4">Cliente / Documento</th>
+                <th className="py-3 px-4">Cliente / Documento ({cpfAllowed ? 'CPF Liberado' : 'CPF Protegido'})</th>
                 <th className="py-3 px-4">Contato & Local</th>
                 <th className="py-3 px-4 text-center">Segmento RFM</th>
                 <th className="py-3 px-4 text-right">Total Gasto</th>
@@ -214,7 +278,7 @@ export const CustomerSearchHubPage: React.FC = () => {
                     <td className="py-3.5 px-4">
                       <strong className="text-slate-900 block text-sm">{c.name}</strong>
                       <span className="font-mono text-[11px] text-slate-400">
-                        CPF: {c.document} • {c.id}
+                        CPF: {cpfAllowed ? c.document : maskCpfString(c.document)} • {c.id}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">

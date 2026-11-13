@@ -49,8 +49,17 @@ export interface TicketTransferRecord {
   notes?: string
 }
 
+export type OperatorDepartment =
+  | 'SAC'
+  | 'ESTORNO'
+  | 'FINANCEIRO'
+  | 'SUPORTE_EVENTOS'
+  | 'CLIENTE'
+  | 'ADMIN'
+
 export interface TicketRecord {
   id: string // TKT-2026-981240-01
+  sequentialNumber: string // 8 dígitos numéricos sequenciais ex: '00010481'
   orderId: string // ORD-2026-981240
   eventId: number
   eventName: string
@@ -81,6 +90,10 @@ export interface TicketRecord {
   checkInOperator?: string
   createdAt: string
   updatedAt: string
+  // Governança de Cancelamento (7 dias CDC vs Pós-7 dias SAC vs Cortesia Suporte Eventos)
+  daysSincePurchase?: number
+  within7DaysWindow?: boolean
+  sacProtocol?: string
 }
 
 export interface AccessGateRecord {

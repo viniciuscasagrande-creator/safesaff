@@ -2571,6 +2571,44 @@ export default function EventFormPage({ mode, event, onCancel, onSave }: Props) 
                 </label>
               </div>
 
+              {/* Governança de Ingresso (8 Dígitos), Prazo de Cancelamento (7 Dias vs SAC), Cortesia e Consulta de CPF */}
+              <div className="p-4 rounded-xl bg-slate-900 text-white border border-slate-800 space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">
+                    Governança Oficial do Ingresso • Numeração 8 Dígitos, Cancelamento & CPF
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                    Ativo por Padrão no Evento
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                  <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    <strong className="text-indigo-300 block">1. Nº Sequencial de 8 Dígitos</strong>
+                    <span className="text-[11px] text-slate-300">
+                      Cada ingresso ou cortesia gerado recebe um número sequencial numérico de 8 dígitos (ex.: <code>00010481</code>), consultável por todos os setores.
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    <strong className="text-emerald-300 block">2. Prazo de 7 Dias (Cliente vs SAC)</strong>
+                    <span className="text-[11px] text-slate-300">
+                      O cliente pode solicitar o cancelamento em até <strong>7 dias após a compra</strong>. Após 7 dias, o cancelamento só é acessível via atendimento do <strong>SAC</strong>.
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    <strong className="text-fuchsia-300 block">3. Cortesia × Suporte de Eventos</strong>
+                    <span className="text-[11px] text-slate-300">
+                      Todos consultam o ingresso (inclusive cortesia), porém o <strong>Suporte de Eventos</strong> pode cancelar <strong>Cortesia</strong> (ingresso de cliente não).
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                    <strong className="text-amber-300 block">4. Consulta de CPF Restrita</strong>
+                    <span className="text-[11px] text-slate-300">
+                      A consulta por CPF é liberada <strong>somente para os setores de SAC, Estorno e Financeiro</strong>.
+                    </span>
+                  </div>
+                </div>
+              </div>
+
               {/* Status e Visibilidade */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
                 <div>

@@ -41,6 +41,7 @@ interface MockTransfer {
 
 interface MockTicket {
   id: string
+  sequentialNumber: string // 8 dígitos numéricos sequenciais (ex: '00010481')
   orderId: string
   eventId: number
   eventName: string
@@ -69,12 +70,58 @@ interface MockTicket {
   checkInOperator?: string
   createdAt: string
   updatedAt: string
+  sacProtocol?: string
 }
 
-// Ingressos iniciais realistas
+let sequentialCounter = 10486
+function nextSequentialTicketNumber(): string {
+  sequentialCounter += 1
+  return String(sequentialCounter).padStart(8, '0')
+}
+
+const CPF_ALLOWED_DEPARTMENTS = new Set(['SAC', 'ESTORNO', 'FINANCEIRO', 'ADMIN'])
+
+function canDepartmentConsultCpf(department?: string): boolean {
+  if (!department) return true
+  return CPF_ALLOWED_DEPARTMENTS.has(department.toUpperCase())
+}
+
+function isCpfSearchTerm(raw: string): boolean {
+  const trimmed = raw.trim()
+  if (/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(trimmed)) return true
+  const digits = trimmed.replace(/\D/g, '')
+  // 11 dígitos numéricos = CPF (8 dígitos numéricos = número sequencial do ingresso!)
+  return digits.length === 11
+}
+
+function maskCpf(doc: string): string {
+  const d = doc.replace(/\D/g, '')
+  if (d.length === 11) {
+    return `***.${d.slice(3, 6)}.${d.slice(6, 9)}-**`
+  }
+  return '***.***.***-**'
+}
+
+function enrichTicketWithGovernance(t: MockTicket, department?: string) {
+  const createdMs = new Date(t.createdAt).getTime()
+  const diffDays = Math.max(0, Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24)))
+  const within7DaysWindow = diffDays <= 7
+  const allowFullCpf = canDepartmentConsultCpf(department)
+
+  return {
+    ...t,
+    buyerDocument: allowFullCpf ? t.buyerDocument : maskCpf(t.buyerDocument),
+    holderDocument: allowFullCpf ? t.holderDocument : maskCpf(t.holderDocument),
+    daysSincePurchase: diffDays,
+    within7DaysWindow
+  }
+}
+
+// Ingressos iniciais realistas com Número Sequencial de 8 Dígitos Numéricos
 let tickets: MockTicket[] = [
   {
-    id: 'TKT-2026-981240-01',
+    id: 'TKT-2026-00010481',
+    sequentialNumber: '00010481',
     orderId: 'ORD-928371',
     eventId: 1,
     eventName: 'Orquestra Sinfônica — Noite de Clássicos',
@@ -95,13 +142,15 @@ let tickets: MockTicket[] = [
     status: 'ATIVO',
     statusLabelPtBr: 'Ativo para Entrada',
     currentCredentialVersion: 2,
-    currentCredentialCode: 'SEC-TKT-981240-01-V2-7d8a9e',
+    currentCredentialCode: 'SEC-00010481-V2-7d8a9e',
     transferCount: 1,
-    createdAt: '2026-09-15T14:20:05Z',
-    updatedAt: '2026-09-15T15:10:00Z'
+    // Comprado há 2 dias (dentro do prazo legal de 7 dias CDC)
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
   },
   {
-    id: 'TKT-2026-981240-02',
+    id: 'TKT-2026-00010482',
+    sequentialNumber: '00010482',
     orderId: 'ORD-928371',
     eventId: 1,
     eventName: 'Orquestra Sinfônica — Noite de Clássicos',
@@ -122,17 +171,18 @@ let tickets: MockTicket[] = [
     status: 'UTILIZADO',
     statusLabelPtBr: 'Check-in Realizado',
     currentCredentialVersion: 1,
-    currentCredentialCode: 'SEC-TKT-981240-02-V1-3b4c5d',
+    currentCredentialCode: 'SEC-00010482-V1-3b4c5d',
     transferCount: 0,
-    checkInAt: '2026-09-15T17:45:12Z',
+    checkInAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
     checkInGate: 'Portão Principal Sul',
     checkInDevice: 'Catraca 02 - Ótica',
     checkInOperator: 'Juliana Castro (Portaria)',
-    createdAt: '2026-09-15T14:20:05Z',
-    updatedAt: '2026-09-15T17:45:12Z'
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
   },
   {
-    id: 'TKT-2026-981241-01',
+    id: 'TKT-2026-00010483',
+    sequentialNumber: '00010483',
     orderId: 'ORD-928372',
     eventId: 1,
     eventName: 'Orquestra Sinfônica — Noite de Clássicos',
@@ -153,13 +203,15 @@ let tickets: MockTicket[] = [
     status: 'ATIVO',
     statusLabelPtBr: 'Ativo para Entrada',
     currentCredentialVersion: 1,
-    currentCredentialCode: 'SEC-TKT-981241-01-V1-9f1e2a',
+    currentCredentialCode: 'SEC-00010483-V1-9f1e2a',
     transferCount: 0,
-    createdAt: '2026-09-15T14:22:10Z',
-    updatedAt: '2026-09-15T14:22:10Z'
+    // Comprado há 14 dias (fora do prazo de 7 dias — cancelamento somente via SAC!)
+    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
   },
   {
-    id: 'TKT-2026-981242-01',
+    id: 'TKT-2026-00010484',
+    sequentialNumber: '00010484',
     orderId: 'ORD-928374',
     eventId: 1,
     eventName: 'Orquestra Sinfônica — Noite de Clássicos',
@@ -180,20 +232,76 @@ let tickets: MockTicket[] = [
     status: 'BLOQUEADO',
     statusLabelPtBr: 'Bloqueado Administrativamente',
     currentCredentialVersion: 1,
-    currentCredentialCode: 'SEC-TKT-981242-01-V1-8c7b6a',
+    currentCredentialCode: 'SEC-00010484-V1-8c7b6a',
     transferCount: 0,
-    createdAt: '2026-09-15T14:26:00Z',
-    updatedAt: '2026-09-15T16:00:00Z'
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'TKT-2026-00010485',
+    sequentialNumber: '00010485',
+    orderId: 'CORT-00010485',
+    eventId: 1,
+    eventName: 'Orquestra Sinfônica — Noite de Clássicos',
+    sector: 'Camarote Lateral B',
+    lot: 'Cota Cortesia Produção',
+    modality: 'CORTESIA',
+    priceCents: 0,
+    feeCents: 0,
+    currency: 'BRL',
+    buyerName: 'Produtora DiskIngressos (Cortesia)',
+    buyerDocument: '14.552.890/0001-10',
+    buyerEmail: 'cortesias@diskingressos.com.br',
+    buyerPhone: '(41) 3315-0000',
+    holderName: 'Roberto Almeida Prado (Convidado VIP)',
+    holderDocument: '405.812.900-25',
+    holderEmail: 'roberto.prado@convidado.com.br',
+    holderPhone: '(41) 99654-1122',
+    status: 'ATIVO',
+    statusLabelPtBr: 'Cortesia Ativa (Cancelável por Suporte Eventos)',
+    currentCredentialVersion: 1,
+    currentCredentialCode: 'SEC-00010485-V1-cort01',
+    transferCount: 0,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+  },
+  {
+    id: 'TKT-2026-00010486',
+    sequentialNumber: '00010486',
+    orderId: 'CORT-00010486',
+    eventId: 1,
+    eventName: 'Orquestra Sinfônica — Noite de Clássicos',
+    sector: 'Plateia Premium A',
+    lot: 'Cota Imprensa & Patrocínio',
+    modality: 'CORTESIA',
+    priceCents: 0,
+    feeCents: 0,
+    currency: 'BRL',
+    buyerName: 'Assessoria de Imprensa (Cortesia)',
+    buyerDocument: '14.552.890/0001-10',
+    buyerEmail: 'imprensa@diskingressos.com.br',
+    buyerPhone: '(41) 3315-0000',
+    holderName: 'Camila Vasconcelos (Imprensa)',
+    holderDocument: '629.104.338-70',
+    holderEmail: 'camila.vasconcelos@midia.com.br',
+    holderPhone: '(41) 99123-7890',
+    status: 'ATIVO',
+    statusLabelPtBr: 'Cortesia Ativa (Cancelável por Suporte Eventos)',
+    currentCredentialVersion: 1,
+    currentCredentialCode: 'SEC-00010486-V1-cort02',
+    transferCount: 0,
+    createdAt: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString()
   }
 ]
 
 let credentials: MockCredential[] = [
   {
-    id: 'CRED-TKT-981240-01-V1',
-    ticketId: 'TKT-2026-981240-01',
+    id: 'CRED-TKT-00010481-V1',
+    ticketId: 'TKT-2026-00010481',
     version: 1,
-    code: 'SEC-TKT-981240-01-V1-1a2b3c',
-    qrPayload: 'DI|TKT-2026-981240-01|V1|1a2b3c4d5e6f',
+    code: 'SEC-TKT-00010481-V1-1a2b3c',
+    qrPayload: 'DI|TKT-2026-00010481|V1|1a2b3c4d5e6f',
     secureHash: 'f4b321a0823901bce471029abde1230192',
     status: 'REVOGADA_TRANSFERENCIA',
     issuedAt: '2026-09-15T14:20:05Z',
@@ -201,53 +309,73 @@ let credentials: MockCredential[] = [
     revocationReason: 'Transferência de titularidade para Lucas Fernandes Pereira'
   },
   {
-    id: 'CRED-TKT-981240-01-V2',
-    ticketId: 'TKT-2026-981240-01',
+    id: 'CRED-TKT-00010481-V2',
+    ticketId: 'TKT-2026-00010481',
     version: 2,
-    code: 'SEC-TKT-981240-01-V2-7d8a9e',
-    qrPayload: 'DI|TKT-2026-981240-01|V2|7d8a9ef01234',
+    code: 'SEC-TKT-00010481-V2-7d8a9e',
+    qrPayload: 'DI|TKT-2026-00010481|V2|7d8a9ef01234',
     secureHash: 'a8b92019c81726aefd90128390123456789',
     status: 'ATIVA',
     issuedAt: '2026-09-15T15:10:00Z'
   },
   {
-    id: 'CRED-TKT-981240-02-V1',
-    ticketId: 'TKT-2026-981240-02',
+    id: 'CRED-TKT-00010482-V1',
+    ticketId: 'TKT-2026-00010482',
     version: 1,
-    code: 'SEC-TKT-981240-02-V1-3b4c5d',
-    qrPayload: 'DI|TKT-2026-981240-02|V1|3b4c5d6e7f8a',
+    code: 'SEC-TKT-00010482-V1-3b4c5d',
+    qrPayload: 'DI|TKT-2026-00010482|V1|3b4c5d6e7f8a',
     secureHash: 'bb928172901293810293810293812093812',
     status: 'CONSUMIDA',
     issuedAt: '2026-09-15T14:20:05Z'
   },
   {
-    id: 'CRED-TKT-981241-01-V1',
-    ticketId: 'TKT-2026-981241-01',
+    id: 'CRED-TKT-00010483-V1',
+    ticketId: 'TKT-2026-00010483',
     version: 1,
-    code: 'SEC-TKT-981241-01-V1-9f1e2a',
-    qrPayload: 'DI|TKT-2026-981241-01|V1|9f1e2a3b4c5d',
+    code: 'SEC-TKT-00010483-V1-9f1e2a',
+    qrPayload: 'DI|TKT-2026-00010483|V1|9f1e2a3b4c5d',
     secureHash: 'cc102938475610293847561029384756102',
     status: 'ATIVA',
     issuedAt: '2026-09-15T14:22:10Z'
   },
   {
-    id: 'CRED-TKT-981242-01-V1',
-    ticketId: 'TKT-2026-981242-01',
+    id: 'CRED-TKT-00010484-V1',
+    ticketId: 'TKT-2026-00010484',
     version: 1,
-    code: 'SEC-TKT-981242-01-V1-8c7b6a',
-    qrPayload: 'DI|TKT-2026-981242-01|V1|8c7b6a5d4e3f',
+    code: 'SEC-TKT-00010484-V1-8c7b6a',
+    qrPayload: 'DI|TKT-2026-00010484|V1|8c7b6a5d4e3f',
     secureHash: 'dd192837465019283746501928374650192',
     status: 'REVOGADA_CANCELAMENTO',
     issuedAt: '2026-09-15T14:26:00Z',
     revokedAt: '2026-09-15T16:00:00Z',
     revocationReason: 'Bloqueio preventivo pelo operador de segurança'
+  },
+  {
+    id: 'CRED-TKT-00010485-V1',
+    ticketId: 'TKT-2026-00010485',
+    version: 1,
+    code: 'SEC-TKT-00010485-V1-4c9a1b',
+    qrPayload: 'DI|TKT-2026-00010485|V1|4c9a1b8e7f6d',
+    secureHash: 'ee551928374650192837465019283746501',
+    status: 'ATIVA',
+    issuedAt: '2026-09-15T14:30:00Z'
+  },
+  {
+    id: 'CRED-TKT-00010486-V1',
+    ticketId: 'TKT-2026-00010486',
+    version: 1,
+    code: 'SEC-TKT-00010486-V1-2d8f3e',
+    qrPayload: 'DI|TKT-2026-00010486|V1|2d8f3e9a1c4b',
+    secureHash: 'ff661928374650192837465019283746502',
+    status: 'ATIVA',
+    issuedAt: '2026-09-15T14:35:00Z'
   }
 ]
 
 let transfers: MockTransfer[] = [
   {
     id: 'TRF-2026-001',
-    ticketId: 'TKT-2026-981240-01',
+    ticketId: 'TKT-2026-00010481',
     fromHolderName: 'Maria Silva Santos',
     fromHolderDocument: '049.281.938-12',
     fromHolderEmail: 'maria.santos@email.com.br',
@@ -351,9 +479,9 @@ let devices = [
 let validationLogs = [
   {
     id: 'VAL-99120',
-    ticketId: 'TKT-2026-981240-02',
+    ticketId: 'TKT-2026-00010482',
     credentialVersion: 1,
-    credentialCode: 'SEC-TKT-981240-02-V1-3b4c5d',
+    credentialCode: 'SEC-TKT-00010482-V1-3b4c5d',
     holderName: 'Maria Silva Santos',
     sector: 'Plateia Premium A',
     gateId: 'GATE-SUL-01',
@@ -370,7 +498,7 @@ let validationLogs = [
 let conflicts: any[] = [
   {
     id: 'CONF-001',
-    ticketId: 'TKT-2026-981240-01',
+    ticketId: 'TKT-2026-00010481',
     holderName: 'Lucas Fernandes Pereira',
     sector: 'Plateia Premium A',
     reason: 'VERSAO_ANTERIOR_APRESENTADA',
@@ -394,13 +522,21 @@ let conflicts: any[] = [
   }
 ]
 
+function findTicketIndexByIdOrSequential(idOrSeq: string): number {
+  const clean = idOrSeq.trim()
+  return tickets.findIndex(
+    t => t.id.toLowerCase() === clean.toLowerCase() || t.sequentialNumber === clean
+  )
+}
+
 // ----------------------------------------------------------------------------
 // ENDPOINTS DE INGRESSOS
 // ----------------------------------------------------------------------------
 
-// 1. Listar Ingressos
+// 1. Listar / Consultar Ingressos (com Governança de CPF e Consulta Universal por 8 Dígitos)
 ticketsAccessRouter.get('/', (req: Request, res: Response) => {
-  const { q, eventId, status, sector } = req.query
+  const { q, eventId, status, sector, modality, department: rawDept } = req.query
+  const department = String(rawDept || 'SAC').toUpperCase()
   let result = [...tickets]
 
   if (eventId) {
@@ -412,41 +548,162 @@ ticketsAccessRouter.get('/', (req: Request, res: Response) => {
   if (sector && sector !== 'TODOS') {
     result = result.filter(t => t.sector === sector)
   }
-  if (q && typeof q === 'string') {
-    const s = q.toLowerCase()
-    result = result.filter(
-      t =>
+  if (modality && modality !== 'TODOS') {
+    result = result.filter(t => t.modality === modality)
+  }
+
+  if (q && typeof q === 'string' && q.trim().length > 0) {
+    const cleanQ = q.trim()
+    // Regra de Governança: Consulta por CPF restrita exclusivamente aos setores SAC, ESTORNO e FINANCEIRO
+    if (isCpfSearchTerm(cleanQ) && !canDepartmentConsultCpf(department)) {
+      return res.status(403).json({
+        success: false,
+        code: 'CPF_RESTRICTED',
+        error: 'Consulta por CPF é restrita exclusivamente aos setores de SAC, Estorno e Financeiro. Utilize o número sequencial de 8 dígitos do ingresso.'
+      })
+    }
+
+    const s = cleanQ.toLowerCase()
+    const digitsOnly = cleanQ.replace(/\D/g, '')
+    const cpfAllowed = canDepartmentConsultCpf(department)
+
+    result = result.filter(t => {
+      const matchSeq =
+        t.sequentialNumber.includes(cleanQ) ||
+        (digitsOnly.length > 0 && digitsOnly.length <= 8 && t.sequentialNumber.includes(digitsOnly))
+      const matchBasic =
+        matchSeq ||
         t.id.toLowerCase().includes(s) ||
         t.orderId.toLowerCase().includes(s) ||
         t.holderName.toLowerCase().includes(s) ||
-        t.holderDocument.includes(s) ||
         t.buyerName.toLowerCase().includes(s) ||
         t.currentCredentialCode.toLowerCase().includes(s)
-    )
+
+      if (matchBasic) return true
+
+      if (cpfAllowed) {
+        const holderDigits = t.holderDocument.replace(/\D/g, '')
+        const buyerDigits = t.buyerDocument.replace(/\D/g, '')
+        return (
+          t.holderDocument.toLowerCase().includes(s) ||
+          t.buyerDocument.toLowerCase().includes(s) ||
+          (digitsOnly.length >= 3 && (holderDigits.includes(digitsOnly) || buyerDigits.includes(digitsOnly)))
+        )
+      }
+      return false
+    })
   }
+
+  const enriched = result.map(t => enrichTicketWithGovernance(t, department))
 
   res.json({
     success: true,
-    total: result.length,
-    data: result
+    department,
+    cpfLookupAllowed: canDepartmentConsultCpf(department),
+    total: enriched.length,
+    data: enriched
   })
 })
 
-// 2. Detalhes do Ingresso + Histórico de Credenciais e Transferências
+// 1B. Emitir Novo Ingresso / Cortesia com Número Sequencial de 8 Dígitos Numéricos
+ticketsAccessRouter.post('/issue', (req: Request, res: Response) => {
+  const {
+    eventId = 1,
+    eventName = 'Festival Sinfônico de Inverno 2026',
+    sector = 'Plateia Premium A',
+    seat = 'Sem Lugar Marcado',
+    modality = 'INTEIRA',
+    pricePaid,
+    buyerName = 'Cliente Bilheteria SafeSaff',
+    buyerDocument = '318.492.104-55',
+    buyerEmail = 'cliente@safesaff.com.br',
+    holderName,
+    holderDocument,
+    holderEmail,
+    holderPhone = '(41) 99811-2200'
+  } = req.body || {}
+
+  const seqNum = nextSequentialTicketNumber()
+  const ticketId = `TKT-2026-${seqNum}`
+  const isCortesia = modality === 'CORTESIA'
+  const modalityLabels: Record<string, string> = {
+    INTEIRA: 'Inteira Lote Atual',
+    MEIA_ENTRADA: 'Meia-Entrada Legal',
+    SOLIDARIO: 'Ingresso Solidário',
+    CORTESIA: 'Cortesia Produção / Suporte de Eventos',
+    PROMO: 'Promocional Clube Disk'
+  }
+  const randomSalt = crypto.randomBytes(3).toString('hex')
+  const credCode = `SEC-TKT-${seqNum}-V1-${randomSalt}`
+  const nowIso = new Date().toISOString()
+
+  const newTicket: MockTicket = {
+    id: ticketId,
+    sequentialNumber: seqNum,
+    orderId: isCortesia ? `CORT-2026-${seqNum.slice(-4)}` : `PED-2026-${seqNum.slice(-6)}`,
+    eventId: Number(eventId),
+    eventName,
+    sector,
+    seat,
+    modality,
+    modalityLabel: modalityLabels[modality] || 'Inteira',
+    pricePaid: isCortesia ? 0 : Number(pricePaid ?? 340),
+    buyerName,
+    buyerDocument,
+    buyerEmail,
+    holderName: holderName || buyerName,
+    holderDocument: holderDocument || buyerDocument,
+    holderEmail: holderEmail || buyerEmail,
+    holderPhone,
+    status: 'ATIVO',
+    statusLabelPtBr: isCortesia ? 'Ativo para Entrada (Cortesia)' : 'Ativo para Entrada',
+    currentCredentialVersion: 1,
+    currentCredentialCode: credCode,
+    transferCount: 0,
+    createdAt: nowIso,
+    updatedAt: nowIso
+  }
+
+  tickets.unshift(newTicket)
+
+  const newCred: MockCredential = {
+    id: `CRED-TKT-${seqNum}-V1`,
+    ticketId,
+    version: 1,
+    code: credCode,
+    qrPayload: `DI|${ticketId}|V1|${crypto.randomBytes(6).toString('hex')}`,
+    secureHash: crypto.createHash('sha256').update(credCode).digest('hex'),
+    status: 'ATIVA',
+    issuedAt: nowIso
+  }
+  credentials.push(newCred)
+
+  res.status(201).json({
+    success: true,
+    message: `Ingresso #${seqNum} (${newTicket.modalityLabel}) emitido com número sequencial de 8 dígitos.`,
+    ticket: enrichTicketWithGovernance(newTicket, 'SAC'),
+    credential: newCred
+  })
+})
+
+// 2. Detalhes do Ingresso (por ID ou Número Sequencial de 8 Dígitos) + Histórico
 ticketsAccessRouter.get('/:id', (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params
+  const department = String(req.query.department || 'SAC').toUpperCase()
   if (id === 'access') return next()
-  const ticket = tickets.find(t => t.id === id)
-  if (!ticket) {
+
+  const ticketIndex = findTicketIndexByIdOrSequential(id)
+  if (ticketIndex === -1) {
     return res.status(404).json({ success: false, error: 'Ingresso não encontrado.' })
   }
 
-  const ticketCredentials = credentials.filter(c => c.ticketId === id)
-  const ticketTransfers = transfers.filter(t => t.ticketId === id)
+  const ticket = tickets[ticketIndex]
+  const ticketCredentials = credentials.filter(c => c.ticketId === ticket.id)
+  const ticketTransfers = transfers.filter(t => t.ticketId === ticket.id)
 
   res.json({
     success: true,
-    ticket,
+    ticket: enrichTicketWithGovernance(ticket, department),
     credentials: ticketCredentials,
     transfers: ticketTransfers
   })
@@ -464,7 +721,7 @@ ticketsAccessRouter.post('/:id/transfer', (req: Request, res: Response) => {
     })
   }
 
-  const ticketIndex = tickets.findIndex(t => t.id === id)
+  const ticketIndex = findTicketIndexByIdOrSequential(id)
   if (ticketIndex === -1) {
     return res.status(404).json({ success: false, error: 'Ingresso não encontrado.' })
   }
@@ -485,7 +742,7 @@ ticketsAccessRouter.post('/:id/transfer', (req: Request, res: Response) => {
 
   // Revoga a credencial ativa anterior
   const previousVersion = ticket.currentCredentialVersion
-  const activeCred = credentials.find(c => c.ticketId === id && c.status === 'ATIVA')
+  const activeCred = credentials.find(c => c.ticketId === ticket.id && c.status === 'ATIVA')
   if (activeCred) {
     activeCred.status = 'REVOGADA_TRANSFERENCIA'
     activeCred.revokedAt = new Date().toISOString()
@@ -495,11 +752,11 @@ ticketsAccessRouter.post('/:id/transfer', (req: Request, res: Response) => {
   // Emite nova versão v(N+1)
   const nextVersion = previousVersion + 1
   const randomSalt = crypto.randomBytes(3).toString('hex')
-  const newCredentialCode = `SEC-${ticket.id}-V${nextVersion}-${randomSalt}`
+  const newCredentialCode = `SEC-TKT-${ticket.sequentialNumber}-V${nextVersion}-${randomSalt}`
   const newQrPayload = `DI|${ticket.id}|V${nextVersion}|${crypto.randomBytes(6).toString('hex')}`
 
   const newCredential: MockCredential = {
-    id: `CRED-${ticket.id}-V${nextVersion}`,
+    id: `CRED-TKT-${ticket.sequentialNumber}-V${nextVersion}`,
     ticketId: ticket.id,
     version: nextVersion,
     code: newCredentialCode,
@@ -547,7 +804,7 @@ ticketsAccessRouter.post('/:id/transfer', (req: Request, res: Response) => {
   res.json({
     success: true,
     message: 'Titularidade transferida com sucesso. Nova credencial gerada e versão anterior revogada.',
-    ticket: tickets[ticketIndex],
+    ticket: enrichTicketWithGovernance(tickets[ticketIndex], 'SAC'),
     newCredential,
     transfer: transferRecord
   })
@@ -558,7 +815,7 @@ ticketsAccessRouter.post('/:id/reissue', (req: Request, res: Response) => {
   const { id } = req.params
   const { reason } = req.body
 
-  const ticketIndex = tickets.findIndex(t => t.id === id)
+  const ticketIndex = findTicketIndexByIdOrSequential(id)
   if (ticketIndex === -1) {
     return res.status(404).json({ success: false, error: 'Ingresso não encontrado.' })
   }
@@ -573,7 +830,7 @@ ticketsAccessRouter.post('/:id/reissue', (req: Request, res: Response) => {
 
   // Revoga a credencial anterior
   const previousVersion = ticket.currentCredentialVersion
-  const activeCred = credentials.find(c => c.ticketId === id && c.status === 'ATIVA')
+  const activeCred = credentials.find(c => c.ticketId === ticket.id && c.status === 'ATIVA')
   if (activeCred) {
     activeCred.status = 'REVOGADA_REEMISSAO'
     activeCred.revokedAt = new Date().toISOString()
@@ -583,11 +840,11 @@ ticketsAccessRouter.post('/:id/reissue', (req: Request, res: Response) => {
   // Emite nova versão v(N+1)
   const nextVersion = previousVersion + 1
   const randomSalt = crypto.randomBytes(3).toString('hex')
-  const newCredentialCode = `SEC-${ticket.id}-V${nextVersion}-${randomSalt}`
+  const newCredentialCode = `SEC-TKT-${ticket.sequentialNumber}-V${nextVersion}-${randomSalt}`
   const newQrPayload = `DI|${ticket.id}|V${nextVersion}|${crypto.randomBytes(6).toString('hex')}`
 
   const newCredential: MockCredential = {
-    id: `CRED-${ticket.id}-V${nextVersion}`,
+    id: `CRED-TKT-${ticket.sequentialNumber}-V${nextVersion}`,
     ticketId: ticket.id,
     version: nextVersion,
     code: newCredentialCode,
@@ -610,46 +867,98 @@ ticketsAccessRouter.post('/:id/reissue', (req: Request, res: Response) => {
   res.json({
     success: true,
     message: 'Ingresso reemitido com sucesso. QR Code anterior foi revogado e não permitirá entrada.',
-    ticket: tickets[ticketIndex],
+    ticket: enrichTicketWithGovernance(tickets[ticketIndex], 'SAC'),
     newCredential
   })
 })
 
-// 5. Bloquear / Cancelar Ingresso (Revoga Credencial Ativa Imediatamente)
-ticketsAccessRouter.post('/:id/block', (req: Request, res: Response) => {
+// 5. Bloquear / Cancelar Ingresso com Regras de Governança (7 Dias CDC, SAC e Suporte de Eventos p/ Cortesia)
+function handleBlockOrCancelTicket(req: Request, res: Response) {
   const { id } = req.params
-  const { reason, action } = req.body // action: 'BLOQUEAR' | 'CANCELAR'
+  const { reason, action = 'CANCELAR', department: rawDept, sacProtocol } = req.body || {}
+  const department = String(rawDept || 'SAC').toUpperCase()
 
-  const ticketIndex = tickets.findIndex(t => t.id === id)
+  const ticketIndex = findTicketIndexByIdOrSequential(id)
   if (ticketIndex === -1) {
     return res.status(404).json({ success: false, error: 'Ingresso não encontrado.' })
   }
 
   const ticket = tickets[ticketIndex]
+  const daysSincePurchase = computeDaysSincePurchase(ticket.createdAt)
+  const within7DaysWindow = daysSincePurchase <= 7
+
+  if (action === 'CANCELAR') {
+    // Regra 1: Suporte de Eventos pode cancelar CORTESIA, mas NÃO ingresso de cliente
+    if (department === 'SUPORTE_EVENTOS') {
+      if (ticket.modality !== 'CORTESIA') {
+        return res.status(403).json({
+          success: false,
+          code: 'EVENT_SUPPORT_ONLY_COURTESY',
+          error: 'O Suporte de Eventos possui permissão apenas para cancelar ingressos de CORTESIA. Ingressos de clientes pagos só podem ser cancelados pelo cliente (em até 7 dias) ou via atendimento do SAC.'
+        })
+      }
+    }
+
+    // Regra 2: Cliente tem prazo de 7 dias após a compra; após 7 dias somente via atendimento do SAC
+    if (department === 'CLIENTE') {
+      if (ticket.modality === 'CORTESIA') {
+        return res.status(403).json({
+          success: false,
+          code: 'COURTESY_CANCEL_RESTRICTED',
+          error: 'Ingressos de cortesia devem ser cancelados pelo Suporte de Eventos ou SAC.'
+        })
+      }
+      if (!within7DaysWindow) {
+        return res.status(403).json({
+          success: false,
+          code: 'WINDOW_7_DAYS_EXPIRED_SAC_ONLY',
+          daysSincePurchase,
+          error: `Prazo de 7 dias após a compra encerrado (${daysSincePurchase} dias corridos). Após 7 dias, o cancelamento somente é permitido via atendimento do SAC.`
+        })
+      }
+    }
+  }
+
   const newStatus = action === 'CANCELAR' ? 'CANCELADO' : 'BLOQUEADO'
-  const newLabel = action === 'CANCELAR' ? 'Cancelado pelo Sistema' : 'Bloqueado Administrativamente'
+  const originLabel =
+    department === 'SUPORTE_EVENTOS'
+      ? 'Suporte de Eventos (Cortesia)'
+      : department === 'CLIENTE'
+        ? 'Autoatendimento Cliente (Prazo 7 Dias)'
+        : `Atendimento ${department}${sacProtocol ? ` [${sacProtocol}]` : ''}`
+
+  const newLabel =
+    action === 'CANCELAR'
+      ? `Cancelado — ${originLabel}`
+      : `Bloqueado Administrativamente (${originLabel})`
 
   // Revoga credencial ativa
-  const activeCred = credentials.find(c => c.ticketId === id && c.status === 'ATIVA')
+  const activeCred = credentials.find(c => c.ticketId === ticket.id && c.status === 'ATIVA')
   if (activeCred) {
     activeCred.status = 'REVOGADA_CANCELAMENTO'
     activeCred.revokedAt = new Date().toISOString()
-    activeCred.revocationReason = reason || `${newStatus} pelo operador de segurança.`
+    activeCred.revocationReason = reason || `${newLabel}.`
   }
 
   tickets[ticketIndex] = {
     ...ticket,
     status: newStatus,
     statusLabelPtBr: newLabel,
+    canceledByDepartment: action === 'CANCELAR' ? department : ticket.canceledByDepartment,
+    cancellationReason: action === 'CANCELAR' ? (reason || newLabel) : ticket.cancellationReason,
+    sacProtocol: sacProtocol || ticket.sacProtocol,
     updatedAt: new Date().toISOString()
   }
 
-  res.json({
+  return res.json({
     success: true,
-    message: `Ingresso ${newStatus.toLowerCase()} com sucesso. Qualquer credencial QR code vinculada foi revogada.`,
-    ticket: tickets[ticketIndex]
+    message: `Ingresso #${ticket.sequentialNumber} ${newStatus.toLowerCase()} com sucesso via ${originLabel}. Credencial QR revogada imediatamente.`,
+    ticket: enrichTicketWithGovernance(tickets[ticketIndex], department)
   })
-})
+}
+
+ticketsAccessRouter.post('/:id/block', handleBlockOrCancelTicket)
+ticketsAccessRouter.post('/:id/cancel', handleBlockOrCancelTicket)
 
 // ----------------------------------------------------------------------------
 // ENDPOINTS DO CONTROLE DE ACESSO (DISK ACESSO)

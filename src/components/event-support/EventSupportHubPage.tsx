@@ -18,7 +18,9 @@ import {
   PlusCircle
 } from 'lucide-react'
 import { eventSupportService } from '../../services/eventSupport.service'
+import { ticketsAccessService, isCpfSearchTerm } from '../../services/ticketsAccess.service'
 import type { EventSupportRequest, EventWorkflowStatus } from '../../types/event-support.types'
+import type { TicketRecord } from '../../types/tickets-access.types'
 import { EventDossierModal } from './EventDossierModal'
 import { CreateEventRequestModal } from './CreateEventRequestModal'
 
@@ -30,6 +32,62 @@ export const EventSupportHubPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState<'todas' | 'fila' | 'montagem' | 'mapas' | 'homologacao' | 'urgentes'>('todas')
+
+  // Consulta de Ingresso 8 Dígitos & Cancelamento de Cortesia (Suporte de Eventos)
+  const [ticketQuery, setTicketQuery] = useState('')
+  const [supportTickets, setSupportTickets] = useState<TicketRecord[]>([])
+  const [supportAlert, setSupportAlert] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+
+  const loadSupportTickets = async (q = '') => {
+    const res = await ticketsAccessService.getTickets({
+      q,
+      department: 'SUPORTE_EVENTOS'
+    })
+    if (res.error) {
+      setSupportAlert({ type: 'error', text: res.error })
+    }
+    setSupportTickets(res.data)
+  }
+
+  useEffect(() => {
+    loadSupportTickets('')
+  }, [])
+
+  const handleSupportTicketSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSupportAlert(null)
+    if (ticketQuery.trim() && isCpfSearchTerm(ticketQuery)) {
+      setSupportAlert({
+        type: 'error',
+        text: 'Bloqueio de Governança: Consulta por CPF é permitida somente pelos setores de SAC, Estorno e Financeiro. Consulte pelo número sequencial de 8 dígitos do ingresso (ex.: 00010485).'
+      })
+      return
+    }
+    loadSupportTickets(ticketQuery)
+  }
+
+  const handleCancelCourtesyFromSupport = async (t: TicketRecord) => {
+    setSupportAlert(null)
+    if (t.modality !== 'CORTESIA') {
+      setSupportAlert({
+        type: 'error',
+        text: `Ingresso #${t.sequentialNumber} é de cliente (${t.modality}). O Suporte de Eventos pode cancelar apenas ingressos de CORTESIA.`
+      })
+      return
+    }
+    const res = await ticketsAccessService.blockTicket(
+      t.id,
+      'CANCELAR',
+      'Cortesia cancelada pelo Suporte de Eventos',
+      'SUPORTE_EVENTOS'
+    )
+    if (!res.success) {
+      setSupportAlert({ type: 'error', text: res.message })
+      return
+    }
+    setSupportAlert({ type: 'success', text: res.message })
+    loadSupportTickets(ticketQuery)
+  }
 
   useEffect(() => {
     eventSupportService.getRequestsFromApi().then((apiRows) => {
@@ -173,6 +231,133 @@ export const EventSupportHubPage: React.FC = () => {
           <span className="p-3 bg-rose-50 text-rose-600 rounded-xl border border-rose-100">
             <Flame className="w-6 h-6" />
           </span>
+        </div>
+      </div>
+
+      {/* Painel de Consulta de Ingresso (8 Dígitos) e Cancelamento de Cortesia — Suporte de Eventos */}
+      <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-5 space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-300">
+                Governança • Suporte de Eventos
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-slate-100 text-slate-700">
+                CPF Restrito (Exclusivo SAC / Estorno / Financeiro)
+              </span>
+            </div>
+            <h2 className="text-base font-black text-slate-900 mt-1">
+              Consulta Universal de Ingresso (8 Dígitos) & Cancelamento de Cortesia
+            </h2>
+            <p className="text-xs text-slate-500">
+              O <strong>Suporte de Eventos</strong> pode consultar qualquer ingresso pelo número sequencial de 8 dígitos e <strong>cancelar ingressos de CORTESIA</strong>. Ingressos pagos de clientes <strong>não podem ser cancelados</strong> por este setor.
+            </p>
+          </div>
+
+          <form onSubmit={handleSupportTicketSearch} className="flex items-center gap-2 w-full lg:w-96">
+            <input
+              type="text"
+              value={ticketQuery}
+              onChange={(e) => setTicketQuery(e.target.value)}
+              placeholder="Nº Sequencial 8 dígitos (ex.: 00010485)..."
+              className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition"
+            >
+              Consultar
+            </button>
+          </form>
+        </div>
+
+        {supportAlert && (
+          <div
+            className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-between ${
+              supportAlert.type === 'error'
+                ? 'bg-rose-50 border-rose-300 text-rose-900'
+                : 'bg-emerald-50 border-emerald-300 text-emerald-900'
+            }`}
+          >
+            <span>{supportAlert.text}</span>
+            <button
+              type="button"
+              onClick={() => setSupportAlert(null)}
+              className="underline text-[11px] ml-3"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {supportTickets.slice(0, 6).map((t) => {
+            const isCortesia = t.modality === 'CORTESIA'
+            const isCanceled = t.status === 'CANCELADO' || t.status === 'BLOQUEADO' || t.status === 'UTILIZADO'
+            return (
+              <div
+                key={t.id}
+                className={`p-3.5 rounded-xl border text-xs flex flex-col justify-between gap-2 ${
+                  isCortesia ? 'bg-fuchsia-50/40 border-fuchsia-200' : 'bg-slate-50 border-slate-200'
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="px-2 py-0.5 rounded bg-slate-900 text-white font-mono font-black text-xs">
+                      #{t.sequentialNumber}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-extrabold uppercase ${
+                        isCortesia
+                          ? 'bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-300'
+                          : 'bg-indigo-100 text-indigo-800'
+                      }`}
+                    >
+                      {isCortesia ? 'CORTESIA' : `CLIENTE (${t.modality})`}
+                    </span>
+                  </div>
+                  <strong className="text-slate-900 block mt-2">{t.holderName}</strong>
+                  <span className="text-[11px] text-slate-500 font-mono block">
+                    CPF (Mascarado): {t.holderDocument}
+                  </span>
+                  <span className="text-[11px] text-slate-600 block mt-0.5">
+                    {t.eventName} • {t.sector}
+                  </span>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between">
+                  <span
+                    className={`text-[10px] font-bold uppercase ${
+                      t.status === 'ATIVO' ? 'text-emerald-700' : 'text-rose-700'
+                    }`}
+                  >
+                    {t.statusLabelPtBr}
+                  </span>
+
+                  {!isCanceled && (
+                    isCortesia ? (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelCourtesyFromSupport(t)}
+                        className="px-2.5 py-1 bg-fuchsia-600 hover:bg-fuchsia-700 text-white font-bold text-[11px] rounded-lg transition"
+                      >
+                        Cancelar Cortesia
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelCourtesyFromSupport(t)}
+                        className="px-2.5 py-1 bg-slate-200 text-slate-600 font-bold text-[10px] rounded-lg cursor-not-allowed"
+                        title="Ingresso de cliente não pode ser cancelado pelo Suporte de Eventos"
+                      >
+                        Cliente (Bloqueado p/ Suporte)
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 

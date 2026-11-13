@@ -37,6 +37,7 @@ import type {
   EventStatus,
   EventTicketModality
 } from '../data/events'
+import { SeatmapStudioBuilder } from '../components/events/SeatmapStudioBuilder'
 
 type Props = {
   mode: 'new' | 'edit'
@@ -1422,159 +1423,12 @@ export default function EventFormPage({ mode, event, onCancel, onSave }: Props) 
                 </div>
               </div>
 
-              {/* Simulador e Editor Visual do Mapa */}
-              <div className="rounded-2xl border border-slate-800 bg-[#0B1120] p-4 text-white space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-purple-400 block">
-                      Pré-Visualização Interativa do Mapa de Palco & Setores
-                    </span>
-                    <h4 className="text-sm font-bold text-white">
-                      {seatingMap.mode === 'unmarked'
-                        ? 'Mapa de Setores Livres (Sem Lugar Marcado)'
-                        : `Editor de Assentos Numerados — Setor: ${activeSectorObj?.name || 'Principal'}`}
-                    </h4>
-                  </div>
-
-                  {activeSectorObj && activeSectorObj.type === 'marked_rows' && (
-                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-                      <span className="text-slate-400 mr-1">Clique no assento para marcar:</span>
-                      {[
-                        { id: 'free' as const, label: 'Livre', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
-                        { id: 'blocked' as const, label: 'Bloqueio Produção', cls: 'bg-rose-500/20 text-rose-300 border-rose-500/40' },
-                        { id: 'pcd' as const, label: 'Assento PCD', cls: 'bg-sky-500/20 text-sky-300 border-sky-500/40' },
-                        { id: 'vip' as const, label: 'Reserva VIP', cls: 'bg-amber-500/20 text-amber-300 border-amber-500/40' }
-                      ].map(b => (
-                        <button
-                          key={b.id}
-                          type="button"
-                          onClick={() => setSeatClickBrush(b.id)}
-                          className={`px-2.5 py-1 rounded-md border font-bold cursor-pointer ${b.cls} ${
-                            seatClickBrush === b.id ? 'ring-2 ring-white' : 'opacity-70'
-                          }`}
-                        >
-                          {b.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Palco Visual */}
-                <div className="w-full max-w-xl mx-auto py-2 px-6 rounded-b-3xl bg-gradient-to-r from-slate-800 via-purple-900/60 to-slate-800 border-x border-b border-purple-500/40 text-center shadow-inner">
-                  <span className="text-[11px] font-black tracking-[0.25em] uppercase text-purple-200">
-                    PALCO PRINCIPAL / VISÃO DA PLATEIA
-                  </span>
-                </div>
-
-                {/* Seletor rápido de setor para visualizar */}
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  {seatingMap.sectors.map(s => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => setActiveMapSectorId(s.id)}
-                      className={`px-3 py-1 rounded-full text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 ${
-                        activeSectorObj?.id === s.id
-                          ? 'bg-white text-slate-950 border-white'
-                          : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-slate-500'
-                      }`}
-                    >
-                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                      <span>{s.name}</span>
-                      <span className="text-[10px] opacity-75">({s.capacity} lug.)</span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Renderização das Fileiras Numeradas, Mesas ou Blocos de Pista Livre */}
-                {activeSectorObj?.type === 'marked_rows' && (
-                  <div className="overflow-x-auto py-2">
-                    <div className="inline-flex flex-col gap-1.5 min-w-full items-center">
-                      {Array.from({ length: Math.min(12, activeSectorObj.rowsCount || 6) }).map((_, rIdx) => {
-                        const rName = rowLabel(rIdx, activeSectorObj.rowNaming || 'alpha')
-                        const seatsCount = Math.min(22, activeSectorObj.seatsPerRow || 14)
-                        return (
-                          <div key={rName} className="flex items-center gap-1.5">
-                            <span className="w-6 text-right text-[11px] font-black text-slate-400 mr-1">
-                              {rName}
-                            </span>
-                            {Array.from({ length: seatsCount }).map((__, sIdx) => {
-                              const seatNum = sIdx + 1
-                              const overrideKey = `${activeSectorObj.id}:${rName}-${seatNum}`
-                              const state = seatingMap.customSeatOverrides?.[overrideKey]
-                              const colorClass =
-                                state === 'blocked'
-                                  ? 'bg-rose-600 text-white border-rose-400'
-                                  : state === 'pcd'
-                                  ? 'bg-sky-500 text-slate-950 border-sky-300'
-                                  : state === 'vip'
-                                  ? 'bg-amber-400 text-slate-950 border-amber-200'
-                                  : 'bg-emerald-500/25 hover:bg-emerald-500/50 text-emerald-200 border-emerald-500/40'
-                              return (
-                                <button
-                                  key={seatNum}
-                                  type="button"
-                                  onClick={() => toggleSeatOverride(activeSectorObj.id, rName, seatNum)}
-                                  title={`Setor ${activeSectorObj.name} • Fileira ${rName} Assento ${seatNum} (${state || 'Livre'})`}
-                                  className={`w-6 h-6 rounded-t-md text-[10px] font-bold border transition cursor-pointer flex items-center justify-center ${colorClass}`}
-                                >
-                                  {seatNum}
-                                </button>
-                              )
-                            })}
-                            <span className="w-6 text-left text-[11px] font-black text-slate-400 ml-1">
-                              {rName}
-                            </span>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {activeSectorObj?.type === 'marked_tables' && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 py-2">
-                    {Array.from({ length: Math.min(18, activeSectorObj.tablesCount || 12) }).map((_, tIdx) => (
-                      <div
-                        key={tIdx}
-                        className="p-2.5 rounded-xl border border-purple-500/40 bg-purple-950/30 flex flex-col items-center justify-center text-center"
-                      >
-                        <span className="text-xs font-black text-purple-200">Mesa #{tIdx + 1}</span>
-                        <span className="text-[10px] text-slate-400">{activeSectorObj.seatsPerTable || 6} Cadeira(s)</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {activeSectorObj?.type === 'standing_free' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 py-2">
-                    {seatingMap.sectors.map(s => (
-                      <div
-                        key={s.id}
-                        className="p-4 rounded-xl border flex flex-col justify-between"
-                        style={{
-                          borderColor: s.color,
-                          backgroundColor: `${s.color}18`
-                        }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black text-white">{s.name}</span>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-900/80 text-slate-200">
-                            {s.type === 'standing_free' ? 'Sem Lugar Marcado' : 'Numerado'}
-                          </span>
-                        </div>
-                        <div className="mt-3 flex items-baseline justify-between">
-                          <span className="text-lg font-black text-white">
-                            {s.capacity.toLocaleString('pt-BR')} ingressos
-                          </span>
-                          <span className="text-[11px] text-slate-300">{s.gate}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Seatmap Studio Pro — Upload PNG/SVG/JPEG 96 DPI + Poltronas em Bolinhas ou Quadrados (Azul Livre, Verde Vendido, Vermelho Reservado, Preto Bloqueado) */}
+              <SeatmapStudioBuilder
+                seatingMap={seatingMap}
+                onChange={updateSeatingMap}
+                basePriceBRL={firstLotPrice}
+              />
             </section>
           )}
 

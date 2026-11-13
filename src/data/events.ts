@@ -70,6 +70,36 @@ export type EventSeatingSector = {
   gate: string
 }
 
+export type SeatShapeType = 'circle' | 'square'
+export type SeatStatusType = 'free' | 'sold' | 'reserved' | 'blocked'
+
+export type SeatmapSeatPoint = {
+  id: string
+  label: string
+  rowLabel: string
+  seatNumber: number
+  sectorId: string
+  sectorName: string
+  x: number
+  y: number
+  shape: SeatShapeType
+  status: SeatStatusType
+  priceBRL?: number
+}
+
+export type SeatmapZoneElement = {
+  id: string
+  kind: 'stage' | 'camarote' | 'pista' | 'table_center'
+  label: string
+  x: number
+  y: number
+  width: number
+  height: number
+  color: string
+  capacity?: number
+  rotation?: number
+}
+
 export type EventSeatingMapConfig = {
   mode: 'unmarked' | 'marked' | 'hybrid'
   layoutTemplate: 'auditorium' | 'arena_360' | 'festival_standing' | 'tables_lounge'
@@ -78,7 +108,19 @@ export type EventSeatingMapConfig = {
   preventOrphanSingleSeat: boolean
   cartSeatHoldMinutes: number
   sectors: EventSeatingSector[]
-  customSeatOverrides?: Record<string, 'blocked' | 'pcd' | 'vip'>
+  customSeatOverrides?: Record<string, 'blocked' | 'pcd' | 'vip' | 'free' | 'sold' | 'reserved'>
+  // Seatmap Studio Pro (96 DPI + PNG/SVG/JPEG + Drag & Drop)
+  seatShape?: SeatShapeType
+  seatSizePx?: number
+  backgroundImageDataUrl?: string
+  backgroundFileName?: string
+  backgroundMimeType?: string
+  backgroundDpi?: number
+  backgroundWidthPx?: number
+  backgroundHeightPx?: number
+  backgroundOpacity?: number
+  canvasSeats?: SeatmapSeatPoint[]
+  canvasZones?: SeatmapZoneElement[]
 }
 
 export type EventOperationalRules = {

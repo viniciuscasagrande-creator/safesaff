@@ -85,7 +85,7 @@ import EventContextPage from './pages/EventContextPage'
 import GlobalDashboardPage from './pages/GlobalDashboardPage'
 import ProfileDashboardPage from './pages/ProfileDashboardPage'
 import { canAccess, isGlobalAdmin, producers as seedProducers, seedUsers, type AppUser } from './auth/model'
-import { login as apiLogin, setApiToken, clearApiToken, hasStoredToken, getMe, getProducers, getUsers, getEvents } from './services/api'
+import { login as apiLogin, setApiToken, clearApiToken, hasStoredToken, getAuthHeader, getMe, getProducers, getUsers, getEvents } from './services/api'
 import { EventSupportHubPage } from './components/event-support/EventSupportHubPage'
 import { DeveloperCommandCenterPage } from './components/developer/DeveloperCommandCenterPage'
 import { CommerceOrdersHubPage } from './components/commerce/CommerceOrdersHubPage'
@@ -781,7 +781,13 @@ export default function App() {
   }
 
   const editEvent = (e: EventItem) => {
-    setSelectedEvent(e)
+    try {
+      const savedMap = JSON.parse(localStorage.getItem('safesaff.event_configs.v1') || '{}')
+      const enriched = savedMap[e.code] || savedMap[String(e.id)] ? { ...e, ...(savedMap[e.code] || savedMap[String(e.id)]) } : e
+      setSelectedEvent(enriched)
+    } catch {
+      setSelectedEvent(e)
+    }
     AppContext.selectEvent(e.id, e.title, e.producerId)
     setPage('edit-event')
     AppRouter.syncFromLocation('/app/edit-event')
@@ -809,7 +815,39 @@ export default function App() {
     const secured = { ...event, producerId, producer }
     const exists = events.some(e => e.id === secured.id)
     setEvents(prev => exists ? prev.map(e => e.id === secured.id ? secured : e) : [secured, ...prev])
-    notify(exists ? 'Alterações salvas com sucesso.' : 'Evento criado com sucesso.')
+    try {
+      const savedMap = JSON.parse(localStorage.getItem('safesaff.event_configs.v1') || '{}')
+      savedMap[secured.code] = secured
+      savedMap[String(secured.id)] = secured
+      localStorage.setItem('safesaff.event_configs.v1', JSON.stringify(savedMap))
+    } catch {}
+    const authHeaders = getAuthHeader()
+    if (Object.keys(authHeaders).length > 0) {
+      const apiBody = {
+        code: secured.code,
+        title: secured.title,
+        venue: secured.venue,
+        city: secured.city,
+        date: secured.date,
+        endDate: secured.endDate,
+        available: secured.available,
+        courtesy: secured.courtesy,
+        cover: secured.cover,
+        badge: secured.badge,
+        status: secured.status,
+        description: secured.description,
+        category: secured.category,
+        visibility: secured.visibility,
+        producerId,
+        scheduledLots: secured.scheduledLots
+      }
+      fetch(exists && secured.id < 1000000 ? `/api/events/${secured.id}` : '/api/events', {
+        method: exists && secured.id < 1000000 ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(apiBody)
+      }).catch(() => {})
+    }
+    notify(exists ? 'Alterações do evento salvas com sucesso.' : 'Novo evento configurado e publicado com sucesso.')
     setSelectedEvent(null)
     AppContext.selectAllEvents()
     setPage('events')

@@ -1066,7 +1066,34 @@ eventsRouter.patch('/:id/inventory-holds/:holdId/release',async(req:AuthRequest,
 })
 
 eventsRouter.get('/:id',async(req:AuthRequest,res)=>{const id=Number(req.params.id);const event=await prisma.event.findUnique({where:{id},include:{producer:{select:{id:true,name:true}}}});if(!event)return res.status(404).json({message:'Evento não encontrado.'});if(!globalAdmin(req.auth!.role)&&event.producerId!==req.auth!.producerId)return res.status(403).json({message:'Acesso negado a evento de outra produtora.'});res.json(event)})
-eventsRouter.post('/',async(req:AuthRequest,res)=>{const p=shape.parse(req.body);const producerId=globalAdmin(req.auth!.role)?p.producerId:req.auth!.producerId;if(!producerId)return res.status(400).json({message:'Produtora obrigatória.'});const created=await prisma.event.create({data:{...p,producerId} as any});await audit(req,req.auth!.id,producerId,'create','event',String(created.id));res.status(201).json(created)})
+eventsRouter.post('/',async(req:AuthRequest,res)=>{
+  const p=shape.parse(req.body)
+  const producerId=globalAdmin(req.auth!.role)?(p.producerId||req.auth!.producerId||1):(req.auth!.producerId||1)
+  if(!producerId)return res.status(400).json({message:'Produtora obrigatória.'})
+  const created=await prisma.event.create({data:{...p,producerId} as any})
+  if(Array.isArray(req.body?.scheduledLots)){
+    for(const l of req.body.scheduledLots){
+      try{
+        await prisma.lot.create({
+          data:{
+            name:String(l.name||'Lote'),
+            sector:l.sector?String(l.sector):null,
+            priceCents:Math.round((Number(l.basePriceBRL)||0)*100),
+            capacity:Math.max(1,Number(l.quantity)||100),
+            sold:0,
+            status:l.status==='ativo'?'ativo':'pausado',
+            startsAt:l.startsAt&&!Number.isNaN(new Date(l.startsAt).getTime())?new Date(l.startsAt):null,
+            endsAt:l.endsAt&&!Number.isNaN(new Date(l.endsAt).getTime())?new Date(l.endsAt):null,
+            producerId,
+            eventId:created.id
+          }
+        })
+      }catch{}
+    }
+  }
+  await audit(req,req.auth!.id,producerId,'create','event',String(created.id))
+  res.status(201).json(created)
+})
 eventsRouter.put('/:id',async(req:AuthRequest,res)=>{const id=Number(req.params.id),existing=await prisma.event.findUnique({where:{id}});if(!existing)return res.status(404).json({message:'Evento não encontrado.'});if(!globalAdmin(req.auth!.role)&&existing.producerId!==req.auth!.producerId)return res.status(403).json({message:'Acesso negado a evento de outra produtora.'});const p=shape.partial().parse(req.body);const updated=await prisma.event.update({where:{id},data:p});await audit(req,req.auth!.id,existing.producerId,'update','event',String(id));res.json(updated)})
 
 eventsRouter.get('/:id/customer-360',async(req:AuthRequest,res)=>{

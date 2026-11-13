@@ -1,13 +1,112 @@
 export type EventStatus = 'ativo' | 'rascunho' | 'inativo'
 
+export type EventPaymentConfig = {
+  pixEnabled: boolean
+  pixExpirationMinutes: number
+  pixDiscountPercent: number
+  debitCardEnabled: boolean
+  debitRequire3DS: boolean
+  creditCardEnabled: boolean
+  maxInstallments: number // 1 a 12
+  interestFreeInstallments: number // 1 a 12
+  installmentInterestModel: 'buyer_pays' | 'producer_absorbs' | 'mixed'
+  monthlyInterestRatePercent: number
+  minInstallmentValueBRL: number
+  cardBrands: string[] // ['visa', 'mastercard', 'elo', 'amex', 'hipercard', 'diners', 'cabal']
+  primaryGateway: string // 'pagarme' | 'asaas' | 'stripe' | 'mercadopago' | 'cielo' | 'rede' | 'getnet' | 'adyen'
+  fallbackGateway: string
+  pixGateway: string
+  antifraudProvider: string
+  digitalWalletsEnabled: boolean
+  boletoEnabled: boolean
+  posPhysicalEnabled: boolean
+}
+
+export type EventTicketModality = {
+  id: string
+  name: string
+  code: 'inteira' | 'meia_legal' | 'solidario' | 'promocional' | 'cortesia' | 'infantil' | 'combo' | 'custom'
+  enabled: boolean
+  discountPercent: number
+  fixedPriceOverrideBRL?: number | null
+  quotaPercent: number
+  maxPerCpf: number
+  requiresDocument: boolean
+  description: string
+}
+
+export type BatchTurnTrigger = 'quantity' | 'date' | 'quantity_or_date' | 'manual'
+
+export type EventScheduledLot = {
+  id: string
+  order: number
+  name: string
+  sector: string
+  basePriceBRL: number
+  convenienceFeePercent: number
+  quantity: number
+  turnTrigger: BatchTurnTrigger
+  startsAt: string
+  endsAt: string
+  nextLotId?: string
+  alertThresholdPercent: number
+  status: 'ativo' | 'agendado' | 'pausado' | 'encerrado'
+  enabledModalities: string[]
+}
+
+export type EventSeatingSector = {
+  id: string
+  name: string
+  type: 'marked_rows' | 'marked_tables' | 'standing_free'
+  color: string
+  capacity: number
+  rowsCount: number
+  seatsPerRow: number
+  rowNaming: 'alpha' | 'numeric'
+  tablesCount?: number
+  seatsPerTable?: number
+  pcdSeatsCount: number
+  blockedSeatsCount: number
+  gate: string
+}
+
+export type EventSeatingMapConfig = {
+  mode: 'unmarked' | 'marked' | 'hybrid'
+  layoutTemplate: 'auditorium' | 'arena_360' | 'festival_standing' | 'tables_lounge'
+  stagePosition: 'top' | 'center'
+  allowBuyerSeatSelection: boolean
+  preventOrphanSingleSeat: boolean
+  cartSeatHoldMinutes: number
+  sectors: EventSeatingSector[]
+  customSeatOverrides?: Record<string, 'blocked' | 'pcd' | 'vip'>
+}
+
+export type EventOperationalRules = {
+  maxTicketsPerCpf: number
+  nominalTicketsRequired: boolean
+  allowTicketTransfer: boolean
+  transferDeadlineHoursBefore: number
+  ageRating: 'Livre' | '10+' | '12+' | '14+' | '16+' | '18+'
+  facialRecognitionEnabled: boolean
+  dynamicQrCodeAntiPrint: boolean
+  convenienceFeePercent: number
+  feePaidBy: 'buyer' | 'producer'
+  payoutSchedule: 'd_plus_2_post_event' | 'weekly_advance' | 'instant_split'
+  autoBatchTurnEnabled: boolean
+  whatsappTurnNotification: boolean
+}
+
 export type EventItem = {
   id: number
   code: string
   title: string
+  subtitle?: string
   venue: string
+  address?: string
   city: string
   date: string
   endDate?: string
+  doorsOpenTime?: string
   total: string
   sales: number
   available: number
@@ -21,6 +120,11 @@ export type EventItem = {
   producer?: string
   visibility?: 'publico' | 'privado'
   producerId: number
+  paymentConfig?: EventPaymentConfig
+  ticketModalities?: EventTicketModality[]
+  scheduledLots?: EventScheduledLot[]
+  seatingMapConfig?: EventSeatingMapConfig
+  operationalRules?: EventOperationalRules
 }
 
 export const events: EventItem[] = [

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { 
   ArrowLeftRight, CalendarDays, Columns3, LayoutPanelTop, 
-  List, Rows3, ArrowLeft, X, Check, Ticket, CircleDollarSign, Users 
+  List, Rows3, ArrowLeft, X, Check, Ticket, CircleDollarSign, Users, Plus 
 } from 'lucide-react'
 import EventCard from '../components/EventCard'
 import type { EventItem } from '../data/events'
@@ -84,6 +84,15 @@ export default function EventsPage({
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Voltar ao Dashboard</span>
+            </button>
+            <button
+              type="button"
+              data-testid="btn-new-event-header"
+              className="text-xs font-bold px-3.5 py-2 rounded-lg flex items-center gap-1.5 transition cursor-pointer shadow-xs bg-amber-500 hover:bg-amber-400 text-slate-950"
+              onClick={() => onNavigate?.('new-event')}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Novo Evento</span>
             </button>
             <button
               type="button"

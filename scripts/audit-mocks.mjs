@@ -2,7 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 export function auditMocks() {
-  const policy = JSON.parse(fs.readFileSync('event-os-audit.policy.json', 'utf8'))
+  const policyPath = fs.existsSync('config/policies/event-os-audit.policy.json') ? 'config/policies/event-os-audit.policy.json' : 'event-os-audit.policy.json'
+  const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'))
   const patterns = policy.mockPatterns || [
     'mockData', 'demoData', 'fakeData', 'sampleData', 'Math.random',
     'setTimeout', 'TODO', 'FIXME', 'placeholder', 'coming soon',

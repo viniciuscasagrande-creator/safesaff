@@ -5,6 +5,7 @@ import {
   ExternalLink, CheckCircle2, XCircle, Search, UserCheck
 } from 'lucide-react'
 import type { EventItem } from '../../data/events'
+import { getApiToken } from '../../services/api'
 import './event-live-ops.css'
 
 interface Props {
@@ -91,9 +92,7 @@ export default function EventLiveOpsPage({ event, onNavigate, notify }: Props) {
   const loadData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     try {
-      const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
-        : ''
+      const token = getApiToken()
       const res = await fetch(`/api/events/${event.id}/live-operations`, {
         headers: {
           'Content-Type': 'application/json',

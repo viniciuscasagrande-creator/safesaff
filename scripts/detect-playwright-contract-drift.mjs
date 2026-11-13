@@ -2,7 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 
-const registry = JSON.parse(fs.readFileSync(process.env.PLAYWRIGHT_CONTRACT_REGISTRY || 'playwright-contract-registry.json', 'utf8'))
+const defaultRegistry = fs.existsSync('config/policies/playwright-contract-registry.json') ? 'config/policies/playwright-contract-registry.json' : 'playwright-contract-registry.json'
+const registry = JSON.parse(fs.readFileSync(process.env.PLAYWRIGHT_CONTRACT_REGISTRY || defaultRegistry, 'utf8'))
 const outDir = process.env.PLAYWRIGHT_CONTRACT_DIR || 'test-results/contracts'
 fs.mkdirSync(outDir, { recursive: true })
 

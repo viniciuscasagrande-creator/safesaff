@@ -92,7 +92,7 @@ export default function EventCommercialConditionsPage({ event, onNavigate, notif
     try {
       const res = await fetch(`/api/commercial/events/${event.id}/agreement`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('safesaff_token') || sessionStorage.getItem('safesaff_token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('safesaff_token') || sessionStorage.getItem('safesaff_token') || sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''}`
         }
       })
       if (!res.ok) {
@@ -158,7 +158,7 @@ export default function EventCommercialConditionsPage({ event, onNavigate, notif
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('safesaff_token') || sessionStorage.getItem('safesaff_token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('safesaff_token') || sessionStorage.getItem('safesaff_token') || sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''}`
         },
         body: JSON.stringify(payload)
       })

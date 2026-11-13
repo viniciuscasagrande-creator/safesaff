@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const input = process.env.PLAYWRIGHT_JSON_REPORT || 'test-results/playwright-results.json'
-const policyFile = process.env.PLAYWRIGHT_DIAGNOSTICS_POLICY || 'playwright-diagnostics.policy.json'
+const policyFile = process.env.PLAYWRIGHT_DIAGNOSTICS_POLICY || (fs.existsSync('config/policies/playwright-diagnostics.policy.json') ? 'config/policies/playwright-diagnostics.policy.json' : 'playwright-diagnostics.policy.json')
 const outDir = process.env.PLAYWRIGHT_DIAGNOSTICS_DIR || 'test-results/diagnostics'
 fs.mkdirSync(outDir, { recursive: true })
 

@@ -12,7 +12,8 @@ test.describe('26.x.3.9 @contract @critical', () => {
   })
 
   test('contratos essenciais não podem ser removidos do registry', async () => {
-    const registry = JSON.parse(fs.readFileSync('playwright-contract-registry.json', 'utf8'))
+    const regPath = fs.existsSync('config/policies/playwright-contract-registry.json') ? 'config/policies/playwright-contract-registry.json' : 'playwright-contract-registry.json'
+    const registry = JSON.parse(fs.readFileSync(regPath, 'utf8'))
     const ids = registry.contracts.map((c: { id: string }) => c.id)
     for (const id of ['estornos-independent-module','central-eventos-approved-contract','event-os-navigation','event-os-api-contract','tenant-isolation','playwright-release-safety']) {
       expect(ids).toContain(id)

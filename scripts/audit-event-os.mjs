@@ -13,7 +13,8 @@ export function runEventOSAudit() {
   console.log(`INICIANDO AUDITORIA AUTOMÁTICA EVENT OS — RELEASE: ${RELEASE}`);
   console.log('================================================================\n');
 
-  const policy = JSON.parse(fs.readFileSync('event-os-audit.policy.json', 'utf8'))
+  const policyPath = fs.existsSync('config/policies/event-os-audit.policy.json') ? 'config/policies/event-os-audit.policy.json' : 'event-os-audit.policy.json'
+  const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'))
   const artifactsDir = path.join('artifacts', 'event-os-audit')
   if (!fs.existsSync(artifactsDir)) {
     fs.mkdirSync(artifactsDir, { recursive: true })

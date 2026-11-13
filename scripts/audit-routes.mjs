@@ -1,7 +1,8 @@
 import fs from 'node:fs'
 
 export function auditRoutes() {
-  const policy = JSON.parse(fs.readFileSync('event-os-audit.policy.json', 'utf8'))
+  const policyPath = fs.existsSync('config/policies/event-os-audit.policy.json') ? 'config/policies/event-os-audit.policy.json' : 'event-os-audit.policy.json'
+  const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'))
   const appContent = fs.readFileSync('src/App.tsx', 'utf8')
   const eventContextContent = fs.readFileSync('src/pages/EventContextPage.tsx', 'utf8')
   const moduleSidebarContent = fs.readFileSync('src/components/ModuleSidebar.tsx', 'utf8')

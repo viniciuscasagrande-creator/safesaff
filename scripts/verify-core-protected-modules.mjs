@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 
-const manifest = JSON.parse(fs.readFileSync('CORE_PROTECTED_MODULES.json', 'utf8'))
+const manifestPath = fs.existsSync('config/policies/CORE_PROTECTED_MODULES.json') ? 'config/policies/CORE_PROTECTED_MODULES.json' : 'CORE_PROTECTED_MODULES.json'
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
 const sidebar = fs.readFileSync('src/components/ModuleSidebar.tsx', 'utf8')
 const app = fs.readFileSync('src/App.tsx', 'utf8')
 

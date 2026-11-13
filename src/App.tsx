@@ -705,6 +705,10 @@ export default function App() {
       try {
         const u = await getMe()
         if (!active) return
+        if (!u) {
+          clearApiToken()
+          return
+        }
         setUser(u)
         AppContext.setUser(u, seedProducers)
         const ctxState = AppContext.getState()
@@ -713,7 +717,6 @@ export default function App() {
           : (u.producerId || 'all')
         setSelectedProducer(producerSelection)
         const initialPage = typeof window !== 'undefined' ? resolvePageFromPath(window.location.pathname, u) : firstPageFor(u)
-        setPage(initialPage)
         if (producerSelection !== 'all') {
           AppContext.setProducer(producerSelection, ctxState.producerName || undefined, seedProducers)
         }
@@ -726,9 +729,10 @@ export default function App() {
         ]
         if (isGlobalAdmin(u)) tasks.push(getUsers().then(setUsers))
         await Promise.all(tasks)
+        setPage(initialPage)
         AppRouter.syncFromLocation()
       } catch {
-        // Keep seed default user
+        clearApiToken()
       }
     })()
     return () => { active = false }

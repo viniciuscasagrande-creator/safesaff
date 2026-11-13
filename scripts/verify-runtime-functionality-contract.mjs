@@ -2,7 +2,9 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const root = process.cwd()
-const policyPath = path.join(root, 'playwright-runtime-functionality.policy.json')
+const policyPath = fs.existsSync(path.join(root, 'config/policies/playwright-runtime-functionality.policy.json'))
+  ? path.join(root, 'config/policies/playwright-runtime-functionality.policy.json')
+  : path.join(root, 'playwright-runtime-functionality.policy.json')
 const fail = (m) => { console.error(`❌ ${m}`); process.exitCode = 1 }
 const ok = (m) => console.log(`✅ ${m}`)
 

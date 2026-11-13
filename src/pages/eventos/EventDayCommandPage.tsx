@@ -147,7 +147,7 @@ export default function EventDayCommandPage({ event, onNavigate, notify }: Props
     if (!silent) setLoading(true)
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       const res = await fetch(`/api/events/${event.id}/event-day-command`, {
         headers: {
@@ -271,7 +271,7 @@ export default function EventDayCommandPage({ event, onNavigate, notify }: Props
   const handleIncidentAssign = async (incId: number, code: string) => {
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       await fetch(`/api/events/${event.id}/incidents/${incId}/assign`, {
         method: 'PATCH',

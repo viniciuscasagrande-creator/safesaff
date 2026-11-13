@@ -5,6 +5,7 @@
 
 import type { ProducerEvent } from '../types/context.types'
 import { events as seedEvents } from '../data/events'
+import { getAuthHeader } from './api'
 
 export const EventsService = {
   /**
@@ -13,49 +14,52 @@ export const EventsService = {
   async getProducerEvents(producerId: number | string | null): Promise<ProducerEvent[]> {
     if (!producerId) return []
 
-    try {
-      const res = await fetch(`/api/producers/${producerId}/events`)
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data.events)) {
-          return data.events.map((ev: any) => ({
-            id: ev.id,
-            name: ev.title || ev.name,
-            title: ev.title || ev.name,
-            code: ev.code || String(ev.id),
-            venue: ev.venue,
-            city: ev.city,
-            date: ev.date,
-            status: ev.status || 'ativo',
-            producerId: ev.producerId,
-            cover: ev.cover
-          }))
+    const authHeaders = getAuthHeader()
+    if (Object.keys(authHeaders).length > 0) {
+      try {
+        const res = await fetch(`/api/producers/${producerId}/events`, { headers: { ...authHeaders } })
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data.events)) {
+            return data.events.map((ev: any) => ({
+              id: ev.id,
+              name: ev.title || ev.name,
+              title: ev.title || ev.name,
+              code: ev.code || String(ev.id),
+              venue: ev.venue,
+              city: ev.city,
+              date: ev.date,
+              status: ev.status || 'ativo',
+              producerId: ev.producerId,
+              cover: ev.cover
+            }))
+          }
         }
+      } catch (e) {
+        console.warn('[EventsService] Fallback na rota /api/producers/:id/events:', e)
       }
-    } catch (e) {
-      console.warn('[EventsService] Fallback na rota /api/producers/:id/events:', e)
-    }
 
-    try {
-      const res = await fetch(`/api/events?producerId=${producerId}`)
-      if (res.ok) {
-        const list = await res.json()
-        if (Array.isArray(list)) {
-          return list.map((ev: any) => ({
-            id: ev.id,
-            name: ev.title || ev.name,
-            title: ev.title || ev.name,
-            code: ev.code || String(ev.id),
-            venue: ev.venue,
-            city: ev.city,
-            date: ev.date,
-            status: ev.status || 'ativo',
-            producerId: ev.producerId,
-            cover: ev.cover
-          }))
+      try {
+        const res = await fetch(`/api/events?producerId=${producerId}`, { headers: { ...authHeaders } })
+        if (res.ok) {
+          const list = await res.json()
+          if (Array.isArray(list)) {
+            return list.map((ev: any) => ({
+              id: ev.id,
+              name: ev.title || ev.name,
+              title: ev.title || ev.name,
+              code: ev.code || String(ev.id),
+              venue: ev.venue,
+              city: ev.city,
+              date: ev.date,
+              status: ev.status || 'ativo',
+              producerId: ev.producerId,
+              cover: ev.cover
+            }))
+          }
         }
-      }
-    } catch {}
+      } catch {}
+    }
 
     // Fallback para seedEvents em memória
     return seedEvents

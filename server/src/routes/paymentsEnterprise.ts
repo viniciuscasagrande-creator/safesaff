@@ -439,10 +439,72 @@ paymentsEnterpriseRouter.get('/', (req: Request, res: Response) => {
   res.json(list)
 })
 
+// 6. Chargebacks
+paymentsEnterpriseRouter.get('/chargebacks', (_req: Request, res: Response) => {
+  res.json(chargebacks)
+})
+
+paymentsEnterpriseRouter.post('/chargebacks/:id/contest', (req: Request, res: Response) => {
+  const c = chargebacks.find(x => x.id === req.params.id)
+  if (!c) return res.status(404).json({ error: 'Chargeback não localizado', message: 'Chargeback não localizado' })
+
+  c.status = 'contestado'
+  c.updatedAt = new Date().toISOString()
+
+  res.json({
+    ok: true,
+    message: 'Contestação transmitida com sucesso à adquirente!',
+    chargeback: c
+  })
+})
+
+// 7. Conciliações e Divergências
+paymentsEnterpriseRouter.get('/reconciliations', (_req: Request, res: Response) => {
+  res.json(reconciliations)
+})
+
+paymentsEnterpriseRouter.post('/reconciliations/:id/resolve', (req: Request, res: Response) => {
+  const { notes, resolver } = req.body
+  const r = reconciliations.find(x => x.id === req.params.id)
+  if (!r) return res.status(404).json({ error: 'Divergência não localizada', message: 'Divergência não localizada' })
+
+  const rAny = r as any
+  rAny.status = 'resolvido_manualmente'
+  rAny.resolvedAt = new Date().toISOString()
+  rAny.resolvedBy = resolver || 'Controlador Financeiro'
+  rAny.resolutionNotes = notes || 'Ajuste compensatório efetuado'
+
+  res.json({
+    ok: true,
+    message: 'Divergência resolvida no Ledger e conciliada com sucesso!',
+    reconciliation: r
+  })
+})
+
+// 8. Webhooks
+paymentsEnterpriseRouter.get('/webhooks', (_req: Request, res: Response) => {
+  res.json(webhooks)
+})
+
+paymentsEnterpriseRouter.post('/webhooks/:id/reprocess', (req: Request, res: Response) => {
+  const w = webhooks.find(x => x.id === req.params.id)
+  if (!w) return res.status(404).json({ error: 'Webhook não localizado', message: 'Webhook não localizado' })
+
+  w.status = 'processado'
+  w.attempts += 1
+  w.processedAt = new Date().toISOString()
+
+  res.json({
+    ok: true,
+    message: 'Webhook reprocessado de forma idempotente!',
+    webhook: w
+  })
+})
+
 // 3. Dossiê 360° do pagamento
 paymentsEnterpriseRouter.get('/:id', (req: Request, res: Response) => {
   const p = payments.find(x => x.id === req.params.id)
-  if (!p) return res.status(404).json({ error: 'Pagamento não localizado' })
+  if (!p) return res.status(404).json({ error: 'Pagamento não localizado', message: 'Pagamento não localizado' })
   res.json(p)
 })
 
@@ -451,9 +513,9 @@ paymentsEnterpriseRouter.post('/:id/refund', (req: Request, res: Response) => {
   const { amountCents, reason, operatorName, isPartial } = req.body
   const p = payments.find(x => x.id === req.params.id) as any
 
-  if (!p) return res.status(404).json({ error: 'Pagamento não localizado' })
+  if (!p) return res.status(404).json({ error: 'Pagamento não localizado', message: 'Pagamento não localizado' })
   if (!reason || String(reason).trim().length < 5) {
-    return res.status(400).json({ error: 'Motivo obrigatório de estorno deve ter ao menos 5 caracteres.' })
+    return res.status(400).json({ error: 'Motivo obrigatório de estorno deve ter ao menos 5 caracteres.', message: 'Motivo obrigatório de estorno deve ter ao menos 5 caracteres.' })
   }
 
   p.status = isPartial ? 'parcialmente_estornado' : 'estornado'
@@ -480,7 +542,7 @@ paymentsEnterpriseRouter.post('/:id/review-risk', (req: Request, res: Response) 
   const { decision, notes, reviewerName } = req.body
   const p = payments.find(x => x.id === req.params.id)
 
-  if (!p) return res.status(404).json({ error: 'Pagamento não localizado' })
+  if (!p) return res.status(404).json({ error: 'Pagamento não localizado', message: 'Pagamento não localizado' })
 
   p.status = decision === 'aprovar' ? 'aprovado' : 'recusado'
   const riskAny = p.risk as any
@@ -499,67 +561,5 @@ paymentsEnterpriseRouter.post('/:id/review-risk', (req: Request, res: Response) 
     ok: true,
     message: `Decisão de risco (${decision.toUpperCase()}) registrada com auditoria!`,
     payment: p
-  })
-})
-
-// 6. Chargebacks
-paymentsEnterpriseRouter.get('/chargebacks', (_req: Request, res: Response) => {
-  res.json(chargebacks)
-})
-
-paymentsEnterpriseRouter.post('/chargebacks/:id/contest', (req: Request, res: Response) => {
-  const c = chargebacks.find(x => x.id === req.params.id)
-  if (!c) return res.status(404).json({ error: 'Chargeback não localizado' })
-
-  c.status = 'contestado'
-  c.updatedAt = new Date().toISOString()
-
-  res.json({
-    ok: true,
-    message: 'Contestação transmitida com sucesso à adquirente!',
-    chargeback: c
-  })
-})
-
-// 7. Conciliações e Divergências
-paymentsEnterpriseRouter.get('/reconciliations', (_req: Request, res: Response) => {
-  res.json(reconciliations)
-})
-
-paymentsEnterpriseRouter.post('/reconciliations/:id/resolve', (req: Request, res: Response) => {
-  const { notes, resolver } = req.body
-  const r = reconciliations.find(x => x.id === req.params.id)
-  if (!r) return res.status(404).json({ error: 'Divergência não localizada' })
-
-  const rAny = r as any
-  rAny.status = 'resolvido_manualmente'
-  rAny.resolvedAt = new Date().toISOString()
-  rAny.resolvedBy = resolver || 'Controlador Financeiro'
-  rAny.resolutionNotes = notes || 'Ajuste compensatório efetuado'
-
-  res.json({
-    ok: true,
-    message: 'Divergência resolvida no Ledger e conciliada com sucesso!',
-    reconciliation: r
-  })
-})
-
-// 8. Webhooks
-paymentsEnterpriseRouter.get('/webhooks', (_req: Request, res: Response) => {
-  res.json(webhooks)
-})
-
-paymentsEnterpriseRouter.post('/webhooks/:id/reprocess', (req: Request, res: Response) => {
-  const w = webhooks.find(x => x.id === req.params.id)
-  if (!w) return res.status(404).json({ error: 'Webhook não localizado' })
-
-  w.status = 'processado'
-  w.attempts += 1
-  w.processedAt = new Date().toISOString()
-
-  res.json({
-    ok: true,
-    message: 'Webhook reprocessado de forma idempotente!',
-    webhook: w
   })
 })

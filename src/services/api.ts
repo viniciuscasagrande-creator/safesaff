@@ -10,21 +10,33 @@ const apiNamespace=(()=>{
 })()
 const tokenKey=`disk_token:${apiNamespace}`
 const legacyTokenKey='disk_token'
+const serverTokenKey='disk_token:server'
+const safesaffTokenKey='safesaff_token'
+const authTokenKey='auth_token'
+function syncCompatTokenKeys(value:string,remember=false){
+  if(typeof window==='undefined') return
+  const target=remember?localStorage:sessionStorage
+  for(const k of [serverTokenKey,legacyTokenKey,safesaffTokenKey,authTokenKey]){
+    if(value){target.setItem(k,value)}else{sessionStorage.removeItem(k);localStorage.removeItem(k)}
+  }
+}
 function readStoredToken(){
   if(typeof window==='undefined') return ''
-  const current=sessionStorage.getItem(tokenKey)||localStorage.getItem(tokenKey)||''
-  // Tokens antigos sem namespace são descartados de propósito ao mudar para 21.1.8.
-  sessionStorage.removeItem(legacyTokenKey);localStorage.removeItem(legacyTokenKey)
+  const current=sessionStorage.getItem(tokenKey)||localStorage.getItem(tokenKey)||sessionStorage.getItem(serverTokenKey)||localStorage.getItem(serverTokenKey)||sessionStorage.getItem(legacyTokenKey)||localStorage.getItem(legacyTokenKey)||sessionStorage.getItem(safesaffTokenKey)||localStorage.getItem(safesaffTokenKey)||''
+  if(current){
+    const inLocal=Boolean(localStorage.getItem(tokenKey)||localStorage.getItem(serverTokenKey)||localStorage.getItem(legacyTokenKey))
+    syncCompatTokenKeys(current,inLocal)
+  }
   return current
 }
 let token=readStoredToken()
-export function setApiToken(value:string,remember=false){token=value;if(typeof window!=='undefined'){sessionStorage.removeItem(tokenKey);localStorage.removeItem(tokenKey);sessionStorage.removeItem(legacyTokenKey);localStorage.removeItem(legacyTokenKey);(remember?localStorage:sessionStorage).setItem(tokenKey,value)}}
-export function clearApiToken(){token='';if(typeof window!=='undefined'){sessionStorage.removeItem(tokenKey);localStorage.removeItem(tokenKey);sessionStorage.removeItem(legacyTokenKey);localStorage.removeItem(legacyTokenKey)}}
-export function hasStoredToken(){return !!token}
-export function getApiToken(){return token}
-export function getAuthHeader(): Record<string, string>{return token ? { Authorization: `Bearer ${token}` } : {}}
+export function setApiToken(value:string,remember=false){token=value;if(typeof window!=='undefined'){sessionStorage.removeItem(tokenKey);localStorage.removeItem(tokenKey);(remember?localStorage:sessionStorage).setItem(tokenKey,value);syncCompatTokenKeys(value,remember)}}
+export function clearApiToken(){token='';if(typeof window!=='undefined'){sessionStorage.removeItem(tokenKey);localStorage.removeItem(tokenKey);syncCompatTokenKeys('',false)}}
+export function hasStoredToken(){if(!token)token=readStoredToken();return !!token}
+export function getApiToken(){if(!token)token=readStoredToken();return token}
+export function getAuthHeader(): Record<string, string>{const t=getApiToken();return t ? { Authorization: `Bearer ${t}` } : {}}
 export function getApiBaseUrl(){return API}
-async function request<T>(path:string,options:RequestInit={}){const r=await fetch(`${API}${path}`,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{}) ,...(options.headers||{})}});const data=await r.json().catch(()=>({}));if(r.status===401){clearApiToken()}if(!r.ok)throw new Error(data.message||'Erro na API');return data as T}
+async function request<T>(path:string,options:RequestInit={}){const t=getApiToken();const r=await fetch(`${API}${path}`,{...options,headers:{'Content-Type':'application/json',...(t?{Authorization:`Bearer ${t}`}:{}) ,...(options.headers||{})}});const data=await r.json().catch(()=>({}));if(r.status===401&&path==='/auth/me'){clearApiToken()}if(!r.ok)throw new Error(data.message||data.error||'Erro na API');return data as T}
 export async function login(email:string,password:string){return request<{token:string;user:AppUser}>('/auth/login',{method:'POST',body:JSON.stringify({email,password})})}
 export const getMe=()=>request<AppUser>('/auth/me')
 export const getProducers=()=>request<Producer[]>('/producers')

@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import type { EventItem } from '../data/events'
 import type { PageKey } from '../components/ModuleSidebar'
+import { getApiToken } from '../services/api'
 import EventActivityStreamPage from './eventos/EventActivityStreamPage'
 import './event-command-center.css'
 
@@ -136,9 +137,7 @@ export default function EventCommandCenterPage({ event, onNavigate, notify }: Pr
     if (!silent) setLoading(true)
     setError('')
     try {
-      const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
-        : ''
+      const token = getApiToken()
       const res = await fetch(`/api/events/${event.id}/cockpit?period=${period}`, {
         headers: {
           'Content-Type': 'application/json',

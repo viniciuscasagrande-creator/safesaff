@@ -3,7 +3,7 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const release = '26.x.3.7-playwright-self-healing-validation-2026-09-03'
-const policyPath = process.env.PLAYWRIGHT_SELF_HEALING_POLICY || 'playwright-self-healing.policy.json'
+const policyPath = process.env.PLAYWRIGHT_SELF_HEALING_POLICY || (fs.existsSync('config/policies/playwright-self-healing.policy.json') ? 'config/policies/playwright-self-healing.policy.json' : 'playwright-self-healing.policy.json')
 const repairPath = process.env.PLAYWRIGHT_REPAIR_JSON || 'test-results/repair-advisor/REPAIR_ADVISOR.json'
 const diagPath = process.env.PLAYWRIGHT_DIAGNOSTICS_JSON || 'test-results/diagnostics/DIAGNOSTICO_PLAYWRIGHT.json'
 const outDir = process.env.PLAYWRIGHT_SELF_HEALING_DIR || 'test-results/self-healing'

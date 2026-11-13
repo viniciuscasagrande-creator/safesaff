@@ -3,7 +3,7 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 
 const release = '26.x.3.8-playwright-change-impact-smart-regression-2026-09-03'
-const policyPath = process.env.PLAYWRIGHT_CHANGE_IMPACT_POLICY || 'playwright-change-impact.policy.json'
+const policyPath = process.env.PLAYWRIGHT_CHANGE_IMPACT_POLICY || (fs.existsSync('config/policies/playwright-change-impact.policy.json') ? 'config/policies/playwright-change-impact.policy.json' : 'playwright-change-impact.policy.json')
 const outDir = process.env.PLAYWRIGHT_CHANGE_IMPACT_DIR || 'test-results/change-impact'
 fs.mkdirSync(outDir, { recursive: true })
 

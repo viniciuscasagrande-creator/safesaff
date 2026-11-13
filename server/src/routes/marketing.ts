@@ -53,6 +53,139 @@ marketingRouter.patch('/campaigns/:id',requireRoles(...marketingWriteRoles),asyn
   const row=await prisma.marketingCampaign.update({where:{id},data:patch.data});await audit(req,'marketing.campaign.update','MarketingCampaign',String(id),patch.data);res.json(row)
 })
 
+const READY_CAMPAIGN_TEMPLATES=[
+  {key:'abertura-vendas',name:'Abertura de Vendas',description:'Dispara alcance e conversão para abertura oficial de vendas do evento.',objective:'conversao',audience:'Base total + compradores anteriores',recommendedChannels:['meta-ads','google-ads','whatsapp','email'],suggestedBudgetCents:250000,badge:'Alta demanda'},
+  {key:'virada-lote',name:'Virada de Lote',description:'Campanha de urgência focada em acelerar vendas antes da mudança de preço.',objective:'urgencia',audience:'Visitantes, carrinhos abertos e compradores recorrentes',recommendedChannels:['meta-ads','whatsapp','email'],suggestedBudgetCents:180000,badge:'Urgência'},
+  {key:'ultimos-ingressos',name:'Últimos Ingressos',description:'Escassez real para esgotar capacidade final dos setores ativos.',objective:'esgotamento',audience:'Engajados, remarketing e público quente',recommendedChannels:['meta-ads','google-ads','whatsapp'],suggestedBudgetCents:150000,badge:'Escassez'},
+  {key:'remarketing-quente',name:'Remarketing de Visitantes',description:'Reimpacta visitantes e sessões UTM que demonstraram intenção de compra.',objective:'remarketing',audience:'Visitantes sem compra nos últimos 14 dias',recommendedChannels:['meta-ads','google-ads','tiktok-ads'],suggestedBudgetCents:120000,badge:'ROAS'},
+  {key:'recuperacao-carrinho',name:'Recuperação de Carrinho',description:'Atuação direta sobre carrinhos abandonados e pagamentos pendentes do evento.',objective:'recuperacao',audience:'Carrinhos abandonados e PIX expirados',recommendedChannels:['whatsapp','email','meta-ads'],suggestedBudgetCents:90000,badge:'Recuperação'},
+  {key:'pos-evento-fidelizacao',name:'Pós-Evento & Fidelização',description:'Reativa participantes presentes para próximos eventos da produtora.',objective:'retencao',audience:'Participantes com check-in confirmado',recommendedChannels:['email','whatsapp'],suggestedBudgetCents:70000,badge:'LTV'}
+] as const
+
+function serializeReadyActivation(row:any){
+  return {
+    id:row.id,
+    templateKey:row.templateKey,
+    name:row.name,
+    objective:row.objective,
+    status:row.status,
+    audience:row.audience,
+    channels:JSON.parse(row.channelsJson||'[]'),
+    campaignIds:JSON.parse(row.campaignIdsJson||'[]'),
+    trackingLinkIds:JSON.parse(row.trackingLinkIdsJson||'[]'),
+    budgetCents:row.budgetCents,
+    startsAt:row.startsAt ? new Date(row.startsAt).toISOString() : null,
+    endsAt:row.endsAt ? new Date(row.endsAt).toISOString() : null,
+    producerId:row.producerId,
+    eventId:row.eventId,
+    event:row.event||undefined
+  }
+}
+
+marketingRouter.get('/ready-campaigns/templates',requireRoles(...marketingReadRoles),(_req,res)=>{
+  res.json(READY_CAMPAIGN_TEMPLATES)
+})
+
+marketingRouter.get('/ready-campaigns',requireRoles(...marketingReadRoles),async(req:AuthRequest,res)=>{
+  const producerId=requestedProducerId(req)
+  const eventId=req.query.eventId?Number(req.query.eventId):undefined
+  const rows=await prisma.readyCampaignActivation.findMany({
+    where:{...(producerId?{producerId}:{}),...(eventId?{eventId}:{})},
+    include:{event:{select:{id:true,title:true,code:true}}},
+    orderBy:{createdAt:'desc'}
+  })
+  res.json(rows.map(serializeReadyActivation))
+})
+
+marketingRouter.post('/ready-campaigns/activate',requireRoles(...marketingWriteRoles),async(req:AuthRequest,res)=>{
+  const parsed=z.object({
+    templateKey:z.string().min(2),
+    eventId:z.number().int().positive(),
+    producerId:z.number().int().positive().optional(),
+    name:z.string().min(2).optional(),
+    audience:z.string().min(2).optional(),
+    channels:z.array(z.string().min(2)).min(1).optional(),
+    budgetCents:z.number().int().nonnegative().optional(),
+    status:z.enum(['rascunho','configurada','ativa','pausada','encerrada']).default('ativa')
+  }).safeParse(req.body)
+  if(!parsed.success)return res.status(400).json({message:'Dados de ativação inválidos.',issues:parsed.error.issues})
+  const body=parsed.data
+  const tpl=READY_CAMPAIGN_TEMPLATES.find(t=>t.key===body.templateKey)||READY_CAMPAIGN_TEMPLATES[0]
+  const event=await prisma.event.findUnique({where:{id:body.eventId}})
+  if(!event||!ownsProducer(req,event.producerId))return res.status(404).json({message:'Evento não encontrado.'})
+  const producerId=event.producerId
+  const channels=body.channels?.length?body.channels:[...tpl.recommendedChannels]
+  const totalBudget=body.budgetCents??tpl.suggestedBudgetCents
+  const perChannelBudget=Math.max(0,Math.round(totalBudget/Math.max(1,channels.length)))
+  const baseName=body.name||`${tpl.name} • ${event.title}`
+  const created=await prisma.$transaction(async tx=>{
+    const campaignIds:number[]=[]
+    const trackingLinkIds:number[]=[]
+    for(const ch of channels){
+      const camp=await tx.marketingCampaign.create({
+        data:{
+          name:`${baseName} (${ch.toUpperCase()})`,
+          channel:ch,
+          objective:tpl.objective,
+          status:body.status==='ativa'?'ativa':body.status==='pausada'?'pausada':'rascunho',
+          budgetCents:perChannelBudget,
+          producerId,
+          eventId:event.id
+        }
+      })
+      campaignIds.push(camp.id)
+      const code=crypto.randomBytes(4).toString('hex')
+      const link=await tx.trackingLink.create({
+        data:{
+          code,
+          name:`UTM ${tpl.name} • ${ch}`,
+          destination:`https://diskingressos.com.br/evento/${event.code}`,
+          source:ch.replace('-ads',''),
+          medium:'ready_campaign',
+          campaign:`${tpl.key}_${event.code}`,
+          content:ch,
+          producerId,
+          eventId:event.id
+        }
+      })
+      trackingLinkIds.push(link.id)
+    }
+    return tx.readyCampaignActivation.create({
+      data:{
+        templateKey:tpl.key,
+        name:baseName,
+        objective:tpl.objective,
+        status:body.status,
+        audience:body.audience||tpl.audience,
+        channelsJson:JSON.stringify(channels),
+        campaignIdsJson:JSON.stringify(campaignIds),
+        trackingLinkIdsJson:JSON.stringify(trackingLinkIds),
+        budgetCents:totalBudget,
+        producerId,
+        eventId:event.id
+      },
+      include:{event:{select:{id:true,title:true,code:true}}}
+    })
+  })
+  await audit(req,'marketing.ready_campaign.activate','ReadyCampaignActivation',String(created.id),{templateKey:tpl.key,eventId:event.id})
+  res.status(201).json(serializeReadyActivation(created))
+})
+
+marketingRouter.patch('/ready-campaigns/:id',requireRoles(...marketingWriteRoles),async(req:AuthRequest,res)=>{
+  const id=Number(req.params.id)
+  const current=await prisma.readyCampaignActivation.findUnique({where:{id},include:{event:{select:{id:true,title:true,code:true}}}})
+  if(!current||!ownsProducer(req,current.producerId))return res.status(404).json({message:'Campanha pronta não encontrada.'})
+  const parsed=z.object({status:z.enum(['rascunho','configurada','ativa','pausada','encerrada'])}).safeParse(req.body)
+  if(!parsed.success)return res.status(400).json({message:'Status inválido.'})
+  const updated=await prisma.readyCampaignActivation.update({
+    where:{id},
+    data:{status:parsed.data.status},
+    include:{event:{select:{id:true,title:true,code:true}}}
+  })
+  await audit(req,'marketing.ready_campaign.status','ReadyCampaignActivation',String(id),parsed.data)
+  res.json(serializeReadyActivation(updated))
+})
+
 const linkSchema=z.object({name:z.string().min(2),destination:z.string().url(),source:z.string().optional().nullable(),medium:z.string().optional().nullable(),campaign:z.string().optional().nullable(),content:z.string().optional().nullable(),term:z.string().optional().nullable(),producerId:z.number().int().positive().optional(),eventId:z.number().int().positive().optional().nullable()})
 marketingRouter.get('/links',requireRoles(...marketingReadRoles),async(req:AuthRequest,res)=>{const producerId=requestedProducerId(req);const eventId=req.query.eventId?Number(req.query.eventId):undefined;const rows=await prisma.trackingLink.findMany({where:{...(producerId?{producerId}:{}),...(eventId?{eventId}:{})},include:{event:{select:{id:true,title:true}}},orderBy:{createdAt:'desc'}});res.json(rows.map(r=>({...r,trackedUrl:buildTrackedUrl(r),qrPayload:`${process.env.PUBLIC_APP_URL||'http://localhost:5173'}/r/${r.code}`})))})
 marketingRouter.post('/links',requireRoles(...marketingWriteRoles),async(req:AuthRequest,res)=>{

@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
 
-const registryPath = process.env.PLAYWRIGHT_CONTRACT_REGISTRY || 'playwright-contract-registry.json'
+const registryPath = process.env.PLAYWRIGHT_CONTRACT_REGISTRY || (fs.existsSync('config/policies/playwright-contract-registry.json') ? 'config/policies/playwright-contract-registry.json' : 'playwright-contract-registry.json')
 const outDir = process.env.PLAYWRIGHT_CONTRACT_DIR || 'test-results/contracts'
 const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'))
 fs.mkdirSync(outDir, { recursive: true })

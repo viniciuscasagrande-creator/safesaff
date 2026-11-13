@@ -105,7 +105,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
     setLoading(true)
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       const res = await fetch(`/api/events/${event.id}/incidents`, {
         headers: {
@@ -223,7 +223,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
   const handleAssign = async (inc: Incident) => {
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       await fetch(`/api/events/${event.id}/incidents/${inc.id}/assign`, {
         method: 'PATCH',
@@ -243,7 +243,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
   const handleEscalate = async (inc: Incident) => {
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       await fetch(`/api/events/${event.id}/incidents/${inc.id}/escalate`, {
         method: 'PATCH',
@@ -262,7 +262,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
   const handleResolve = async (inc: Incident) => {
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       await fetch(`/api/events/${event.id}/incidents/${inc.id}/resolve`, {
         method: 'PATCH',
@@ -281,7 +281,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
   const handleReopen = async (inc: Incident) => {
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       await fetch(`/api/events/${event.id}/incidents/${inc.id}/reopen`, {
         method: 'PATCH',
@@ -319,7 +319,7 @@ export default function EventIncidentsPage({ event, onNavigate, notify, initialC
     }
     try {
       const token = typeof window !== 'undefined'
-        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || ''
+        ? sessionStorage.getItem('disk_token:server') || localStorage.getItem('disk_token:server') || sessionStorage.getItem('disk_token') || localStorage.getItem('disk_token') || ''
         : ''
       const res = await fetch(`/api/events/${event.id}/incidents`, {
         method: 'POST',

@@ -17,7 +17,10 @@ playwright-report/
 test-results/
 blob-report/
 
-# Limitless raw template reference
+# Limitless raw template reference & local backups
 vendor/
 scratch/
+archive/backups/
+archive/atualizacoes-fases/
+
 

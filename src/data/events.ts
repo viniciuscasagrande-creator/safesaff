@@ -70,7 +70,7 @@ export type EventSeatingSector = {
   gate: string
 }
 
-export type SeatShapeType = 'circle' | 'square'
+export type SeatShapeType = 'circle' | 'square' | 'armchair'
 export type SeatStatusType = 'free' | 'sold' | 'reserved' | 'blocked'
 
 export type SeatmapSeatPoint = {
@@ -82,9 +82,17 @@ export type SeatmapSeatPoint = {
   sectorName: string
   x: number
   y: number
+  width?: number
+  height?: number
+  rotation?: number
+  nominal?: boolean
+  description?: string
+  colorHex?: string
   shape: SeatShapeType
   status: SeatStatusType
   priceBRL?: number
+  scheduledBlockAt?: string
+  scheduledUnblockAt?: string
 }
 
 export type SeatmapZoneElement = {

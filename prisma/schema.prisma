@@ -1767,3 +1767,32 @@ model SacAssignmentEvent {
   createdAt DateTime @default(now())
   @@index([conversationId, createdAt])
 }
+
+
+// Base de conhecimento curada; apenas artigos aprovados podem fundamentar o copiloto.
+model SacKnowledgeArticle {
+  id Int @id @default(autoincrement())
+  producerId Int
+  title String
+  content String
+  status String @default("draft") // draft | approved | archived
+  updatedByUserId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([producerId, status])
+}
+
+// Auditoria de sugestões: texto gerado não vai automaticamente para o chat.
+model SacAiSuggestion {
+  id Int @id @default(autoincrement())
+  producerId Int
+  conversationId Int
+  agentUserId Int
+  status String @default("suggested") // suggested | accepted | discarded
+  suggestion String
+  sourceArticleIds String // JSON de IDs de artigos aprovados
+  createdAt DateTime @default(now())
+  reviewedAt DateTime?
+  @@index([producerId, conversationId, createdAt])
+  @@index([agentUserId, status])
+}

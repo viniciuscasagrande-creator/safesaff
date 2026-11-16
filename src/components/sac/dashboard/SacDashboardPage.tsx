@@ -31,6 +31,13 @@ import {
   X
 } from 'lucide-react'
 
+import {
+  CUSTOMER_AI_TOPICS,
+  getSacAiMetricsSnapshot,
+  sacAiApi,
+  type SacKnowledgeArticle
+} from '../../../services/sacAi.service'
+
 export type SacDashboardTab =
   | 'dashboard'
   | 'atendimentos'
@@ -115,12 +122,26 @@ const AVAILABLE_SKILL_CATALOG = [
 ]
 
 interface Props {
+  producerId?: number | null
   onOpenLiveChat?: () => void
 }
 
-export const SacDashboardPage: React.FC<Props> = ({ onOpenLiveChat }) => {
+export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }) => {
   const [activeNav, setActiveNav] = useState<SacDashboardTab>('dashboard')
   const [periodFilter, setPeriodFilter] = useState<'Hoje' | 'Últimas 24h' | 'Últimos 7 dias'>('Hoje')
+  const [aiMetrics, setAiMetrics] = useState(() => getSacAiMetricsSnapshot())
+  const [knowledgeArticles, setKnowledgeArticles] = useState<SacKnowledgeArticle[]>([])
+  const [previewTopicKey, setPreviewTopicKey] = useState<string>('cancelamento_show')
+
+  useEffect(() => {
+    const syncAi = () => {
+      setAiMetrics(getSacAiMetricsSnapshot())
+      void sacAiApi.knowledge(producerId).then(setKnowledgeArticles).catch(() => undefined)
+    }
+    syncAi()
+    window.addEventListener('safesaff:sac-ai-sync', syncAi)
+    return () => window.removeEventListener('safesaff:sac-ai-sync', syncAi)
+  }, [producerId])
 
   // Estado da Fila e Alerta Sonoro Inteligente (Web Audio API)
   const [queueCurrent, setQueueCurrent] = useState<number>(14)
@@ -1161,6 +1182,234 @@ export const SacDashboardPage: React.FC<Props> = ({ onOpenLiveChat }) => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================================
+            LINHA 5: INTELIGÊNCIA ARTIFICIAL NO ATENDIMENTO SAC
+            (IA PARA O CLIENTE POR TEMA/ASSUNTO + COPILOTO DO ATENDENTE + 4 CARDS DE INDICADORES DA IA)
+        =================================================================== */}
+        <section
+          className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4"
+          data-testid="sac-dashboard-ai-section"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#D3EFE2] text-[#0E5E40] flex items-center justify-center">
+                <Bot size={20} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-extrabold text-slate-900">
+                    Inteligência Artificial no Atendimento (Cliente + Copiloto SAC)
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#E6F7EE] text-[#0E6235] border border-[#BFE6D3] text-[10px] font-extrabold">
+                    Ativo • Governança SLA & ITIL
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  A IA atende o cliente por temas (Cancelamento de show, Reembolso, Ingressos, Alteração de evento, Pagamento) e também apoia os atendentes do SAC como Copiloto.
+                </p>
+              </div>
+            </div>
+
+            {onOpenLiveChat && (
+              <button
+                type="button"
+                onClick={onOpenLiveChat}
+                className="px-3.5 py-2 rounded-xl bg-[#157347] hover:bg-[#115c39] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              >
+                <Sparkles size={14} />
+                <span>Abrir Chat com IA & Copiloto</span>
+              </button>
+            )}
+          </div>
+
+          {/* 4 Cards de Indicadores da IA no Dashboard SAC */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
+              <span className="text-xs font-bold text-slate-600 block">
+                Atendimentos pela IA
+              </span>
+              <strong className="text-3xl font-black text-[#0F6E4B] block">
+                {aiMetrics.totalAiAttendances}
+              </strong>
+              <span className="text-[11px] text-slate-500 block">
+                Conversas iniciadas com triagem da IA
+              </span>
+            </div>
+
+            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
+              <span className="text-xs font-bold text-slate-600 block">
+                Resolução pela IA
+              </span>
+              <strong className="text-3xl font-black text-[#0F6E4B] block">
+                {aiMetrics.resolvedByAiPercent}%
+              </strong>
+              <span className="text-[11px] text-slate-500 block">
+                Dúvidas resolvidas sem fila humana
+              </span>
+            </div>
+
+            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
+              <span className="text-xs font-bold text-slate-600 block">
+                Transferidos ao SAC
+              </span>
+              <strong className="text-3xl font-black text-[#D97706] block">
+                {aiMetrics.transferredToSacPercent}%
+              </strong>
+              <span className="text-[11px] text-slate-500 block">
+                Encaminhados com resumo e skill
+              </span>
+            </div>
+
+            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
+              <span className="text-xs font-bold text-slate-600 block">
+                SLA IA → Humano
+              </span>
+              <strong className="text-3xl font-black text-[#1D4ED8] block">
+                {aiMetrics.slaAiToHumanPercent}%
+              </strong>
+              <span className="text-[11px] text-slate-500 block">
+                Transições dentro do tempo de SLA
+              </span>
+            </div>
+          </div>
+
+          {/* Painel Duplo: Demonstração Interativa da IA para o Cliente + Base de Conhecimento da IA */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1">
+            {/* Esquerda: Temas e Respostas da IA para o Cliente */}
+            <div className="lg:col-span-7 rounded-2xl bg-[#F8FAF9] border border-slate-200 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <strong className="text-xs font-extrabold text-slate-900 block">
+                    🤖 Como o Cliente conversa com a IA no Chat SafeSaff
+                  </strong>
+                  <span className="text-[11px] text-slate-500">
+                    Selecione um tema abaixo para visualizar as perguntas e respostas automáticas configuradas
+                  </span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#D3EFE2] text-[#0E5E40] text-[10px] font-bold">
+                  Online · IA + Equipe SAC
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {CUSTOMER_AI_TOPICS.map(t => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => setPreviewTopicKey(t.key)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
+                      previewTopicKey === t.key
+                        ? 'bg-[#157347] text-white border-[#157347]'
+                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {(() => {
+                const currentTopic =
+                  CUSTOMER_AI_TOPICS.find(t => t.key === previewTopicKey) ||
+                  CUSTOMER_AI_TOPICS[0]
+                return (
+                  <div className="rounded-xl bg-white border border-slate-200 p-3.5 space-y-2.5 text-xs">
+                    <div className="p-2.5 rounded-xl bg-[#157347] text-white ml-8">
+                      <span className="text-[10px] opacity-80 block font-bold">
+                        Cliente escolheu o tema: {currentTopic.label}
+                      </span>
+                      <p className="mt-0.5">{currentTopic.initialQuestion}</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 mr-6 space-y-2">
+                      <div className="flex items-center justify-between text-[10px] text-slate-500">
+                        <strong className="text-[#0F6E4B]">
+                          🤖 Assistente Virtual SafeSaff
+                        </strong>
+                        <span>
+                          Skill vinculada: <strong>{currentTopic.requiredSkill}</strong> • Prioridade {currentTopic.priority}
+                        </span>
+                      </div>
+                      <p className="whitespace-pre-wrap leading-relaxed">
+                        {currentTopic.guidedAnswer}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {currentTopic.followUpPrompts.map(fp => (
+                          <span
+                            key={fp.id}
+                            className="px-2.5 py-1 rounded-full bg-[#E6F4EA] text-[#0E5E40] border border-[#BFE6D3] text-[10px] font-bold"
+                          >
+                            {fp.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+
+            {/* Direita: Base de Conhecimento Oficial da IA & Copiloto dos Atendentes */}
+            <div className="lg:col-span-5 rounded-2xl bg-[#F8FAF9] border border-slate-200 p-4 flex flex-col justify-between space-y-3">
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <strong className="text-xs font-extrabold text-slate-900">
+                    📚 Base de Conhecimento da IA & Copiloto
+                  </strong>
+                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    {knowledgeArticles.filter(a => a.status === 'approved').length || 6} artigos aprovados
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">
+                  A IA utiliza exclusivamente estes temas validados pelo supervisor tanto para responder ao cliente quanto para sugerir respostas privadas ao atendente do SAC:
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { title: 'Cancelamento de show', desc: 'Regras, comunicados e prazos' },
+                    { title: 'Reembolso', desc: 'Política CDC, prazos PIX/Cartão' },
+                    { title: 'Ingressos', desc: '2ª via QR Code e titularidade' },
+                    { title: 'Alteração de evento', desc: 'Nova data, horário ou local' },
+                    { title: 'Problemas de pagamento', desc: 'PIX, cartão e duplicidade' },
+                    { title: 'Reclamações', desc: 'Registro, prioridade e SLA/ITIL' }
+                  ].map(topic => (
+                    <div
+                      key={topic.title}
+                      className="p-2.5 rounded-xl bg-white border border-slate-200/90"
+                    >
+                      <strong className="text-slate-900 block text-xs">
+                        {topic.title}
+                      </strong>
+                      <span className="text-[10px] text-slate-500 block mt-0.5">
+                        {topic.desc}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#E6F7EE] border border-[#BFE6D3] flex items-center justify-between text-xs">
+                <div>
+                  <strong className="text-[#0E6235] block">
+                    Copiloto do Atendente Ativo
+                  </strong>
+                  <span className="text-[11px] text-slate-700">
+                    {aiMetrics.copilotAcceptedCount}/{aiMetrics.copilotSuggestionsTotal} sugestões aproveitadas pela equipe SAC
+                  </span>
+                </div>
+                {onOpenLiveChat && (
+                  <button
+                    type="button"
+                    onClick={onOpenLiveChat}
+                    className="px-3 py-1.5 rounded-lg bg-[#157347] text-white font-bold text-[11px] cursor-pointer"
+                  >
+                    Gerenciar Base
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </section>

@@ -13,7 +13,6 @@ import {
   MousePointer,
   Plus,
   QrCode,
-  RefreshCw,
   ShieldCheck,
   ShoppingCart,
   Sparkles,
@@ -68,8 +67,8 @@ export interface SeatsIoCategory {
 export const DEFAULT_SEATSIO_CATEGORIES: SeatsIoCategory[] = [
   {
     id: 'cat-premium',
-    name: 'Plateia Premium (Ouro)',
-    color: '#2563EB',
+    name: 'Plateia VIP Ouro (Frontal)',
+    color: '#3B82F6', // Azul Royal Seats.io
     priceBRL: 180,
     halfPriceBRL: 90,
     lotId: 'lot-premium-1'
@@ -77,23 +76,23 @@ export const DEFAULT_SEATSIO_CATEGORIES: SeatsIoCategory[] = [
   {
     id: 'cat-central',
     name: 'Plateia Central',
-    color: '#0284C7',
+    color: '#06B6D4', // Ciano Seats.io
     priceBRL: 140,
     halfPriceBRL: 70,
     lotId: 'lot-central-1'
   },
   {
     id: 'cat-lateral',
-    name: 'Plateia Lateral A / C',
-    color: '#4F46E5',
+    name: 'Plateia Arquibancada / Alas',
+    color: '#6366F1', // Índigo Seats.io
     priceBRL: 110,
     halfPriceBRL: 55,
     lotId: 'lot-lateral-1'
   },
   {
     id: 'cat-camarote',
-    name: 'Camarote / Box VIP',
-    color: '#7C3AED',
+    name: 'Mesas Bistrô & Camarotes VIP',
+    color: '#A855F7', // Roxo VIP Seats.io
     priceBRL: 220,
     halfPriceBRL: 110,
     lotId: 'lot-camarote-1'
@@ -101,7 +100,7 @@ export const DEFAULT_SEATSIO_CATEGORIES: SeatsIoCategory[] = [
   {
     id: 'cat-pcd',
     name: 'Acessível PCD / Acompanhante ♿',
-    color: '#0891B2',
+    color: '#14B8A6', // Teal PCD
     priceBRL: 70,
     halfPriceBRL: 70,
     lotId: 'lot-central-1',
@@ -109,37 +108,32 @@ export const DEFAULT_SEATSIO_CATEGORIES: SeatsIoCategory[] = [
   }
 ]
 
-// 5 Cores Oficiais de Disponibilidade / Seleção do Motor Próprio SafeSaff
+// 5 Cores Explícitas de Disponibilidade e Seleção (Requisito 3)
 export const SAFESAFF_5_STATE_COLORS = {
   available: {
     label: 'Disponível',
-    hex: '#2563EB', // Azul
-    border: '#60A5FA',
-    badgeBg: 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+    hex: '#3B82F6', // Azul
+    border: '#93C5FD'
   },
   selected: {
     label: 'Selecionado',
     hex: '#10B981', // Verde Esmeralda Brilhante
-    border: '#A7F3D0',
-    badgeBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+    border: '#FFFFFF'
   },
   sold: {
     label: 'Vendido',
-    hex: '#DC2626', // Vermelho
-    border: '#FCA5A5',
-    badgeBg: 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+    hex: '#EF4444', // Vermelho
+    border: '#991B1B'
   },
   reserved: {
     label: 'Reservado (Hold)',
-    hex: '#EA580C', // Laranja / Âmbar
-    border: '#FDBA74',
-    badgeBg: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+    hex: '#F59E0B', // Âmbar / Laranja
+    border: '#FEF08A'
   },
   blocked: {
     label: 'Bloqueado',
-    hex: '#0F172A', // Grafite Escuro / Preto
-    border: '#475569',
-    badgeBg: 'bg-slate-800 text-slate-300 border-slate-600'
+    hex: '#334155', // Cinza Chumbo Escuro
+    border: '#64748B'
   }
 }
 
@@ -154,6 +148,215 @@ export const SEATSIO_CHANNELS: {
   { key: 'promoters', name: 'Promoters & Afiliados', color: '#F59E0B', badge: 'PRM' },
   { key: 'courtesy_vip', name: 'Cortesia & Patrocinadores', color: '#EC4899', badge: 'VIP' }
 ]
+
+// ============================================================================
+// GERADOR NATIVO DE PLANTA SEATS.IO (ARENA ANFITEATRO CURVO + MESAS + CAMAROTES)
+// Gera uma planta vetorial limpa em arco concêntrico ao redor do Palco, no
+// padrão visual exato do Seats.io (bolinhas perfeitas espaçadas por fileira).
+// ============================================================================
+export function generateSeatsIoNativeArenaLayout(shape: SeatShapeType = 'circle'): {
+  seats: SeatmapSeatPoint[]
+  zones: SeatmapZoneElement[]
+} {
+  const seats: SeatmapSeatPoint[] = []
+  const zones: SeatmapZoneElement[] = []
+  const stageCenterX = 620
+  const stageCenterY = 110
+
+  // 1. BLOCO A — PLATEIA VIP OURO (Fileiras Curvas A, B, C, D concêntricas ao Palco)
+  const vipRows = ['A', 'B', 'C', 'D']
+  vipRows.forEach((rLetter, rIdx) => {
+    const radius = 155 + rIdx * 28
+    const count = 16 + rIdx * 2
+    const startAngleDeg = -36
+    const endAngleDeg = 36
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 0.5
+      // Corredor central sutil
+      const aisleShift = i >= count / 2 ? 2.2 : -2.2
+      const angleDeg = startAngleDeg + t * (endAngleDeg - startAngleDeg) + aisleShift
+      const angleRad = (angleDeg * Math.PI) / 180
+      const x = Number((stageCenterX + Math.sin(angleRad) * radius).toFixed(2))
+      const y = Number((stageCenterY + Math.cos(angleRad) * radius).toFixed(2))
+      const seatNum = i + 1
+      const numStr = String(seatNum).padStart(2, '0')
+      const isPcd = rLetter === 'A' && (i === 0 || i === count - 1)
+
+      let status: SeatStatusType = 'free'
+      if (rLetter === 'A' && i >= 5 && i <= 10) status = 'sold'
+      if (rLetter === 'B' && (i === 7 || i === 8)) status = 'reserved'
+
+      seats.push({
+        id: `SETOR VIP OURO:FILA ${rLetter}:${rLetter}-${numStr}`,
+        label: isPcd ? `${rLetter}${numStr} ♿` : `${rLetter}${numStr}`,
+        rowLabel: `FILA ${rLetter}`,
+        seatNumber: seatNum,
+        sectorId: 'SETOR VIP OURO',
+        sectorName: 'SETOR VIP OURO',
+        x,
+        y,
+        width: 20,
+        height: 24,
+        rotation: -Math.round(angleDeg),
+        nominal: true,
+        description: isPcd ? 'cat-pcd' : 'cat-premium',
+        colorHex: isPcd ? '#14B8A6' : '#3B82F6',
+        shape,
+        status,
+        priceBRL: isPcd ? 70 : 180
+      })
+    }
+  })
+
+  // 2. BLOCO B — PLATEIA CENTRAL & ALAS LATERAIS (Fileiras Curvas E, F, G, H, I, J)
+  const mainRows = ['E', 'F', 'G', 'H', 'I', 'J']
+  mainRows.forEach((rLetter, rIdx) => {
+    const radius = 295 + rIdx * 28
+    const count = 24 + rIdx * 2
+    const startAngleDeg = -48
+    const endAngleDeg = 48
+    for (let i = 0; i < count; i++) {
+      const t = count > 1 ? i / (count - 1) : 0.5
+      // Dois corredores dividindo Ala Esquerda, Plateia Central e Ala Direita
+      let aisleGap = 0
+      if (i < Math.floor(count * 0.28)) aisleGap = -3.5
+      else if (i >= Math.ceil(count * 0.72)) aisleGap = 3.5
+
+      const angleDeg = startAngleDeg + t * (endAngleDeg - startAngleDeg) + aisleGap
+      const angleRad = (angleDeg * Math.PI) / 180
+      const x = Number((stageCenterX + Math.sin(angleRad) * radius).toFixed(2))
+      const y = Number((stageCenterY + Math.cos(angleRad) * radius).toFixed(2))
+      const seatNum = i + 1
+      const numStr = String(seatNum).padStart(2, '0')
+
+      const isWing = i < Math.floor(count * 0.28) || i >= Math.ceil(count * 0.72)
+      const secName = isWing
+        ? i < count / 2
+          ? 'ALA ESQUERDA'
+          : 'ALA DIREITA'
+        : 'PLATEIA CENTRAL'
+
+      let status: SeatStatusType = 'free'
+      if (rLetter === 'E' && i >= 9 && i <= 14) status = 'sold'
+      if (rLetter === 'F' && (i === 3 || i === 4)) status = 'blocked'
+      if (rLetter === 'G' && (i === 11 || i === 12)) status = 'reserved'
+
+      seats.push({
+        id: `${secName}:FILA ${rLetter}:${rLetter}-${numStr}`,
+        label: `${rLetter}${numStr}`,
+        rowLabel: `FILA ${rLetter}`,
+        seatNumber: seatNum,
+        sectorId: secName,
+        sectorName: secName,
+        x,
+        y,
+        width: 20,
+        height: 24,
+        rotation: -Math.round(angleDeg),
+        nominal: true,
+        description: isWing ? 'cat-lateral' : 'cat-central',
+        colorHex: isWing ? '#6366F1' : '#06B6D4',
+        shape,
+        status,
+        priceBRL: isWing ? 110 : 140
+      })
+    }
+  })
+
+  // 3. BLOCO C — MESAS BISTRÔ VIP (6 Mesas Redondas com 6 cadeiras ao redor estilo Seats.io)
+  const tableCoords = [
+    { code: 'M01', cx: 230, cy: 590 },
+    { code: 'M02', cx: 380, cy: 625 },
+    { code: 'M03', cx: 535, cy: 645 },
+    { code: 'M04', cx: 705, cy: 645 },
+    { code: 'M05', cx: 860, cy: 625 },
+    { code: 'M06', cx: 1010, cy: 590 }
+  ]
+  tableCoords.forEach((tbl, tIdx) => {
+    zones.push({
+      id: `seatsio-tbl-${tbl.code}`,
+      kind: 'table_center',
+      label: tbl.code,
+      x: tbl.cx - 26,
+      y: tbl.cy - 26,
+      width: 52,
+      height: 52,
+      color: '#A855F7',
+      capacity: 6
+    })
+    for (let c = 0; c < 6; c++) {
+      const aRad = (c / 6) * Math.PI * 2 - Math.PI / 2
+      const sx = Number((tbl.cx + Math.cos(aRad) * 40).toFixed(2))
+      const sy = Number((tbl.cy + Math.sin(aRad) * 40).toFixed(2))
+      const sNum = c + 1
+      seats.push({
+        id: `MESAS BISTRÔ VIP:${tbl.code}:${tbl.code}-${sNum}`,
+        label: `${tbl.code}-${sNum}`,
+        rowLabel: tbl.code,
+        seatNumber: sNum,
+        sectorId: 'MESAS BISTRÔ VIP',
+        sectorName: 'MESAS BISTRÔ VIP',
+        x: sx,
+        y: sy,
+        width: 18,
+        height: 22,
+        rotation: Math.round((aRad * 180) / Math.PI - 90),
+        nominal: true,
+        description: 'cat-camarote',
+        colorHex: '#A855F7',
+        shape,
+        status: tIdx === 2 && c < 4 ? 'sold' : 'free',
+        priceBRL: 220
+      })
+    }
+  })
+
+  // 4. BLOCO D — CAMAROTES ELEVADOS (Boxes A, B, C no fundo da Arena)
+  const boxes = [
+    { name: 'CAMAROTE BOX 01', startX: 330, y: 735 },
+    { name: 'CAMAROTE BOX 02', startX: 555, y: 735 },
+    { name: 'CAMAROTE BOX 03', startX: 780, y: 735 }
+  ]
+  boxes.forEach((bx, bIdx) => {
+    zones.push({
+      id: `seatsio-box-${bIdx + 1}`,
+      kind: 'camarote',
+      label: bx.name,
+      x: bx.startX - 18,
+      y: bx.y - 24,
+      width: 165,
+      height: 64,
+      color: '#8B5CF6',
+      capacity: 12
+    })
+    for (let r = 0; r < 2; r++) {
+      for (let s = 0; s < 6; s++) {
+        const num = r * 6 + s + 1
+        seats.push({
+          id: `${bx.name}:BOX ${bIdx + 1}:C${num}`,
+          label: `C${String(num).padStart(2, '0')}`,
+          rowLabel: bx.name,
+          seatNumber: num,
+          sectorId: bx.name,
+          sectorName: bx.name,
+          x: bx.startX + s * 25,
+          y: bx.y + r * 24,
+          width: 18,
+          height: 22,
+          rotation: 0,
+          nominal: true,
+          description: 'cat-camarote',
+          colorHex: '#A855F7',
+          shape,
+          status: bIdx === 1 && r === 0 ? 'reserved' : 'free',
+          priceBRL: 220
+        })
+      }
+    }
+  })
+
+  return { seats, zones }
+}
 
 interface Props {
   mode: SeatsIoMode
@@ -178,8 +381,8 @@ interface Props {
 export const SeatsIoChartEngine: React.FC<Props> = ({
   mode,
   onModeChange,
-  seats,
-  zones,
+  seats: propSeats,
+  zones: propZones,
   onCommitSeats,
   onCommitZones,
   bgDataUrl,
@@ -194,7 +397,35 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   onOpenBgModal,
   onSwitchToClassicMode
 }) => {
-  const [categories, setCategories] = useState<SeatsIoCategory[]>(() =>
+  // Por padrão no Motor Seats.io usamos a Planta Vetorial Curva estilo Seats.io (sem a imagem chapada antiga do Teatro Marista, a menos que o usuário ative "Mostrar Imagem de Fundo 96 DPI")
+  const [showRasterBackground, setShowRasterBackground] = useState<boolean>(false)
+  const [activeTemplate, setActiveTemplate] = useState<'seatsio_arena' | 'marista_classic'>('seatsio_arena')
+
+  // Inicializa automaticamente a planta curva estilo Seats.io na primeira abertura se ainda estiver no template antigo
+  const nativeArena = useMemo(() => generateSeatsIoNativeArenaLayout('circle'), [])
+
+  const seats = useMemo(() => {
+    if (activeTemplate === 'seatsio_arena') {
+      // Se o usuário ainda não tinha assentos do template Seats.io Arena, usa os gerados ou sincroniza
+      const isOldMaristaDefault =
+        propSeats.length > 0 &&
+        propSeats[0].id.startsWith('CAMAROTE D:FILA O:Polt. 01') &&
+        propZones.length === 0
+      if (isOldMaristaDefault) {
+        return nativeArena.seats
+      }
+    }
+    return propSeats
+  }, [propSeats, propZones, activeTemplate, nativeArena])
+
+  const zones = useMemo(() => {
+    if (activeTemplate === 'seatsio_arena' && propZones.length === 0) {
+      return nativeArena.zones
+    }
+    return propZones
+  }, [propZones, activeTemplate, nativeArena])
+
+  const [categories] = useState<SeatsIoCategory[]>(() =>
     DEFAULT_SEATSIO_CATEGORIES.map((c, idx) =>
       idx === 1 && basePriceBRL > 0
         ? { ...c, priceBRL: basePriceBRL, halfPriceBRL: Math.round(basePriceBRL / 2) }
@@ -211,7 +442,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   const [lots, setLots] = useState<SeatmapLotRule[]>(() => safesaffSeatmapEngine.loadLots())
   const [livePulseActive, setLivePulseActive] = useState<boolean>(false)
 
-  // Assinatura de sincronização em tempo real sem recarregar a página
   useEffect(() => {
     return safesaffSeatmapEngine.subscribeRealtime(() => {
       setTicketBindings(safesaffSeatmapEngine.loadBindings())
@@ -235,11 +465,11 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           randomSeat.label
         } atualizado para ${nextStatus === 'sold' ? 'VENDIDO' : 'RESERVADO (HOLD)'}.`
       )
-    }, 3200)
+    }, 3000)
     return () => window.clearInterval(timer)
   }, [livePulseActive, seats])
 
-  // Seleção múltipla (Marquee Lasso, Shift+Clique, ou Seleção de Fila/Setor)
+  // Seleção múltipla
   const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([])
   const [lassoRect, setLassoRect] = useState<{
     startX: number
@@ -254,7 +484,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   } | null>(null)
 
   // Pan e Zoom do Canvas
-  const [zoom, setZoom] = useState<number>(68)
+  const [zoom, setZoom] = useState<number>(82)
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [isPanning, setIsPanning] = useState<boolean>(false)
   const [panOrigin, setPanOrigin] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
@@ -262,29 +492,29 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
 
   // Ponto Focal do Palco
   const [focalPoint, setFocalPoint] = useState<{ x: number; y: number }>({
-    x: Math.round(bgWidthPx / 2),
-    y: 95
+    x: 620,
+    y: 110
   })
 
   // Parâmetros do Gerador de Setores, Fileiras Curvas e Assentos
   const [rowBuilderRowsCount, setRowBuilderRowsCount] = useState<number>(3)
-  const [rowBuilderSeatsPerRow, setRowBuilderSeatsPerRow] = useState<number>(12)
-  const [rowBuilderCurve, setRowBuilderCurve] = useState<number>(16)
-  const [rowBuilderSeatSpacing, setRowBuilderSeatSpacing] = useState<number>(22)
-  const [rowBuilderRowSpacing, setRowBuilderRowSpacing] = useState<number>(28)
+  const [rowBuilderSeatsPerRow, setRowBuilderSeatsPerRow] = useState<number>(14)
+  const [rowBuilderCurve, setRowBuilderCurve] = useState<number>(20)
+  const [rowBuilderSeatSpacing] = useState<number>(22)
+  const [rowBuilderRowSpacing] = useState<number>(28)
   const [rowBuilderNumbering, setRowBuilderNumbering] = useState<'sequential' | 'odd' | 'even'>('sequential')
-  const [rowBuilderSectorName, setRowBuilderSectorName] = useState<string>('PLATEIA B - Central')
-  const [rowBuilderStartRowLetter, setRowBuilderStartRowLetter] = useState<string>('A')
+  const [rowBuilderSectorName, setRowBuilderSectorName] = useState<string>('PLATEIA CENTRAL')
+  const [rowBuilderStartRowLetter, setRowBuilderStartRowLetter] = useState<string>('K')
 
   // Parâmetros do Gerador de Mesas
-  const [tableSeatsCount, setTableSeatsCount] = useState<number>(8)
-  const [tableRadiusPx, setTableRadiusPx] = useState<number>(36)
-  const [tablePrefix, setTablePrefix] = useState<string>('MESA VIP')
+  const [tableSeatsCount, setTableSeatsCount] = useState<number>(6)
+  const [tableRadiusPx, setTableRadiusPx] = useState<number>(28)
+  const [tablePrefix] = useState<string>('M')
 
   // Formulário Rápido de Emissão de Pedido / Ingresso / Reserva no Painel Lateral
   const [issueHolderName, setIssueHolderName] = useState<string>('Carlos Eduardo Mendes')
   const [issueHolderCpf, setIssueHolderCpf] = useState<string>('049.281.938-12')
-  const [issueHolderEmail, setIssueHolderEmail] = useState<string>('carlos.mendes@email.com.br')
+  const [issueHolderEmail] = useState<string>('carlos.mendes@email.com.br')
   const [issueModality, setIssueModality] = useState<
     'INTEIRA' | 'MEIA_ENTRADA' | 'CORTESIA'
   >('INTEIRA')
@@ -295,13 +525,11 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   const [managerTab, setManagerTab] = useState<
     'inspector' | 'statuses' | 'lots_integration' | 'best_available'
   >('inspector')
-  const [seatChannels, setSeatChannels] = useState<Record<string, SeatsIoChannelKey>>({})
-  const [activeChannelBrush, setActiveChannelBrush] = useState<SeatsIoChannelKey>('online_web')
 
   // Best Available
   const [bestAvailCount, setBestAvailCount] = useState<number>(2)
   const [bestAvailCategoryFilter, setBestAvailCategoryFilter] = useState<string>('ALL')
-  const [preventOrphanSeat, setPreventOrphanSeat] = useState<boolean>(true)
+  const [preventOrphanSeat] = useState<boolean>(true)
   const [bestAvailFeedback, setBestAvailFeedback] = useState<string | null>(null)
 
   // Checkout Preview
@@ -323,23 +551,39 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
       return categories.find(c => c.isAccessible) || categories[categories.length - 1]
     }
     const secUpper = seat.sectorName.toUpperCase()
-    if (secUpper.includes('CAMAROTE') || secUpper.includes('MESA')) {
-      return categories.find(c => c.id === 'cat-camarote') || categories[0]
+    if (secUpper.includes('CAMAROTE') || secUpper.includes('MESA') || secUpper.includes('BOX')) {
+      return categories.find(c => c.id === 'cat-camarote') || categories[3]
     }
-    if (secUpper.includes('PREMIUM') || ['FILA A', 'FILA B', 'FILA C'].includes(seat.rowLabel)) {
+    if (secUpper.includes('VIP') || secUpper.includes('PREMIUM') || ['FILA A', 'FILA B', 'FILA C', 'FILA D'].includes(seat.rowLabel)) {
       return categories.find(c => c.id === 'cat-premium') || categories[0]
     }
-    if (
-      secUpper.includes('LATERAL') ||
-      secUpper.includes('PLATEIA A') ||
-      secUpper.includes('PLATEIA C')
-    ) {
+    if (secUpper.includes('ALA') || secUpper.includes('LATERAL') || secUpper.includes('PLATEIA A') || secUpper.includes('PLATEIA C')) {
       return categories.find(c => c.id === 'cat-lateral') || categories[2]
     }
     return categories.find(c => c.id === 'cat-central') || categories[1]
   }
 
-  // Assento único selecionado no Inspector Lateral (quando 1 ou mais estão selecionados, foca no primeiro para detalhe individual)
+  // Rótulos de Fileira nas extremidades esquerda e direita de cada fileira (Idêntico ao Seats.io!)
+  const rowEndMarkers = useMemo(() => {
+    const map = new Map<
+      string,
+      { rowShort: string; minSeat: SeatmapSeatPoint; maxSeat: SeatmapSeatPoint }
+    >()
+    seats.forEach(s => {
+      if (s.sectorName.includes('MESA') || s.sectorName.includes('CAMAROTE')) return
+      const key = `${s.sectorName}::${s.rowLabel}`
+      const cur = map.get(key)
+      const short = s.rowLabel.replace('FILA ', '').trim()
+      if (!cur) {
+        map.set(key, { rowShort: short, minSeat: s, maxSeat: s })
+      } else {
+        if (s.x < cur.minSeat.x) cur.minSeat = s
+        if (s.x > cur.maxSeat.x) cur.maxSeat = s
+      }
+    })
+    return Array.from(map.values())
+  }, [seats])
+
   const primarySelectedSeat = useMemo(() => {
     if (selectedSeatIds.length === 0) return null
     return seats.find(s => s.id === selectedSeatIds[0]) || null
@@ -350,7 +594,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     return ticketBindings[primarySelectedSeat.id] || null
   }, [primarySelectedSeat, ticketBindings])
 
-  // Estatísticas em tempo real (Disponíveis, Selecionados, Vendidos, Reservados, Bloqueados e Check-ins)
+  // Estatísticas em tempo real
   const stats = useMemo(() => {
     const total = seats.length
     const free = seats.filter(s => s.status === 'free').length
@@ -388,14 +632,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     }
   }, [seats, categories, selectedSeatIds, buyerSelectedSeats, mode, ticketBindings])
 
-  // Lista única de Setores e Fileiras existentes no Mapa
   const distinctSectors = useMemo(() => {
     const set = new Set<string>()
     seats.forEach(s => set.add(s.sectorName))
     return Array.from(set)
   }, [seats])
 
-  // Agrupamento de setores para Semantic Zoom (LOD)
   const sectorClusters = useMemo(() => {
     const map = new Map<
       string,
@@ -442,7 +684,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     return Array.from(map.values())
   }, [seats, categories])
 
-  // Regra Anti-Assento Isolado (Orphan Seat Rule)
   const orphanSeatWarnings = useMemo(() => {
     if (!preventOrphanSeat) return []
     const buyerIds = new Set(Object.keys(buyerSelectedSeats))
@@ -484,14 +725,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     return warnings
   }, [seats, buyerSelectedSeats, preventOrphanSeat])
 
-  // Atualizar propriedade individual ou em lote dos assentos selecionados
   const updateSelectedSeats = (patch: Partial<SeatmapSeatPoint>) => {
     if (selectedSeatIds.length === 0) return
     const selSet = new Set(selectedSeatIds)
     onCommitSeats(seats.map(s => (selSet.has(s.id) ? { ...s, ...patch } : s)))
   }
 
-  // Selecionar toda a Fileira ou todo o Setor do assento atual
   const selectEntireRow = (sectorName: string, rowLabel: string) => {
     const ids = seats
       .filter(s => s.sectorName === sectorName && s.rowLabel === rowLabel)
@@ -510,7 +749,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Alinhar Horizontalmente (mesmo Y) e Distribuir Uniformemente (eixo X) os assentos selecionados
   const alignSelectedSeatsHorizontally = () => {
     if (selectedSeatIds.length < 2) return
     const selSet = new Set(selectedSeatIds)
@@ -546,7 +784,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Orientar poltronas para o Ponto Focal no Palco
   const orientSeatsToFocalPoint = (onlySelected: boolean) => {
     const selSet = new Set(selectedSeatIds)
     const next = seats.map(s => {
@@ -564,7 +801,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Aplicar Categoria às poltronas selecionadas
   const applyCategoryToSelected = (catId: string) => {
     const cat = categories.find(c => c.id === catId)
     if (!cat || selectedSeatIds.length === 0) return
@@ -585,7 +821,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Aplicar Status em Lote às poltronas selecionadas
   const applyStatusToSelected = (status: SeatStatusType) => {
     if (selectedSeatIds.length === 0) return
     const selSet = new Set(selectedSeatIds)
@@ -595,7 +830,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Emitir Pedido + Ingresso (ou Reserva Hold) real via safesaffSeatmapEngine para os assentos selecionados
   const handleIssueOrderOrHoldForSelection = async (actionMode: 'SELL' | 'RESERVE_HOLD') => {
     const targetSeats = seats.filter(s => selectedSeatIds.includes(s.id))
     if (targetSeats.length === 0) return
@@ -641,7 +875,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     }
   }
 
-  // Algoritmo Best Available
   const runSeatsIoBestAvailable = () => {
     const rowsMap = new Map<string, SeatmapSeatPoint[]>()
     seats.forEach(s => {
@@ -725,7 +958,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Carimbar Bloco de Fileiras Curvas / Setor
   const stampCurvedRowBlockAt = (centerX: number, centerY: number) => {
     const activeCat = categories.find(c => c.id === activeCategoryId) || categories[1]
     const created: SeatmapSeatPoint[] = []
@@ -761,8 +993,8 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
         const numStr = String(seatNumber).padStart(2, '0')
 
         created.push({
-          id: `${rowBuilderSectorName}:${rowLabel}:Polt. ${numStr}-${Date.now()}-${r}-${i}`,
-          label: `Polt. ${numStr}`,
+          id: `${rowBuilderSectorName}:${rowLabel}:${rowLetter}-${numStr}-${Date.now()}-${r}-${i}`,
+          label: `${rowLetter}${numStr}`,
           rowLabel,
           seatNumber,
           sectorId: rowBuilderSectorName,
@@ -770,7 +1002,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           x,
           y,
           width: 20,
-          height: 27,
+          height: 24,
           rotation: -tangentAngle,
           nominal: true,
           description: activeCat.id,
@@ -789,11 +1021,10 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     )
   }
 
-  // Carimbar Mesa Redonda com Poltronas ao Redor
   const stampRoundTableAt = (centerX: number, centerY: number) => {
     const activeCat = categories.find(c => c.id === activeCategoryId) || categories[3]
     const tableNum = zones.filter(z => z.kind === 'table_center').length + 1
-    const tableLabel = `${tablePrefix} ${String(tableNum).padStart(2, '0')}`
+    const tableLabel = `${tablePrefix}${String(tableNum).padStart(2, '0')}`
 
     const newZone: SeatmapZoneElement = {
       id: `table-zone-${Date.now()}`,
@@ -807,7 +1038,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
       capacity: tableSeatsCount
     }
 
-    const chairOrbitRadius = tableRadiusPx + 18
+    const chairOrbitRadius = tableRadiusPx + 14
     const createdSeats: SeatmapSeatPoint[] = []
     for (let i = 0; i < tableSeatsCount; i++) {
       const angleRad = (i / tableSeatsCount) * Math.PI * 2 - Math.PI / 2
@@ -815,19 +1046,18 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
       const sy = Number((centerY + Math.sin(angleRad) * chairOrbitRadius).toFixed(2))
       const rotDeg = Math.round((angleRad * 180) / Math.PI - 90)
       const seatNum = i + 1
-      const numStr = String(seatNum).padStart(2, '0')
 
       createdSeats.push({
-        id: `${tableLabel}:${tableLabel}:Polt. ${numStr}-${Date.now()}-${i}`,
-        label: `Polt. ${numStr}`,
+        id: `MESAS BISTRÔ VIP:${tableLabel}:${tableLabel}-${seatNum}-${Date.now()}`,
+        label: `${tableLabel}-${seatNum}`,
         rowLabel: tableLabel,
         seatNumber: seatNum,
-        sectorId: 'MESAS VIP BISTRÔ',
-        sectorName: 'MESAS VIP BISTRÔ',
+        sectorId: 'MESAS BISTRÔ VIP',
+        sectorName: 'MESAS BISTRÔ VIP',
         x: sx,
         y: sy,
-        width: 20,
-        height: 27,
+        width: 18,
+        height: 22,
         rotation: rotDeg,
         nominal: true,
         description: activeCat.id,
@@ -841,10 +1071,9 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     onCommitZones([...zones, newZone])
     onCommitSeats([...seats, ...createdSeats])
     setSelectedSeatIds(createdSeats.map(s => s.id))
-    setBestAvailFeedback(`${tableLabel} criada com ${tableSeatsCount} assentos ao redor.`)
+    setBestAvailFeedback(`Mesa ${tableLabel} criada com ${tableSeatsCount} assentos ao redor.`)
   }
 
-  // Carimbar Área de Pista / General Admission
   const stampGeneralAdmissionZoneAt = (centerX: number, centerY: number) => {
     const activeCat = categories.find(c => c.id === activeCategoryId) || categories[2]
     const gaCount = zones.filter(z => z.kind === 'pista').length + 1
@@ -863,7 +1092,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     setBestAvailFeedback(`Área General Admission (Pista) adicionada à planta.`)
   }
 
-  // Mouse handlers do Canvas (Pan, Arraste de Poltronas Selecionadas, Lasso Marquee ou Ferramentas)
   const handleCanvasMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (designerTool === 'pan' || e.button === 1) {
       setIsPanning(true)
@@ -937,12 +1165,8 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   }
 
   const handleCanvasMouseUp = () => {
-    if (isPanning) {
-      setIsPanning(false)
-    }
-    if (draggingSelectedSeats) {
-      setDraggingSelectedSeats(null)
-    }
+    if (isPanning) setIsPanning(false)
+    if (draggingSelectedSeats) setDraggingSelectedSeats(null)
     if (lassoRect) {
       const minX = Math.min(lassoRect.startX, lassoRect.curX)
       const maxX = Math.max(lassoRect.startX, lassoRect.curX)
@@ -958,7 +1182,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     }
   }
 
-  // Clique e início de arraste em um assento individual
   const handleSeatMouseDown = (e: React.MouseEvent, seat: SeatmapSeatPoint) => {
     if (mode === 'checkout_preview' || designerTool !== 'select_lasso') return
     if (selectedSeatIds.includes(seat.id) && canvasRef.current) {
@@ -1009,7 +1232,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
     }
   }
 
-  // Cálculo do Carrinho no Checkout Preview
   const buyerCartItems = useMemo(() => {
     return Object.entries(buyerSelectedSeats)
       .map(([seatId, modality]) => {
@@ -1029,70 +1251,92 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
 
   return (
     <div
-      className="bg-[#0B0F19] text-slate-100 rounded-xl border border-slate-800 shadow-2xl overflow-hidden select-none"
+      className="bg-[#0B0F19] text-slate-100 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden select-none"
       data-testid="seatsio-chart-engine"
     >
       {/* =====================================================================
-          1. BARRA SUPERIOR DO MOTOR PRÓPRIO SAFESAFF (INSPIRADO NO SEATS.IO)
+          1. BARRA SUPERIOR SEATS.IO NATIVE ENGINE
       ===================================================================== */}
-      <div className="bg-[#111827] border-b border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-black text-xs tracking-wide shadow">
-            <Compass size={15} />
+      <div className="bg-[#111827] border-b border-slate-800 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white font-black text-xs tracking-wide shadow-lg">
+            <Compass size={16} />
             <span>SafeSaff SeatEngine</span>
-            <span className="text-[10px] font-semibold bg-black/30 px-1.5 py-0.5 rounded">
-              Padrão Seats.io Nativo
+            <span className="text-[10px] font-bold bg-slate-950/40 px-2 py-0.5 rounded-full">
+              SEATS.IO ARCHITECTURE
             </span>
           </div>
 
-          {/* 3 Modos Operacionais do Motor */}
-          <div className="flex items-center bg-[#0B0F19] p-1 rounded-lg border border-slate-800 gap-1">
+          {/* 3 Modos Oficiais */}
+          <div className="flex items-center bg-[#0B0F19] p-1 rounded-xl border border-slate-800 gap-1">
             <button
               type="button"
               onClick={() => onModeChange('designer')}
               data-testid="seatsio-mode-designer"
-              className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                 mode === 'designer'
                   ? 'bg-indigo-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <Wand2 size={14} />
-              <span>1. Editor Visual de Planta</span>
+              <span>1. Editor Visual (Designer)</span>
             </button>
 
             <button
               type="button"
               onClick={() => onModeChange('event_manager')}
               data-testid="seatsio-mode-manager"
-              className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                 mode === 'event_manager'
                   ? 'bg-emerald-600 text-white shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <Layers size={14} />
-              <span>2. Operação, Ingressos & Catraca</span>
+              <span>2. Operação, Lotes & Catraca</span>
             </button>
 
             <button
               type="button"
               onClick={() => onModeChange('checkout_preview')}
               data-testid="seatsio-mode-checkout"
-              className={`px-3 py-1.5 rounded-md text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                 mode === 'checkout_preview'
                   ? 'bg-amber-500 text-slate-950 shadow'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
               <ShoppingCart size={14} />
-              <span>3. Checkout Online (Comprador)</span>
+              <span>3. Checkout Online (Cliente)</span>
             </button>
           </div>
         </div>
 
-        {/* Simulador Tempo Real (Sem Reload) + Upload Planta + Alternância Árvore Clássica */}
-        <div className="flex items-center gap-2">
+        {/* Seletor de Planta & Controles Superiores */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const generated = generateSeatsIoNativeArenaLayout(seatShape)
+              setActiveTemplate('seatsio_arena')
+              setShowRasterBackground(false)
+              onCommitSeats(generated.seats)
+              onCommitZones(generated.zones)
+              setSelectedSeatIds([])
+              setBestAvailFeedback(
+                'Carregada Planta Vetorial Curva Padrão Seats.io (Anfiteatro + Mesas Bistrô + Camarotes Box).'
+              )
+            }}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold cursor-pointer ${
+              activeTemplate === 'seatsio_arena' && !showRasterBackground
+                ? 'bg-indigo-600/30 border-indigo-400 text-indigo-200'
+                : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            🏟️ Planta Curva Seats.io
+          </button>
+
           <button
             type="button"
             onClick={() => setLivePulseActive(prev => !prev)}
@@ -1102,43 +1346,45 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 ? 'bg-emerald-600 text-white border-emerald-400 animate-pulse'
                 : 'bg-slate-900 text-slate-300 border-slate-700 hover:bg-slate-800'
             }`}
-            title="Atualiza disponibilidade de assentos em tempo real sem recarregar a página"
           >
             <Activity size={13} />
-            <span>{livePulseActive ? 'Live Tempo Real: ATIVO' : 'Testar Live Tempo Real'}</span>
+            <span>{livePulseActive ? 'Live Tempo Real: ON' : 'Simular Tempo Real'}</span>
           </button>
 
           <button
             type="button"
-            onClick={onOpenBgModal}
+            onClick={() => {
+              setShowRasterBackground(true)
+              onOpenBgModal()
+            }}
             className="px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 cursor-pointer"
           >
             <Upload size={13} />
-            <span>Planta 96 DPI</span>
+            <span>Importar Planta 96 DPI</span>
           </button>
 
           <button
             type="button"
             onClick={onSwitchToClassicMode}
             data-testid="btn-switch-classic-estrutura"
-            className="px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-bold text-amber-300 cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg border border-slate-700 bg-slate-900 hover:bg-slate-800 text-xs font-semibold text-slate-400 hover:text-amber-300 cursor-pointer"
           >
-            Árvore Clássica (M/L)
+            Modo Legado (Árvore M/L)
           </button>
         </div>
       </div>
 
       {/* =====================================================================
-          1.5 LEGENDA OFICIAL DE 5 CORES POR STATUS + CONTADORES EM TEMPO REAL
+          1.5 LEGENDA DE 5 CORES POR DISPONIBILIDADE + CONTADORES EM TEMPO REAL
       ===================================================================== */}
       <div className="bg-[#090D16] border-b border-slate-800/90 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            Disponibilidade em Tempo Real:
+            Status & Disponibilidade:
           </span>
 
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/15 border border-blue-500/40 text-blue-300 font-bold text-[11px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]" />
             Disponível: {stats.free}
           </span>
 
@@ -1148,17 +1394,17 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           </span>
 
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-300 font-bold text-[11px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#DC2626]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
             Vendido: {stats.sold}
           </span>
 
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-bold text-[11px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#EA580C]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
             Reservado (Hold): {stats.reserved}
           </span>
 
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-600 text-slate-300 font-bold text-[11px]">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#0F172A] border border-slate-400" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#334155] border border-slate-400" />
             Bloqueado: {stats.blocked}
           </span>
 
@@ -1185,8 +1431,8 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           <div className="flex items-center bg-slate-900 rounded-lg border border-slate-700 p-0.5">
             {(
               [
-                { id: 'circle' as const, label: 'Bolinha' },
-                { id: 'armchair' as const, label: 'Poltrona' },
+                { id: 'circle' as const, label: 'Círculo Seats.io' },
+                { id: 'armchair' as const, label: 'Poltrona Teatro' },
                 { id: 'square' as const, label: 'Quadrado' }
               ] as const
             ).map(sh => (
@@ -1240,7 +1486,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
       <div className="bg-[#0F172A] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1 flex items-center gap-1">
-            <Tag size={12} /> Setores & Lotes:
+            <Tag size={12} /> Categorias & Setores:
           </span>
 
           <button
@@ -1284,7 +1530,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           })}
         </div>
 
-        {/* Seleção rápida de todos os livres / limpar */}
         {mode !== 'checkout_preview' && (
           <div className="flex items-center gap-1.5">
             <button
@@ -1310,12 +1555,10 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
       </div>
 
       {/* =====================================================================
-          3. WORKSPACE PRINCIPAL (DOCK DE DESENHO + CANVAS INTERATIVO + PAINEL DE CONTROLE)
+          3. WORKSPACE PRINCIPAL (DOCK DE DESENHO + CANVAS VETORIAL ESCURO SEATS.IO + PAINEL DIREITO)
       ===================================================================== */}
       <div className="flex items-stretch h-[700px] relative">
-        {/* -----------------------------------------------------------------
-            DOCK ESQUERDO DE FERRAMENTAS DE DESENHO & SELEÇÃO
-        ----------------------------------------------------------------- */}
+        {/* DOCK ESQUERDO DE FERRAMENTAS DE DESENHO & SELEÇÃO */}
         {mode !== 'checkout_preview' && (
           <div className="w-16 bg-[#111827] border-r border-slate-800 flex flex-col items-center py-3 gap-2 shrink-0 z-20">
             {(
@@ -1393,16 +1636,16 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           </div>
         )}
 
-        {/* -----------------------------------------------------------------
-            CENTRO: MAPA DE ASSENTOS INTERATIVO (ZOOM, ARRASTE, LAÇO, 5 CORES)
-        ----------------------------------------------------------------- */}
+        {/* CENTRO: CANVAS VETORIAL ESCURO PADRÃO SEATS.IO */}
         <div
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
           onMouseUp={handleCanvasMouseUp}
           onMouseLeave={handleCanvasMouseUp}
-          className="flex-1 bg-[#070B12] relative overflow-auto flex items-start justify-center p-6"
+          className="flex-1 bg-[#070B14] relative overflow-auto flex items-start justify-center p-6"
           style={{
+            backgroundImage: 'radial-gradient(rgba(148, 163, 184, 0.14) 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
             cursor:
               designerTool === 'pan' || isPanning
                 ? 'grab'
@@ -1414,11 +1657,11 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 : 'default'
           }}
         >
-          {/* Barra Flutuante de Zoom e Ações Rápidas de Lote no Topo do Canvas */}
+          {/* Barra Flutuante de Zoom no Topo do Canvas */}
           <div className="sticky top-2 left-4 z-30 bg-slate-900/95 backdrop-blur border border-slate-700 rounded-xl px-3 py-1.5 flex flex-wrap items-center gap-2 shadow-xl">
             <button
               type="button"
-              onClick={() => setZoom(z => Math.max(35, z - 10))}
+              onClick={() => setZoom(z => Math.max(40, z - 10))}
               className="p-1 rounded hover:bg-slate-800 text-slate-300 cursor-pointer"
               title="Diminuir Zoom"
             >
@@ -1438,7 +1681,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => {
-                setZoom(68)
+                setZoom(82)
                 setPan({ x: 0, y: 0 })
                 setSemanticSectorOverview(false)
               }}
@@ -1454,7 +1697,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                   type="button"
                   onClick={alignSelectedSeatsHorizontally}
                   className="px-2 py-0.5 rounded bg-indigo-600/30 border border-indigo-400/50 text-indigo-200 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
-                  title="Alinhar horizontalmente e distribuir igualmente os assentos selecionados"
                 >
                   <AlignCenterHorizontal size={12} />
                   <span>Alinhar & Espaçar ({selectedSeatIds.length})</span>
@@ -1463,10 +1705,10 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
             )}
           </div>
 
-          {/* Superfície Escalável da Planta do Evento */}
+          {/* Superfície Escalável Vetorial Escura Estilo Seats.io */}
           <div
             ref={canvasRef}
-            className="relative bg-white rounded-lg shadow-2xl transition-transform"
+            className="relative rounded-2xl border border-slate-800/80 bg-[#0D1322] shadow-2xl transition-transform"
             style={{
               width: `${bgWidthPx}px`,
               height: `${bgHeightPx}px`,
@@ -1474,16 +1716,76 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
               transformOrigin: 'top center'
             }}
           >
-            {/* Imagem de Fundo / Planta Baixa */}
-            {bgDataUrl && (
+            {/* Se o usuário ativar imagem de fundo 96 DPI customizada */}
+            {showRasterBackground && bgDataUrl && (
               <img
                 src={bgDataUrl}
-                alt="Planta do Evento SafeSaff"
+                alt="Planta 96 DPI"
                 draggable={false}
-                className="pointer-events-none absolute inset-0 w-full h-full object-contain"
-                style={{ opacity: bgOpacity / 100 }}
+                className="pointer-events-none absolute inset-0 w-full h-full object-contain opacity-35"
+                style={{ opacity: (bgOpacity / 100) * 0.45 }}
               />
             )}
+
+            {/* PALCO VETORIAL SEATS.IO (Arco Iluminado no Topo Central) */}
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 flex flex-col items-center"
+              style={{ left: '620px', top: '28px', width: '480px' }}
+            >
+              <div className="w-full h-18 rounded-b-[110px] bg-gradient-to-b from-slate-800 via-slate-900 to-indigo-950/90 border-2 border-indigo-500/50 shadow-[0_14px_45px_rgba(59,130,246,0.28)] flex flex-col items-center justify-center">
+                <span className="text-[13px] font-black tracking-[0.35em] text-indigo-200 uppercase">
+                  PALCO PRINCIPAL • STAGE
+                </span>
+                <span className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                  Projeção Acústica & Visibilidade Seats.io
+                </span>
+              </div>
+            </div>
+
+            {/* Rótulos dos Setores na Planta Vetorial */}
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.25em] text-blue-400/80"
+              style={{ left: '620px', top: '220px' }}
+            >
+              SETOR VIP OURO
+            </div>
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.25em] text-cyan-400/80"
+              style={{ left: '620px', top: '360px' }}
+            >
+              PLATEIA CENTRAL
+            </div>
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.25em] text-indigo-400/80"
+              style={{ left: '260px', top: '345px', transform: 'rotate(24deg)' }}
+            >
+              ALA ESQUERDA
+            </div>
+            <div
+              className="pointer-events-none absolute -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.25em] text-indigo-400/80"
+              style={{ left: '980px', top: '345px', transform: 'rotate(-24deg)' }}
+            >
+              ALA DIREITA
+            </div>
+
+            {/* Letras de Fileira (A, B, C...) nas duas pontas de cada fileira como no Seats.io */}
+            {!semanticSectorOverview &&
+              rowEndMarkers.map((m, idx) => (
+                <React.Fragment key={`row-mk-${idx}`}>
+                  <span
+                    className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-[10px] font-extrabold font-mono text-slate-400"
+                    style={{ left: `${m.minSeat.x - 22}px`, top: `${m.minSeat.y}px` }}
+                  >
+                    {m.rowShort}
+                  </span>
+                  <span
+                    className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 text-[10px] font-extrabold font-mono text-slate-400"
+                    style={{ left: `${m.maxSeat.x + 22}px`, top: `${m.maxSeat.y}px` }}
+                  >
+                    {m.rowShort}
+                  </span>
+                </React.Fragment>
+              ))}
 
             {/* Ponto Focal do Palco */}
             <div
@@ -1491,15 +1793,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
               className="pointer-events-none absolute z-30 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
               style={{ left: `${focalPoint.x}px`, top: `${focalPoint.y}px` }}
             >
-              <div className="w-8 h-8 rounded-full bg-amber-500/30 border-2 border-amber-400 flex items-center justify-center animate-pulse shadow-lg">
-                <Crosshair size={16} className="text-amber-950" />
+              <div className="w-7 h-7 rounded-full bg-amber-500/25 border-2 border-amber-400 flex items-center justify-center animate-pulse shadow-lg">
+                <Crosshair size={14} className="text-amber-300" />
               </div>
-              <span className="mt-0.5 px-1.5 py-0.2 rounded bg-slate-900/90 text-amber-300 text-[9px] font-bold whitespace-nowrap">
-                PONTO FOCAL PALCO
-              </span>
             </div>
 
-            {/* Zonas (Mesas Redondas e Áreas Pista / GA) */}
+            {/* Zonas (Mesas Redondas Bistrô, Camarotes Box e Áreas Pista / GA) */}
             {zones.map(z => {
               const isRoundTable = z.kind === 'table_center'
               return (
@@ -1513,12 +1812,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                     top: `${z.y}px`,
                     width: `${z.width}px`,
                     height: `${z.height}px`,
-                    backgroundColor: isRoundTable ? '#1E293B' : `${z.color}33`,
-                    border: `2.5px solid ${z.color}`,
-                    color: isRoundTable ? '#F8FAFC' : '#0F172A'
+                    backgroundColor: isRoundTable ? '#1E1B4B' : 'rgba(139, 92, 246, 0.12)',
+                    border: `2px solid ${z.color}`,
+                    color: '#E2E8F0'
                   }}
                 >
-                  <span className="text-[9px] font-extrabold px-1 leading-tight">
+                  <span className="text-[9px] font-extrabold px-1 leading-tight text-purple-200">
                     {z.label}
                   </span>
                 </div>
@@ -1533,12 +1832,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                   type="button"
                   onClick={() => {
                     setSemanticSectorOverview(false)
-                    setZoom(100)
+                    setZoom(98)
                   }}
                   style={{
                     left: `${cluster.minX - 18}px`,
                     top: `${cluster.minY - 18}px`,
-                    width: `${Math.max(140, cluster.maxX - cluster.minX + 36)}px`,
+                    width: `${Math.max(150, cluster.maxX - cluster.minX + 36)}px`,
                     height: `${Math.max(85, cluster.maxY - cluster.minY + 36)}px`,
                     backgroundColor: `${cluster.color}D9`,
                     borderColor: '#FFFFFF'
@@ -1557,7 +1856,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </button>
               ))
             ) : (
-              /* Assentos Individuais com as 5 Cores Oficiais (Disponível, Selecionado, Vendido, Reservado, Bloqueado) */
+              /* Assentos Individuais estilo Seats.io */
               seats.map(seat => {
                 const cat = resolveSeatCategory(seat)
                 const isSelectedInStudio = selectedSeatIds.includes(seat.id)
@@ -1568,10 +1867,10 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 const binding = ticketBindings[seat.id]
                 const isCheckedIn = binding?.status === 'CHECKED_IN'
 
-                const w = seatShape === 'armchair' ? seat.width || 20 : 18
-                const h = seatShape === 'armchair' ? seat.height || 27 : 18
+                const w = seatShape === 'armchair' ? 19 : 17
+                const h = seatShape === 'armchair' ? 22 : 17
 
-                // 5 Cores Distintas: Selecionado (#10B981), Disponível (Azul/Categoria), Vendido (#DC2626), Reservado (#EA580C), Bloqueado (#0F172A)
+                // 5 Cores Explícitas: Selecionado (#10B981), Disponível (Cor da Categoria / Azul), Vendido (#EF4444), Reservado (#F59E0B), Bloqueado (#334155)
                 const fillHex = isSelected
                   ? SAFESAFF_5_STATE_COLORS.selected.hex
                   : seat.status === 'free'
@@ -1587,12 +1886,12 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                   : isCheckedIn
                   ? '#22D3EE'
                   : seat.status === 'free'
-                  ? '#0F172A'
+                  ? 'rgba(255,255,255,0.28)'
                   : seat.status === 'sold'
-                  ? '#7F1D1D'
+                  ? '#991B1B'
                   : seat.status === 'reserved'
-                  ? '#9A3412'
-                  : '#475569'
+                  ? '#FEF08A'
+                  : '#64748B'
 
                 return (
                   <button
@@ -1611,10 +1910,10 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                       height: `${h}px`,
                       transform: `rotate(${seat.rotation || 0}deg)`,
                       backgroundColor: fillHex,
-                      opacity: isDimmedByFilter ? 0.22 : 1,
+                      opacity: isDimmedByFilter ? 0.18 : 1,
                       borderColor: borderHex
                     }}
-                    className={`absolute flex items-center justify-center p-0 border-2 transition-transform ${
+                    className={`absolute flex items-center justify-center p-0 border transition-transform ${
                       seatShape === 'circle'
                         ? 'rounded-full'
                         : seatShape === 'square'
@@ -1622,7 +1921,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                         : 'rounded-t-md rounded-b-xs'
                     } ${
                       isSelected
-                        ? 'z-30 scale-130 ring-2 ring-amber-400 shadow-lg'
+                        ? 'z-30 scale-130 ring-2 ring-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.8)]'
                         : 'z-10 hover:scale-125 cursor-pointer'
                     }`}
                   >
@@ -1631,7 +1930,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                     ) : isCheckedIn ? (
                       <span className="text-[8px] font-black text-cyan-200">✓</span>
                     ) : (
-                      <span className="text-[7px] font-extrabold text-white leading-none drop-shadow">
+                      <span className="text-[7px] font-extrabold text-white leading-none">
                         {seat.seatNumber}
                       </span>
                     )}
@@ -1653,7 +1952,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
               />
             )}
 
-            {/* Tooltip Flutuante Rico ao passar o mouse em um assento */}
+            {/* Tooltip Flutuante Seats.io */}
             {hoveredSeat && !semanticSectorOverview && (
               <div
                 className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-full w-60 bg-slate-950/95 text-white rounded-xl border border-slate-700 shadow-2xl overflow-hidden"
@@ -1719,15 +2018,13 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* -----------------------------------------------------------------
-            PAINEL LATERAL DE CONTROLE, INSPECTOR DE ASSENTO E INTEGRAÇÃO DE LOTES/INGRESSOS/ACESSO
-        ----------------------------------------------------------------- */}
+        {/* PAINEL LATERAL DE CONTROLE, INSPECTOR DE ASSENTO E INTEGRAÇÃO DE LOTES/INGRESSOS/ACESSO */}
         <div className="w-88 bg-[#111827] border-l border-slate-800 flex flex-col shrink-0 text-xs overflow-y-auto">
-          {/* =================================================================
-              PAINEL LATERAL DO ASSENTO SELECIONADO (SEMPRE VISÍVEL QUANDO HÁ SELEÇÃO NO MODO DESIGNER OU EVENT MANAGER)
-          ================================================================= */}
           {mode !== 'checkout_preview' && primarySelectedSeat && (
-            <div className="p-3.5 border-b border-slate-800 bg-slate-900/90 space-y-3" data-testid="selected-seat-side-panel">
+            <div
+              className="p-3.5 border-b border-slate-800 bg-slate-900/90 space-y-3"
+              data-testid="selected-seat-side-panel"
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
@@ -1749,7 +2046,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </button>
               </div>
 
-              {/* Atalhos para selecionar Fila Inteira ou Setor Inteiro */}
               <div className="grid grid-cols-2 gap-1.5">
                 <button
                   type="button"
@@ -1772,14 +2068,18 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </button>
               </div>
 
-              {/* Edição Direta de Setor, Fileira, Rótulo e Posição */}
               <div className="grid grid-cols-3 gap-1.5">
                 <div>
                   <label className="text-[10px] text-slate-400">Setor</label>
                   <input
                     type="text"
                     value={primarySelectedSeat.sectorName}
-                    onChange={e => updateSelectedSeats({ sectorName: e.target.value, sectorId: e.target.value })}
+                    onChange={e =>
+                      updateSelectedSeats({
+                        sectorName: e.target.value,
+                        sectorId: e.target.value
+                      })
+                    }
                     className="w-full mt-0.5 px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white text-[11px]"
                   />
                 </div>
@@ -1833,7 +2133,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Botões Rápidos de Status (Disponível, Reservado, Vendido, Bloqueado) */}
               <div>
                 <label className="text-[10px] text-slate-400 block mb-1">
                   Mudar Disponibilidade Imediata ({selectedSeatIds.length}):
@@ -1886,9 +2185,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* =============================================================
-                  CARD DE GOVERNANÇA: INTEGRAÇÃO COM PEDIDOS, INGRESSOS (8 DÍGITOS) E CONTROLE DE ACESSO
-              ============================================================= */}
               {primarySeatBinding ? (
                 <div className="p-2.5 rounded-xl bg-slate-950 border border-cyan-500/40 space-y-2">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
@@ -1918,7 +2214,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                       </strong>
                     </div>
                     <div>
-                      <span className="text-slate-500 block text-[10px]">CPF / Modalidade:</span>
+                      <span className="text-slate-500 block text-[10px]">Modalidade:</span>
                       <strong className="text-emerald-400">
                         {primarySeatBinding.modality} (R$ {primarySeatBinding.priceBRL})
                       </strong>
@@ -2003,7 +2299,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                   </div>
                 </div>
               ) : (
-                /* Emissão Rápida de Pedido / Ingresso Nominal ou Reserva Hold para os Assentos Selecionados */
                 <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
                   <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 block">
                     Emitir Venda / Reserva p/ Seleção ({selectedSeatIds.length})
@@ -2087,7 +2382,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </h3>
               </div>
 
-              {/* Atribuição de Categoria em Lote */}
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
                 <label className="block text-[11px] font-bold text-slate-200">
                   Vincular Categoria & Lote à Seleção ({selectedSeatIds.length}):
@@ -2137,7 +2431,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </div>
               </div>
 
-              {/* Parametrização do Gerador de Setores e Fileiras Curvas */}
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-amber-400">
@@ -2257,7 +2550,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 </button>
               </div>
 
-              {/* Gerador de Mesas */}
               <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
                 <span className="font-bold text-emerald-400 block">
                   Criar Mesas Numeradas (Bistrô / Gala)
@@ -2283,8 +2575,8 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                     </label>
                     <input
                       type="range"
-                      min={26}
-                      max={54}
+                      min={24}
+                      max={50}
                       value={tableRadiusPx}
                       onChange={e => setTableRadiusPx(Number(e.target.value))}
                       className="w-full accent-emerald-500"
@@ -2370,7 +2662,9 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                         </span>
                       </div>
                       <div className="text-[11px] text-slate-400 flex items-center justify-between">
-                        <span>Setor: <strong>{lot.sectorName}</strong></span>
+                        <span>
+                          Setor: <strong>{lot.sectorName}</strong>
+                        </span>
                         <span>Meia: R$ {lot.halfPriceBRL}</span>
                       </div>
                       <div className="text-[10px] text-cyan-300 flex items-center justify-between pt-1 border-t border-slate-800">
@@ -2495,7 +2789,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
             </div>
           )}
 
-          {/* MODO 3: CHECKOUT FLOORPLAN (SIMULADOR DE COMPRA ONLINE COM EMISSÃO REAL DE PEDIDO E INGRESSOS) */}
+          {/* MODO 3: CHECKOUT FLOORPLAN */}
           {mode === 'checkout_preview' && (
             <div className="p-4 flex flex-col h-full justify-between space-y-4">
               <div className="space-y-3">
@@ -2521,7 +2815,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                   <div className="p-6 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2">
                     <ShoppingCart size={26} className="mx-auto text-slate-500" />
                     <p className="text-xs font-semibold text-slate-300">
-                      Clique nos assentos disponíveis (em azul/roxo) para selecionar seus lugares.
+                      Clique nos assentos disponíveis (em azul/ciano/roxo) para selecionar seus lugares.
                     </p>
                   </div>
                 ) : (
@@ -2601,7 +2895,6 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
                 )}
               </div>
 
-              {/* Fechamento do Pedido integrado ao safesaffSeatmapEngine + ticketsAccessService */}
               <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2.5">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">Total do Pedido:</span>

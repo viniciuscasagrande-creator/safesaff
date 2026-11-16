@@ -12,6 +12,8 @@ import {
 } from 'lucide-react'
 import type { SeatingMap, SeatItem, SeatStatus } from '../../types/event-support.types'
 import { eventSupportService } from '../../services/eventSupport.service'
+import type { EventSeatingMapConfig } from '../../data/events'
+import { SeatmapStudioBuilder } from '../events/SeatmapStudioBuilder'
 
 interface DiskMapsViewerProps {
   map: SeatingMap
@@ -23,6 +25,16 @@ export const DiskMapsViewer: React.FC<DiskMapsViewerProps> = ({ map, onSeatSelec
   const [currentMap, setCurrentMap] = useState<SeatingMap>(map)
   const [selectedSeat, setSelectedSeat] = useState<SeatItem | null>(null)
   const [activeSectorFilter, setActiveSectorFilter] = useState<string>('all')
+  const [seatingConfig, setSeatingConfig] = useState<EventSeatingMapConfig>({
+    mode: 'marked',
+    layoutTemplate: 'auditorium',
+    stagePosition: 'top',
+    allowBuyerSeatSelection: true,
+    preventOrphanSingleSeat: true,
+    cartSeatHoldMinutes: 10,
+    seatShape: 'circle',
+    sectors: []
+  })
 
   const handleUpdateSeatStatus = async (newStatus: SeatStatus) => {
     if (!selectedSeat) return
@@ -146,6 +158,18 @@ export const DiskMapsViewer: React.FC<DiskMapsViewerProps> = ({ map, onSeatSelec
             <p className="text-sm font-bold text-rose-400">{map.totalBlocked}</p>
           </div>
         </div>
+      </div>
+
+      {/* Motor Próprio de Mapas SafeSaff (Referência Seats.io) */}
+      <div className="my-4">
+        <SeatmapStudioBuilder
+          seatingMap={seatingConfig}
+          onChange={patch => setSeatingConfig(prev => ({ ...prev, ...patch }))}
+          basePriceBRL={140}
+          eventCode={map.id}
+          eventTitle={map.name}
+          eventVenue={map.venueName}
+        />
       </div>
 
       {/* Legenda de Estados e Setores */}

@@ -275,7 +275,7 @@ const DEFAULT_SEATING_MAP: EventSeatingMapConfig = {
   allowBuyerSeatSelection: true,
   preventOrphanSingleSeat: true,
   cartSeatHoldMinutes: 10,
-  seatShape: 'armchair',
+  seatShape: 'circle',
   seatPointRadius: 9,
   backgroundImageDpi: 96,
   sectors: [
@@ -1138,6 +1138,24 @@ export default function EventFormPage({ mode, event, onCancel, onSave }: Props) 
                 </span>
               </div>
 
+              {/* Motor Próprio de Mapas SafeSaff (Referência Seats.io) em Primeiro Plano */}
+              <SeatmapStudioBuilder
+                seatingMap={seatingMap}
+                onChange={updateSeatingMap}
+                basePriceBRL={firstLotPrice}
+                eventCode={form.code || '4088'}
+                eventTitle={form.title || 'Whindersson Nunes - Isso Definitivamente Não é um Culto - SESSÃO EXTRA 19H'}
+                eventVenue={form.venue || 'Teatro Marista Maringá'}
+                onUpdateEventMeta={meta => {
+                  setForm(prev => ({
+                    ...prev,
+                    ...(meta.code !== undefined ? { code: meta.code } : {}),
+                    ...(meta.title !== undefined ? { title: meta.title } : {}),
+                    ...(meta.venue !== undefined ? { venue: meta.venue } : {})
+                  }))
+                }}
+              />
+
               {/* Escolha do Tipo de Mapa */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {[
@@ -1425,24 +1443,6 @@ export default function EventFormPage({ mode, event, onCancel, onSave }: Props) 
                   ))}
                 </div>
               </div>
-
-              {/* Seatmap Studio Pro — Estrutura Visual (Fiel ao Vídeo + Upload PNG/SVG/JPEG 96 DPI + Poltronas Rotacionáveis) */}
-              <SeatmapStudioBuilder
-                seatingMap={seatingMap}
-                onChange={updateSeatingMap}
-                basePriceBRL={firstLotPrice}
-                eventCode={form.code || '4088'}
-                eventTitle={form.title || 'Whindersson Nunes - Isso Definitivamente Não é um Culto - SESSÃO EXTRA 19H'}
-                eventVenue={form.venue || 'Teatro Marista Maringá'}
-                onUpdateEventMeta={meta => {
-                  setForm(prev => ({
-                    ...prev,
-                    ...(meta.code !== undefined ? { code: meta.code } : {}),
-                    ...(meta.title !== undefined ? { title: meta.title } : {}),
-                    ...(meta.venue !== undefined ? { venue: meta.venue } : {})
-                  }))
-                }}
-              />
             </section>
           )}
 

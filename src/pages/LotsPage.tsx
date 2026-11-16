@@ -4,7 +4,8 @@ import {
   Ticket, Trash2, CheckCircle2, AlertCircle, Sparkles, Layers,
   Calendar, MapPin
 } from 'lucide-react'
-import type { EventItem } from '../data/events'
+import type { EventItem, EventSeatingMapConfig } from '../data/events'
+import { SeatmapStudioBuilder } from '../components/events/SeatmapStudioBuilder'
 import { LimitlessPage } from '../integrations/limitless/LimitlessPage'
 import {
   DiskPageHeader,
@@ -45,6 +46,18 @@ export default function LotsPage({ events, selectedEvent, onSelect, onBack }: Pr
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [draft, setDraft] = useState({ name: '', type: 'Inteira', price: '', qty: '', start: '', end: '' })
+  const [seatingConfig, setSeatingConfig] = useState<EventSeatingMapConfig>(() =>
+    event?.seatingMapConfig || {
+      mode: 'marked',
+      layoutTemplate: 'auditorium',
+      stagePosition: 'top',
+      allowBuyerSeatSelection: true,
+      preventOrphanSingleSeat: true,
+      cartSeatHoldMinutes: 10,
+      seatShape: 'circle',
+      sectors: []
+    }
+  )
 
   const filtered = useMemo(
     () => lots.filter(l => `${l.name} ${l.type}`.toLowerCase().includes(search.toLowerCase())),
@@ -140,6 +153,16 @@ export default function LotsPage({ events, selectedEvent, onSelect, onBack }: Pr
           </div>
         </DiskCardBody>
       </DiskCard>
+
+      {/* 2.5 Motor Próprio de Mapas SafeSaff (Padrão Seats.io Integrado aos Lotes) */}
+      <SeatmapStudioBuilder
+        seatingMap={seatingConfig}
+        onChange={patch => setSeatingConfig(prev => ({ ...prev, ...patch }))}
+        basePriceBRL={lots[0]?.price || 140}
+        eventCode={event?.code || '4088'}
+        eventTitle={event?.title || 'Evento SafeSaff'}
+        eventVenue={event?.venue || 'Arena SafeSaff'}
+      />
 
       {/* 3. Strip de KPIs dos Lotes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

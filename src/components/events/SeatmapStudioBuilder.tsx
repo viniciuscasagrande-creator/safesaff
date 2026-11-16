@@ -596,7 +596,7 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
 
   const initialPreset = useMemo(() => createPresetBlueprintDataUrl('marista'), [])
 
-  const seatShape: SeatShapeType = seatingMap.seatShape || 'armchair'
+  const seatShape: SeatShapeType = seatingMap.seatShape || 'circle'
   const seatSizePx = seatingMap.seatSizePx || 20
   const bgDataUrl = seatingMap.backgroundImageDataUrl || initialPreset.dataUrl
   const bgFileName = seatingMap.backgroundFileName || initialPreset.name
@@ -1303,8 +1303,9 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
       </div>
 
       {/* =====================================================================
-          1. BARRA DE TOPO DO EVENTO & ABAS CLÁSSICAS (IDÊNTICA AO VÍDEO)
+          1. BARRA DE TOPO DO EVENTO & ABAS CLÁSSICAS (VISÍVEL APENAS NO MODO CLÁSSICO)
       ===================================================================== */}
+      <div className={studioExperience === 'seatsio' ? 'hidden' : 'block'}>
       <div className="bg-gradient-to-b from-[#D8E6F7] to-[#C2D5EE] border-b border-slate-400 px-3 py-1.5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-slate-800">Evento</span>
@@ -1552,6 +1553,7 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
             Alterar Fundo do Layout
           </button>
         </div>
+      </div>
       </div>
 
       {uploadAlert && (

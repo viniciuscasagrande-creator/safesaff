@@ -1,6 +1,6 @@
-import type { ComponentType } from 'react'
+import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
 import {
-  Activity, ArrowLeft, BarChart3, CalendarDays, ChevronRight, CircleGauge, FileBarChart2,
+  Activity, ArrowLeft, BarChart3, CalendarDays, ChevronRight, ChevronDown, CircleGauge, FileBarChart2,
   Link2, MapPin, Megaphone, MousePointerClick, ScanLine, ScrollText, Settings2, ShieldCheck,
   Tags, Ticket, UserCog, Users, WalletCards, Waves, Boxes, ContactRound, Siren, Brain, Search, Gauge, Network, ClipboardCheck, Shield, LineChart, RadioTower, Split, Scale
 } from 'lucide-react'
@@ -72,6 +72,19 @@ export default function EventContextSidebar({
   onSelectOtherEvent,
   canAdmin = true
 }: Props) {
+  const getActiveEventGroup = (currentPage: PageKey): string => {
+    if (['event-inventory', 'event-customer-360', 'event-revenue-intel', 'event-global-search', 'event-intelligence', 'event-forecast', 'event-producer-executive', 'event-reports'].includes(currentPage)) return 'gestao'
+    if (['event-tickets', 'event-courtesy'].includes(currentPage)) return 'vendas'
+    if (marketingItems.some(item => item.key === currentPage)) return 'marketing'
+    if (financeItems.some(item => item.key === currentPage)) return 'financeiro'
+    if (configItems.some(item => item.key === currentPage) || ['event-details', 'event-commercial-conditions'].includes(currentPage)) return 'governanca'
+    return 'operacao'
+  }
+  const [openGroup, setOpenGroup] = useState(() => getActiveEventGroup(page))
+  useEffect(() => {
+    setOpenGroup(getActiveEventGroup(page))
+  }, [page])
+  const toggleGroup = (key: string) => setOpenGroup(current => current === key ? '' : key)
   return (
     <aside className="module-sidebar event-context-sidebar" data-testid="event-context-sidebar">
       <button className="back-module event-back" onClick={onBack} title="Voltar a Todos os Eventos" data-testid="event-sidebar-back">
@@ -114,48 +127,35 @@ export default function EventContextSidebar({
         </div>
       </div>
 
-      <nav className="module-nav event-context-nav">
-        <p className="module-caption">EVENTO</p>
-        {eventItems.map((item) => (
-          <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />
-        ))}
-
-        <div className="nav-divider" />
-        <p className="module-caption">MARKETING DO EVENTO</p>
-        {marketingItems.map((item) => (
-          <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />
-        ))}
-
-        <div className="nav-divider" />
-        <p className="module-caption">FINANCEIRO DO EVENTO</p>
-        {financeItems.map((item) => (
-          <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />
-        ))}
-
-        <div className="nav-divider" />
-        <p className="module-caption">CONFIGURAÇÕES</p>
-        {configItems.map((item) => (
-          <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />
-        ))}
-
-        {canAdmin && (
-          <>
-            <div className="nav-divider" />
-            <p className="module-caption">ATALHOS OPERACIONAIS</p>
-            <button className="module-nav-item" onClick={() => onNavigate('lots')}>
-              <WalletCards size={18} />
-              <span>Configurar Lotes</span>
-            </button>
-            <button className="module-nav-item" onClick={() => onNavigate('participants')}>
-              <UserCog size={18} />
-              <span>Participantes</span>
-            </button>
-            <button className="module-nav-item" onClick={() => onNavigate('operations')}>
-              <Activity size={18} />
-              <span>Núcleo Operacional</span>
-            </button>
-          </>
-        )}
+      <nav className="module-nav event-context-nav safesaff-event-mega-nav">
+        <div className="module-caption">CENTRAL DO EVENTO</div>
+        <EventMegaGroup id="operacao" label="Visão Geral e Operações" icon={Activity} open={openGroup === 'operacao'} onToggle={() => toggleGroup('operacao')}>
+          {eventItems.filter(item => ['event-command-center','event-dashboard','event-live-ops','event-incidents','event-readiness','event-day-command','event-platform-noc'].includes(item.key)).map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+        </EventMegaGroup>
+        <EventMegaGroup id="gestao" label="Gestão e Inteligência" icon={Brain} open={openGroup === 'gestao'} onToggle={() => toggleGroup('gestao')}>
+          {eventItems.filter(item => ['event-inventory','event-customer-360','event-revenue-intel','event-global-search','event-intelligence','event-forecast','event-producer-executive','event-reports'].includes(item.key)).map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+        </EventMegaGroup>
+        <EventMegaGroup id="vendas" label="Vendas e Participantes" icon={Ticket} open={openGroup === 'vendas'} onToggle={() => toggleGroup('vendas')}>
+          {eventItems.filter(item => ['event-tickets','event-courtesy'].includes(item.key)).map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+        </EventMegaGroup>
+        <EventMegaGroup id="marketing" label="Marketing e Aquisição" icon={Megaphone} open={openGroup === 'marketing'} onToggle={() => toggleGroup('marketing')}>
+          {marketingItems.map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+        </EventMegaGroup>
+        <EventMegaGroup id="financeiro" label="Financeiro do Evento" icon={WalletCards} open={openGroup === 'financeiro'} onToggle={() => toggleGroup('financeiro')}>
+          {financeItems.map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+        </EventMegaGroup>
+        <EventMegaGroup id="governanca" label="Configurações e Governança" icon={ShieldCheck} open={openGroup === 'governanca'} onToggle={() => toggleGroup('governanca')}>
+          {configItems.filter(item => canAdmin || !['event-users','event-permissions','event-permission-engine'].includes(item.key)).map(item => <Nav key={item.key} item={item} page={page} onNavigate={onNavigate} />)}
+          <Nav item={{key:'event-details',label:'Detalhes do Evento',icon:Settings2}} page={page} onNavigate={onNavigate} />
+          <Nav item={{key:'event-commercial-conditions',label:'Condições Comerciais',icon:Scale}} page={page} onNavigate={onNavigate} />
+        </EventMegaGroup>
+        {canAdmin && <>
+          <div className="nav-divider" />
+          <div className="module-caption">ATALHOS OPERACIONAIS</div>
+          <button className="module-nav-item" onClick={() => onNavigate('lots')}><WalletCards size={18} /><span>Configurar Lotes</span></button>
+          <button className="module-nav-item" onClick={() => onNavigate('participants')}><UserCog size={18} /><span>Participantes</span></button>
+          <button className="module-nav-item" onClick={() => onNavigate('operations')}><Activity size={18} /><span>Núcleo Operacional</span></button>
+        </>}
       </nav>
     </aside>
   )
@@ -173,4 +173,14 @@ function Nav({ item, page, onNavigate }: { item: Item; page: PageKey; onNavigate
       <span>{item.label}</span>
     </button>
   )
+}
+
+
+function EventMegaGroup({ id, label, icon: Icon, open, onToggle, children }: { id: string; label: string; icon: ComponentType<{ size?: number }>; open: boolean; onToggle: () => void; children: ReactNode }) {
+  return <section className={`safesaff-event-mega-group ${open ? 'open' : ''}`}>
+    <button type="button" className="safesaff-event-mega-trigger" onClick={onToggle} aria-expanded={open} data-testid={`event-mega-${id}`}>
+      <Icon size={17} /><span>{label}</span>{open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
+    </button>
+    {open && <div className="safesaff-event-mega-content">{children}</div>}
+  </section>
 }

@@ -65,6 +65,7 @@ export interface TicketRecord {
   eventName: string
   sector: string // Pista Premium, Camarote, etc.
   lot: string // 1º Lote, 2º Lote
+  seat?: string
   modality: 'INTEIRA' | 'MEIA_ENTRADA' | 'CORTESIA' | 'PROMO'
   priceCents: number
   feeCents: number
@@ -94,6 +95,8 @@ export interface TicketRecord {
   daysSincePurchase?: number
   within7DaysWindow?: boolean
   sacProtocol?: string
+  canceledByDepartment?: OperatorDepartment | string
+  cancellationReason?: string
 }
 
 export interface AccessGateRecord {

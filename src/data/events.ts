@@ -120,6 +120,8 @@ export type EventSeatingMapConfig = {
   // Seatmap Studio Pro (96 DPI + PNG/SVG/JPEG + Drag & Drop)
   seatShape?: SeatShapeType
   seatSizePx?: number
+  seatPointRadius?: number
+  backgroundImageDpi?: number
   backgroundImageDataUrl?: string
   backgroundFileName?: string
   backgroundMimeType?: string

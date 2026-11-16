@@ -450,3 +450,109 @@
 }
 
 
+
+/* SAFE SAFF PREMIUM MEGA NAV — menu global e contexto de evento */
+.safesaff-mega-nav .module-caption,
+.safesaff-event-mega-nav .module-caption {
+  color: #8ea3bd !important;
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  letter-spacing: .16em !important;
+  padding: 18px 17px 9px !important;
+}
+.safesaff-mega-nav .collapsible-nav-section,
+.safesaff-event-mega-group {
+  position: relative;
+  margin: 3px 9px !important;
+  border: 1px solid rgba(148,163,184,.11) !important;
+  border-radius: 12px !important;
+  overflow: visible !important;
+  background: linear-gradient(135deg,rgba(30,48,72,.48),rgba(15,27,44,.34)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+.safesaff-mega-nav .collapsible-section-head,
+.safesaff-event-mega-trigger {
+  min-height: 48px !important;
+  height: auto !important;
+  padding: 0 13px !important;
+  border-radius: 11px !important;
+  color: #e5edf7 !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  gap: 10px !important;
+  letter-spacing: .005em !important;
+  background: transparent !important;
+}
+.safesaff-mega-nav .collapsible-section-head:hover,
+.safesaff-mega-nav .collapsible-section-head.open,
+.safesaff-event-mega-trigger:hover,
+.safesaff-event-mega-group.open .safesaff-event-mega-trigger {
+  background: linear-gradient(100deg,rgba(59,130,246,.16),rgba(99,102,241,.07)) !important;
+  color: #fff !important;
+}
+.safesaff-mega-nav .collapsible-section-icon,
+.safesaff-event-mega-trigger > svg:first-child { color: #83b8f5 !important; }
+.safesaff-mega-nav .collapsible-section-chevron { color: #91a6c0 !important; }
+.safesaff-mega-nav .collapsible-section-body {
+  display: none !important;
+  position: absolute !important;
+  z-index: 1200 !important;
+  left: calc(100% + 12px) !important;
+  top: -1px !important;
+  width: min(560px, calc(100vw - 350px)) !important;
+  min-width: 390px !important;
+  max-height: min(72vh, 680px) !important;
+  overflow: auto !important;
+  padding: 15px !important;
+  border: 1px solid rgba(125,163,207,.24) !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg,#101e32 0%,#0b1525 100%) !important;
+  box-shadow: 0 24px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  backdrop-filter: blur(20px);
+}
+.safesaff-mega-nav .collapsible-section-body.open { display: block !important; }
+.safesaff-mega-nav .collapsible-section-inner,
+.safesaff-event-mega-content {
+  display: grid !important;
+  grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  gap: 5px !important;
+}
+.safesaff-mega-nav .module-nav-item.indent,
+.safesaff-event-mega-content .module-nav-item {
+  min-height: 42px !important;
+  height: auto !important;
+  padding: 7px 9px !important;
+  border-radius: 8px !important;
+  background: rgba(255,255,255,.025) !important;
+  font-size: 11px !important;
+  white-space: normal !important;
+}
+.safesaff-mega-nav .module-nav-item.indent:hover,
+.safesaff-event-mega-content .module-nav-item:hover {
+  background: rgba(71,133,210,.15) !important;
+}
+.safesaff-mega-nav .module-nav-item.indent.active,
+.safesaff-event-mega-content .module-nav-item.active {
+  background: rgba(59,130,246,.22) !important;
+  box-shadow: inset 2px 0 #75b6ff !important;
+}
+.safesaff-mega-nav .module-nav-item:not(.indent) { border-radius: 10px !important; margin: 3px 9px !important; }
+.safesaff-mega-nav .mega-nav-divider { height: 1px; margin: 14px 16px 4px; background: linear-gradient(90deg,transparent,rgba(148,163,184,.2),transparent); }
+.safesaff-event-mega-trigger { width: 100%; display:flex; align-items:center; text-align:left; border:0; cursor:pointer; }
+.safesaff-event-mega-trigger span { flex:1; }
+.safesaff-event-mega-content { padding: 8px; }
+.safesaff-event-mega-group.open { border-color: rgba(96,165,250,.24) !important; }
+@media (max-width: 767px) {
+  .safesaff-mega-nav .collapsible-section-body {
+    position: static !important; width: auto !important; min-width: 0 !important;
+    max-height: none !important; margin: 0 7px 8px !important; padding: 8px !important;
+    border-radius: 10px !important; box-shadow: none !important;
+  }
+  .safesaff-mega-nav .collapsible-section-inner,
+  .safesaff-event-mega-content { grid-template-columns: minmax(0,1fr) !important; }
+  .safesaff-mega-nav .collapsible-nav-section,
+  .safesaff-event-mega-group { margin-inline: 6px !important; }
+}
+@media (min-width:768px) and (max-width:1100px) {
+  .safesaff-mega-nav .collapsible-section-body { width: min(460px, calc(100vw - 320px)) !important; min-width: 340px !important; }
+}

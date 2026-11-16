@@ -247,9 +247,12 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
   const isRemarketingActive = page.startsWith('remarketing-')
   const isAdminActive = page.startsWith('admin-')
 
-  type SectionKey = 'finance' | 'accounting' | 'marketing' | 'remarketing' | 'admin' | null
+  type SectionKey = 'events' | 'sales' | 'operations' | 'finance' | 'accounting' | 'marketing' | 'remarketing' | 'admin' | null
 
   const getActiveSection = (): SectionKey => {
+    if (['events', 'commercial-hub', 'new-event', 'lots', 'participants', 'edit-event', 'event-dashboard'].includes(page)) return 'events'
+    if (['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-dashboard', 'sac-tickets', 'sac-new', 'sac-sla', 'sac-integrations', 'sac-knowledge', 'sac-reports'].includes(page)) return 'sales'
+    if (['operations', 'developer-center'].includes(page)) return 'operations'
     if (isFinanceActive) return 'finance'
     if (isAccountingActive) return 'accounting'
     if (isMarketingActive) return 'marketing'
@@ -340,121 +343,44 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
         </button>
       </div>
 
-      <nav className="module-nav">
-        <div className="module-caption">MENU PRINCIPAL</div>
-        {mainItems.map((it, index) => {
-          if (it.key === 'new-event' && user && user.role !== 'producer-admin' && user.role !== 'admin-master' && user.role !== 'admin') return null
-          if (it.key === 'admin-hub' && !canAdmin) return null
-          return (
-            <NavItem
-              key={`${it.key}-${index}`}
-              item={it}
-              active={page === it.key || (it.key === 'events' && ['edit-event', 'event-dashboard'].includes(page))}
-              onNavigate={onNavigate}
-            />
-          )
-        })}
+      <nav className="module-nav safesaff-mega-nav">
+        <div className="module-caption">NAVEGAÇÃO CORPORATIVA</div>
+        <NavItem item={mainItems[0]} active={page === 'profile-dashboard'} onNavigate={onNavigate} />
 
-        {/* Section: Financeiro (8 Hubs Enterprise — Fase 28.15.8.1) */}
-        <CollapsibleSection
-          label="Financeiro"
-          icon={WalletCards}
-          open={openSection === 'finance'}
-          onToggle={() => handleSectionToggle('finance')}
-        >
-          {financeHubItems.map((it, idx) => (
-            <NavItem
-              key={`fin-hub-${it.key}-${idx}`}
-              item={it}
-              active={isFinanceHubItemActive(it.key, page)}
-              onNavigate={onNavigate}
-              indent
-            />
-          ))}
+        <CollapsibleSection label="Gestão de Eventos" icon={Ticket} open={openSection === 'events'} onToggle={() => handleSectionToggle('events')}>
+          {mainItems.filter(it => ['events', 'commercial-hub', 'new-event', 'lots', 'participants'].includes(it.key)).map(it => {
+            if (it.key === 'new-event' && user && user.role !== 'producer-admin' && user.role !== 'admin-master' && user.role !== 'admin') return null
+            return <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'events' && ['edit-event', 'event-dashboard'].includes(page))} onNavigate={onNavigate} indent />
+          })}
         </CollapsibleSection>
 
-        {/* Fase 24.9 — Estornos é módulo independente */}
+        <CollapsibleSection label="Vendas e Atendimento" icon={ShoppingCart} open={openSection === 'sales'} onToggle={() => handleSectionToggle('sales')}>
+          {mainItems.filter(it => ['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'sac-hub' && page.startsWith('sac-'))} onNavigate={onNavigate} indent />)}
+        </CollapsibleSection>
+
+        <CollapsibleSection label="Operações e Tecnologia" icon={Terminal} open={openSection === 'operations'} onToggle={() => handleSectionToggle('operations')}>
+          {mainItems.filter(it => ['operations', 'developer-center'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key} onNavigate={onNavigate} indent />)}
+        </CollapsibleSection>
+
+        <div className="mega-nav-divider" />
+        <div className="module-caption">GESTÃO CORPORATIVA</div>
+        <CollapsibleSection label="Financeiro" icon={WalletCards} open={openSection === 'finance'} onToggle={() => handleSectionToggle('finance')}>
+          {financeHubItems.map(it => <NavItem key={`fin-hub-${it.key}`} item={it} active={isFinanceHubItemActive(it.key, page)} onNavigate={onNavigate} indent />)}
+        </CollapsibleSection>
         <span className="sr-only">24.9-independent-refunds-2026-09-02</span>
-        <NavItem
-          item={independentRefundItem}
-          active={refundIndependentPages.includes(page)}
-          onNavigate={onNavigate}
-        />
-
-        {/* Section: Contabilidade (5 Hubs Enterprise — Fase 28.15.8.1) */}
-        <CollapsibleSection
-          label="Contabilidade"
-          icon={BookOpenCheck}
-          open={openSection === 'accounting'}
-          onToggle={() => handleSectionToggle('accounting')}
-        >
-          {accountingHubItems.map((it, index) => (
-            <NavItem
-              key={`acc-hub-${it.key}-${index}`}
-              item={it}
-              active={isAccountingHubItemActive(it.key, page)}
-              onNavigate={onNavigate}
-              indent
-            />
-          ))}
+        <NavItem item={independentRefundItem} active={refundIndependentPages.includes(page)} onNavigate={onNavigate} />
+        <CollapsibleSection label="Contabilidade" icon={BookOpenCheck} open={openSection === 'accounting'} onToggle={() => handleSectionToggle('accounting')}>
+          {accountingHubItems.map(it => <NavItem key={`acc-hub-${it.key}`} item={it} active={isAccountingHubItemActive(it.key, page)} onNavigate={onNavigate} indent />)}
         </CollapsibleSection>
-
-        {/* Section: Marketing (5 Hubs Enterprise — Fase 28.15.8.1) */}
-        <CollapsibleSection
-          label="Marketing"
-          icon={Megaphone}
-          open={openSection === 'marketing'}
-          onToggle={() => handleSectionToggle('marketing')}
-        >
-          {marketingItems.map((it, index) => (
-            <NavItem
-              key={`mkt-${it.key}-${index}`}
-              item={it}
-              active={isMarketingItemActive(it.key, page)}
-              onNavigate={onNavigate}
-              indent
-            />
-          ))}
+        <CollapsibleSection label="Marketing" icon={Megaphone} open={openSection === 'marketing'} onToggle={() => handleSectionToggle('marketing')}>
+          {marketingItems.map(it => <NavItem key={`mkt-${it.key}`} item={it} active={isMarketingItemActive(it.key, page)} onNavigate={onNavigate} indent />)}
         </CollapsibleSection>
-
-
-        {/* Section: Remarketing */}
-        <CollapsibleSection
-          label="Remarketing"
-          icon={Repeat2}
-          open={openSection === 'remarketing'}
-          onToggle={() => handleSectionToggle('remarketing')}
-        >
-          {remarketingItems.map((it, index) => (
-            <NavItem
-              key={`rmk-${it.key}-${index}`}
-              item={it}
-              active={page === it.key}
-              onNavigate={onNavigate}
-              indent
-            />
-          ))}
+        <CollapsibleSection label="Remarketing" icon={Repeat2} open={openSection === 'remarketing'} onToggle={() => handleSectionToggle('remarketing')}>
+          {remarketingItems.map(it => <NavItem key={`rmk-${it.key}`} item={it} active={page === it.key} onNavigate={onNavigate} indent />)}
         </CollapsibleSection>
-
-        {/* Section: Administração */}
-        {canAdmin && (
-          <CollapsibleSection
-            label="Administração"
-            icon={Building2}
-            open={openSection === 'admin'}
-            onToggle={() => handleSectionToggle('admin')}
-          >
-            {adminItems.map((it, index) => (
-              <NavItem
-                key={`adm-${it.key}-${index}`}
-                item={it}
-                active={page === it.key}
-                onNavigate={onNavigate}
-                indent
-              />
-            ))}
-          </CollapsibleSection>
-        )}
+        {canAdmin && <CollapsibleSection label="Administração e Segurança" icon={Building2} open={openSection === 'admin'} onToggle={() => handleSectionToggle('admin')}>
+          {adminItems.map(it => <NavItem key={`adm-${it.key}`} item={it} active={page === it.key} onNavigate={onNavigate} indent />)}
+        </CollapsibleSection>}
       </nav>
     </aside>
   )
@@ -474,7 +400,7 @@ function CollapsibleSection({
   children: ReactNode
 }) {
   return (
-    <div className={`collapsible-nav-section ${open ? 'open' : ''}`}>
+    <div className={`collapsible-nav-section safesaff-mega-section ${open ? 'open' : ''}`}>
       <button
         type="button"
         className={`collapsible-section-head ${open ? 'open' : ''}`}
@@ -490,7 +416,7 @@ function CollapsibleSection({
         </span>
       </button>
       <div
-        className={`collapsible-section-body ${open ? 'open' : ''}`}
+        className={`collapsible-section-body safesaff-mega-panel ${open ? 'open' : ''}`}
         aria-hidden={!open}
       >
         <div className="collapsible-section-inner">{children}</div>

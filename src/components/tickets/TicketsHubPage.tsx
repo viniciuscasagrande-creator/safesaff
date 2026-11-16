@@ -945,6 +945,7 @@ export const TicketsHubPage: React.FC = () => {
       {/* Modais */}
       {transferTarget && (
         <TransferTicketModal
+          isOpen={true}
           ticket={transferTarget}
           onClose={() => setTransferTarget(null)}
           onSuccess={() => {
@@ -956,6 +957,7 @@ export const TicketsHubPage: React.FC = () => {
 
       {reissueTarget && (
         <ReissueTicketModal
+          isOpen={true}
           ticket={reissueTarget}
           onClose={() => setReissueTarget(null)}
           onSuccess={() => {

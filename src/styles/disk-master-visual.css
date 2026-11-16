@@ -383,8 +383,38 @@ html.dark :is(
   #main-module-sidebar.module-sidebar { width: min(86vw, 300px) !important; flex-basis: auto !important; }
 }
 
-/* Light: sombras e contraste equivalentes ao mockup claro */
+/* Light: sombras e contraste equivalentes ao mockup claro + adaptação de containers legados */
 html.light :is(.profile-hero,.profile-kpi,.profile-section,.card,.panel,.table-card,.chart-card,.finance-card,.marketing-os-panel),
 html[data-theme="light"] :is(.profile-hero,.profile-kpi,.profile-section,.card,.panel,.table-card,.chart-card,.finance-card,.marketing-os-panel) {
   box-shadow: var(--disk-master-shadow) !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  div.bg-slate-900, section.bg-slate-900, article.bg-slate-900, aside.bg-slate-900, header.bg-slate-900,
+  div.bg-slate-950, section.bg-slate-950, article.bg-slate-950, aside.bg-slate-950
+) {
+  background-color: var(--disk-bg-surface) !important;
+  border-color: var(--disk-border-default) !important;
+  color: var(--disk-text-primary) !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  div.bg-slate-900, section.bg-slate-900, article.bg-slate-900, aside.bg-slate-900, header.bg-slate-900,
+  div.bg-slate-950, section.bg-slate-950, article.bg-slate-950, aside.bg-slate-950
+) :is(.text-white, .text-slate-100, .text-slate-200):not(button):not(button *):not([class*="bg-blue"]):not([class*="bg-emerald"]):not([class*="bg-rose"]):not([class*="bg-indigo"]):not([class*="bg-purple"]):not([class*="bg-amber"]) {
+  color: var(--disk-text-primary) !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  div.bg-slate-900, section.bg-slate-900, article.bg-slate-900, aside.bg-slate-900, header.bg-slate-900,
+  div.bg-slate-950, section.bg-slate-950, article.bg-slate-950, aside.bg-slate-950
+) :is(.text-slate-300, .text-slate-400) {
+  color: var(--disk-text-secondary) !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  div.bg-slate-900, section.bg-slate-900, article.bg-slate-900, aside.bg-slate-900, header.bg-slate-900,
+  div.bg-slate-950, section.bg-slate-950, article.bg-slate-950, aside.bg-slate-950
+) :is(.border-slate-800, .border-slate-700) {
+  border-color: var(--disk-border-default) !important;
 }

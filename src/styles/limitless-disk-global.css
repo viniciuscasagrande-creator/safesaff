@@ -13,7 +13,7 @@ html[data-ui-framework='limitless'] {
   --ll-radius-sm: .375rem;
   --ll-control: 2.25rem;
   --ll-nav-row: 2.5rem;
-  --ll-orange: #f97316;
+  --ll-orange: #155EEF;
 }
 
 html[data-ui-framework='limitless'],
@@ -184,9 +184,9 @@ html[data-ui-framework='limitless'] #main-module-sidebar .nav-item-badge {
 }
 
 html[data-ui-framework='limitless'] #main-module-sidebar .module-nav-item.active {
-  background: rgba(249,115,22,.14) !important;
-  color: var(--ll-orange) !important;
-  box-shadow: inset 2px 0 0 var(--ll-orange) !important;
+  background: linear-gradient(90deg, #155EEF 0%, #1D4ED8 100%) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 3px 0 0 #60A5FA !important;
 }
 
 html[data-ui-framework='limitless'] #main-module-sidebar .module-nav-item:hover,

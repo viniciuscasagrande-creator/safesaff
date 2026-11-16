@@ -3,7 +3,8 @@ import {
   AlertTriangle, Boxes, Clock3, Edit3, Gauge, Layers3, LockKeyhole, PauseCircle,
   PlayCircle, Plus, RefreshCw, Search, ShieldCheck, TrendingUp, Unlock, WalletCards
 } from 'lucide-react'
-import type { EventItem } from '../data/events'
+import type { EventItem, EventSeatingMapConfig } from '../data/events'
+import { SeatmapStudioBuilder } from '../components/events/SeatmapStudioBuilder'
 import {
   createInventoryHold, createInventoryLot, getEventInventoryEngine, releaseInventoryHold,
   updateInventoryLot, updateInventoryLotStatus, type EventInventoryEngine, type InventoryLot
@@ -34,6 +35,19 @@ export default function EventInventoryPage({event,notify}:Props){
   const [statusFilter,setStatusFilter]=useState<'todos'|'ativo'|'pausado'|'encerrado'>('todos')
   const [draft,setDraft]=useState({lotId:0,quantity:1,minutes:15,reason:'Reserva operacional'})
   const [lotDraft,setLotDraft]=useState<LotDraft>(blankLot())
+  const [showSeatmapEngine,setShowSeatmapEngine]=useState(true)
+  const [liveSeatingMap,setLiveSeatingMap]=useState<EventSeatingMapConfig>(() =>
+    event.seatingMapConfig || {
+      mode: 'marked',
+      layoutTemplate: 'auditorium',
+      stagePosition: 'top',
+      allowBuyerSeatSelection: true,
+      preventOrphanSingleSeat: true,
+      cartSeatHoldMinutes: 10,
+      seatShape: 'armchair',
+      sectors: []
+    }
+  )
 
   const load=useCallback(async()=>{
     setLoading(true);setError('')
@@ -134,6 +148,9 @@ export default function EventInventoryPage({event,notify}:Props){
         <p>Criação e edição de lotes, capacidade, disponibilidade, holds, pausa de venda e alertas de esgotamento.</p>
       </div>
       <div className="inventory-head-actions">
+        <button className="btn secondary" onClick={()=>setShowSeatmapEngine(prev=>!prev)}>
+          <Layers3 size={16}/>{showSeatmapEngine?'Ocultar Motor de Mapas':'Abrir Motor de Mapas'}
+        </button>
         <button className="btn secondary" data-testid="inventory-refresh" onClick={()=>void load()} disabled={loading||saving}><RefreshCw size={16}/>{loading?'Atualizando...':'Atualizar'}</button>
         <button className="btn secondary" data-testid="inventory-new-lot" onClick={openNewLot}><Plus size={16}/>Novo lote</button>
         <button className="btn primary" data-testid="inventory-new-hold" onClick={()=>setShowHold(true)} disabled={!data?.lots.some(l=>l.available>0)}><LockKeyhole size={16}/>Criar hold</button>
@@ -144,6 +161,19 @@ export default function EventInventoryPage({event,notify}:Props){
       <strong>{event.code} · {event.title}</strong><span>{event.venue}</span><span>{event.date}</span>
       <span className="inventory-scope"><ShieldCheck size={14}/>producerId + eventId protegidos no backend</span>
     </section>
+
+    {showSeatmapEngine && (
+      <section className="my-4">
+        <SeatmapStudioBuilder
+          seatingMap={liveSeatingMap}
+          onChange={patch => setLiveSeatingMap(prev => ({ ...prev, ...patch }))}
+          basePriceBRL={140}
+          eventCode={event.code || String(event.id)}
+          eventTitle={event.title}
+          eventVenue={event.venue}
+        />
+      </section>
+    )}
 
     {error&&<div className="inventory-error" role="alert"><AlertTriangle size={18}/><div><strong>Inventário indisponível</strong><span>{error}</span><button onClick={()=>void load()}>Tentar novamente</button></div></div>}
 

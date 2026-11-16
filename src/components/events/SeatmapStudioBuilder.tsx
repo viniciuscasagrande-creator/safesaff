@@ -1586,6 +1586,8 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
             seatShape={seatShape}
             onShapeChange={handleShapeChange}
             basePriceBRL={basePriceBRL}
+            eventCode={eventCode}
+            eventTitle={eventTitle}
             onOpenBgModal={() => setBgSearchModalOpen(true)}
             onSwitchToClassicMode={() => setStudioExperience('classic_estrutura')}
           />

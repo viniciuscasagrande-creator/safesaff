@@ -498,30 +498,38 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
   const centerAndFitMap = useCallback(() => {
     const vp = viewportRef.current
     if (!vp) {
-      setZoom(85)
-      setPan({ x: 0, y: 0 })
+      setZoom(75)
+      setPan({ x: 0, y: 14 })
       return
     }
-    const availW = Math.max(360, vp.clientWidth - 40)
-    const availH = Math.max(360, vp.clientHeight - 40)
+    const availW = Math.max(320, vp.clientWidth - 48)
+    const availH = Math.max(320, vp.clientHeight - 76)
     const scaleX = availW / SEATSIO_CANONICAL_WIDTH
     const scaleY = availH / SEATSIO_CANONICAL_HEIGHT
-    const computedFit = Math.max(45, Math.min(115, Math.floor(Math.min(scaleX, scaleY) * 100)))
+    const computedFit = Math.max(42, Math.min(110, Math.floor(Math.min(scaleX, scaleY) * 100)))
     setFitZoomPercent(computedFit)
     setZoom(computedFit)
-    setPan({ x: 0, y: 0 })
+    setPan({ x: 0, y: 14 })
     setSemanticSectorOverview(false)
   }, [])
 
-  // Centraliza automaticamente ao carregar a página e ao alternar abas/modos
+  // Centraliza automaticamente ao carregar a página, ao redimensionar o container (ResizeObserver) e ao alternar modos
   useEffect(() => {
     centerAndFitMap()
-    const timer = window.setTimeout(() => centerAndFitMap(), 120)
-    const onResize = () => centerAndFitMap()
-    window.addEventListener('resize', onResize)
+    const vp = viewportRef.current
+    let ro: ResizeObserver | null = null
+    if (vp && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        centerAndFitMap()
+      })
+      ro.observe(vp)
+    }
+    const t1 = window.setTimeout(() => centerAndFitMap(), 80)
+    const t2 = window.setTimeout(() => centerAndFitMap(), 300)
     return () => {
-      window.clearTimeout(timer)
-      window.removeEventListener('resize', onResize)
+      if (ro) ro.disconnect()
+      window.clearTimeout(t1)
+      window.clearTimeout(t2)
     }
   }, [centerAndFitMap, mode])
 
@@ -1805,7 +1813,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
           {/* SUPERFÍCIE CENTRALIZADA DA PLANTA COM FUNDO SEMPRE NEUTRO */}
           <div
             ref={canvasRef}
-            className={`relative rounded-2xl border shadow-xl transition-transform duration-150 ${
+            className={`absolute left-1/2 top-1/2 rounded-2xl border shadow-xl transition-transform duration-150 ${
               isLightNeutral
                 ? 'bg-[#F8FAFC] border-slate-300'
                 : 'bg-[#27272A] border-zinc-700'
@@ -1813,7 +1821,7 @@ export const SeatsIoChartEngine: React.FC<Props> = ({
             style={{
               width: `${SEATSIO_CANONICAL_WIDTH}px`,
               height: `${SEATSIO_CANONICAL_HEIGHT}px`,
-              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom / 100})`,
+              transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom / 100})`,
               transformOrigin: 'center center'
             }}
           >

@@ -192,50 +192,50 @@ function createPresetBlueprintDataUrl(preset: 'marista' | 'teatro' | 'mesas' | '
 } {
   if (preset === 'marista') {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="860" viewBox="0 0 1360 860">
-      <rect width="1360" height="860" fill="#FFFFFF"/>
-      <!-- Borda externa da planta -->
+      <rect width="1360" height="860" fill="#F8FAFC"/>
+      <!-- Borda externa neutra da planta -->
       <rect x="8" y="8" width="1344" height="844" fill="none" stroke="#CBD5E1" stroke-width="1.5"/>
 
-      <!-- PALCO -->
-      <path d="M 410 15 L 950 15 L 950 110 L 820 175 L 540 175 L 410 110 Z" fill="#F8FAFC" stroke="#475569" stroke-width="2"/>
-      <text x="680" y="102" fill="#0F172A" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle">PALCO</text>
+      <!-- PALCO NEUTRO -->
+      <path d="M 410 15 L 950 15 L 950 110 L 820 175 L 540 175 L 410 110 Z" fill="#E2E8F0" stroke="#64748B" stroke-width="2"/>
+      <text x="680" y="102" fill="#1E293B" font-family="Arial, sans-serif" font-size="44" font-weight="bold" text-anchor="middle">PALCO</text>
 
-      <!-- Corredor Cinza Superior em Leque -->
-      <path d="M 410 110 L 540 175 L 820 175 L 950 110 L 1275 435 L 905 765 L 455 765 L 85 435 Z" fill="#E5E7EB" stroke="#CBD5E1" stroke-width="1"/>
+      <!-- Corredor Cinza Neutro Superior em Leque -->
+      <path d="M 410 110 L 540 175 L 820 175 L 950 110 L 1275 435 L 905 765 L 455 765 L 85 435 Z" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="1"/>
 
-      <!-- PLATEIA A (Asa Esquerda Amarela +39 deg) -->
-      <polygon points="405,135 528,238 395,705 110,435" fill="#FACC15" stroke="#CA8A04" stroke-width="1.5"/>
-      <text x="462" y="172" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="23" font-weight="bold" transform="rotate(39, 462, 172)" text-anchor="middle">PLATEIA A</text>
+      <!-- PLATEIA A (Asa Esquerda Neutra +39 deg) -->
+      <polygon points="405,135 528,238 395,705 110,435" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+      <text x="462" y="172" fill="#64748B" font-family="Arial, sans-serif" font-size="22" font-weight="bold" transform="rotate(39, 462, 172)" text-anchor="middle">PLATEIA A</text>
 
       <!-- Selos PCD (Cadeirante) Plateia A Fila A -->
       <g transform="translate(492, 212) rotate(39)">
-        <rect x="0" y="0" width="16" height="16" rx="2" fill="#0284C7"/>
+        <rect x="0" y="0" width="16" height="16" rx="2" fill="#475569"/>
         <text x="8" y="13" fill="#FFFFFF" font-size="11" text-anchor="middle">♿</text>
-        <rect x="18" y="0" width="16" height="16" rx="2" fill="#0284C7"/>
+        <rect x="18" y="0" width="16" height="16" rx="2" fill="#475569"/>
         <text x="26" y="13" fill="#FFFFFF" font-size="11" text-anchor="middle">♿</text>
       </g>
 
-      <!-- PLATEIA B - PREMIUM (Centro Superior Verde) -->
-      <polygon points="562,232 798,232 842,482 518,482" fill="#059669" stroke="#047857" stroke-width="1.5"/>
-      <text x="680" y="218" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle">PLATEIA B</text>
+      <!-- PLATEIA B - PREMIUM (Centro Superior Neutro) -->
+      <polygon points="562,232 798,232 842,482 518,482" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+      <text x="680" y="218" fill="#64748B" font-family="Arial, sans-serif" font-size="22" font-weight="bold" text-anchor="middle">PLATEIA B</text>
 
       <!-- Selos PCD (Cadeirante) Plateia B Fila A -->
       <g transform="translate(755, 240)">
-        <rect x="0" y="0" width="16" height="16" rx="2" fill="#0284C7"/>
+        <rect x="0" y="0" width="16" height="16" rx="2" fill="#475569"/>
         <text x="8" y="13" fill="#FFFFFF" font-size="11" text-anchor="middle">♿</text>
-        <rect x="18" y="0" width="16" height="16" rx="2" fill="#0284C7"/>
+        <rect x="18" y="0" width="16" height="16" rx="2" fill="#475569"/>
         <text x="26" y="13" fill="#FFFFFF" font-size="11" text-anchor="middle">♿</text>
       </g>
 
-      <!-- PLATEIA B - CENTRAL (Centro Inferior Laranja) -->
-      <polygon points="518,482 842,482 892,750 468,750" fill="#F97316" stroke="#EA580C" stroke-width="1.5"/>
+      <!-- PLATEIA B - CENTRAL (Centro Inferior Neutro) -->
+      <polygon points="518,482 842,482 892,750 468,750" fill="#EDF2F7" stroke="#94A3B8" stroke-width="1.5"/>
 
-      <!-- PLATEIA C (Asa Direita Amarela -42 deg) -->
-      <polygon points="955,135 1250,435 965,705 832,238" fill="#FACC15" stroke="#CA8A04" stroke-width="1.5"/>
-      <text x="898" y="172" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="23" font-weight="bold" transform="rotate(-41, 898, 172)" text-anchor="middle">PLATEIA C</text>
+      <!-- PLATEIA C (Asa Direita Neutra -42 deg) -->
+      <polygon points="955,135 1250,435 965,705 832,238" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+      <text x="898" y="172" fill="#64748B" font-family="Arial, sans-serif" font-size="22" font-weight="bold" transform="rotate(-41, 898, 172)" text-anchor="middle">PLATEIA C</text>
 
       <!-- Letras das Filas A..N nos corredores centrais -->
-      <g fill="#FFFFFF" font-family="Arial, sans-serif" font-size="15" font-weight="bold" text-anchor="middle">
+      <g fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle">
         <text x="544" y="258">A</text><text x="816" y="258">A</text>
         <text x="537" y="294">B</text><text x="823" y="294">B</text>
         <text x="530" y="330">C</text><text x="830" y="330">C</text>
@@ -252,42 +252,42 @@ function createPresetBlueprintDataUrl(preset: 'marista' | 'teatro' | 'mesas' | '
         <text x="446" y="730">N</text><text x="914" y="730">N</text>
       </g>
 
-      <!-- CAMAROTE D (Inferior Esquerdo Azul +39 deg) -->
+      <!-- CAMAROTE D (Inferior Esquerdo Neutro +39 deg) -->
       <g transform="translate(178, 520) rotate(39)">
-        <rect x="0" y="0" width="135" height="90" fill="#1D4ED8" stroke="#1E40AF" stroke-width="1.5"/>
-        <rect x="145" y="0" width="115" height="90" fill="#1D4ED8" stroke="#1E40AF" stroke-width="1.5"/>
-        <text x="-14" y="25" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
-        <text x="-14" y="52" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
-        <text x="-14" y="79" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
-        <text x="268" y="25" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
-        <text x="268" y="52" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
-        <text x="268" y="79" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
-        <text x="130" y="114" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE D</text>
+        <rect x="0" y="0" width="135" height="90" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+        <rect x="145" y="0" width="115" height="90" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+        <text x="-14" y="25" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
+        <text x="-14" y="52" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
+        <text x="-14" y="79" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
+        <text x="268" y="25" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
+        <text x="268" y="52" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
+        <text x="268" y="79" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
+        <text x="130" y="114" fill="#475569" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE D</text>
       </g>
 
-      <!-- CAMAROTE E (Inferior Central Azul 0 deg) -->
+      <!-- CAMAROTE E (Inferior Central Neutro 0 deg) -->
       <g transform="translate(545, 758)">
-        <rect x="0" y="0" width="270" height="82" fill="#1D4ED8" stroke="#1E40AF" stroke-width="1.5"/>
-        <text x="-16" y="22" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">O</text>
-        <text x="-16" y="48" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">P</text>
-        <text x="-16" y="74" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Q</text>
-        <text x="280" y="22" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">O</text>
-        <text x="280" y="48" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">P</text>
-        <text x="280" y="74" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Q</text>
-        <text x="135" y="99" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE E</text>
+        <rect x="0" y="0" width="270" height="82" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+        <text x="-16" y="22" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">O</text>
+        <text x="-16" y="48" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">P</text>
+        <text x="-16" y="74" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Q</text>
+        <text x="280" y="22" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">O</text>
+        <text x="280" y="48" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">P</text>
+        <text x="280" y="74" fill="#475569" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Q</text>
+        <text x="135" y="99" fill="#475569" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE E</text>
       </g>
 
-      <!-- CAMAROTE F (Inferior Direito Azul -41 deg) -->
+      <!-- CAMAROTE F (Inferior Direito Neutro -41 deg) -->
       <g transform="translate(982, 690) rotate(-41)">
-        <rect x="0" y="0" width="115" height="90" fill="#1D4ED8" stroke="#1E40AF" stroke-width="1.5"/>
-        <rect x="125" y="0" width="135" height="90" fill="#1D4ED8" stroke="#1E40AF" stroke-width="1.5"/>
-        <text x="-16" y="25" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
-        <text x="-16" y="52" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
-        <text x="-16" y="79" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
-        <text x="268" y="25" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
-        <text x="268" y="52" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
-        <text x="268" y="79" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
-        <text x="130" y="114" fill="#9CA3AF" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE F</text>
+        <rect x="0" y="0" width="115" height="90" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+        <rect x="125" y="0" width="135" height="90" fill="#CBD5E1" stroke="#64748B" stroke-width="1.5"/>
+        <text x="-16" y="25" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
+        <text x="-16" y="52" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
+        <text x="-16" y="79" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
+        <text x="268" y="25" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">O</text>
+        <text x="268" y="52" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">P</text>
+        <text x="268" y="79" fill="#475569" font-family="Arial, sans-serif" font-size="13" font-weight="bold">Q</text>
+        <text x="130" y="114" fill="#475569" font-family="Arial, sans-serif" font-size="20" font-weight="bold" text-anchor="middle">CAMAROTE F</text>
       </g>
     </svg>`
     return {
@@ -2006,7 +2006,7 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={stopDragging}
             onMouseLeave={stopDragging}
-            className="flex-1 overflow-hidden flex items-center justify-center p-4 bg-[#E5E7EB]"
+            className="flex-1 relative overflow-hidden bg-[#E5E7EB]"
             style={{
               cursor:
                 activeTool === 'pan'
@@ -2022,11 +2022,11 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
               ref={canvasRef}
               onClick={handleCanvasClick}
               data-testid="seatmap-96dpi-canvas"
-              className="relative select-none shadow-md bg-[#F8FAFC] rounded-xl border border-slate-300"
+              className="absolute left-1/2 top-1/2 select-none shadow-md bg-[#F8FAFC] rounded-xl border border-slate-300"
               style={{
                 width: `${bgWidthPx}px`,
                 height: `${bgHeightPx}px`,
-                transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100})`,
+                transform: `translate(calc(-50% + ${panOffset.x}px), calc(-50% + ${panOffset.y}px)) scale(${zoom / 100})`,
                 transformOrigin: 'center center'
               }}
             >

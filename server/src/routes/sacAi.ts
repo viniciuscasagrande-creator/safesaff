@@ -34,7 +34,7 @@ sacAiRouter.post('/knowledge', async (req: AuthRequest, res) => {
   if (!tenant || !canManage(req, tenant)) return fail(res, 403, 'Somente supervisores SAC.')
   const parsed = articleInput.safeParse(req.body)
   if (!parsed.success) return fail(res, 400, 'Artigo inválido.')
-  const row = await prisma.sacKnowledgeArticle.create({ data: { producerId: tenant, ...parsed.data, status: 'draft', updatedByUserId: req.auth!.id } })
+  const row = await prisma.sacKnowledgeArticle.create({ data: { producerId: tenant, title: parsed.data.title, content: parsed.data.content, status: 'draft', updatedByUserId: req.auth!.id } })
   return res.status(201).json(row)
 })
 

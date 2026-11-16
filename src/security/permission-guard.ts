@@ -43,6 +43,14 @@ export const ROLE_PERMISSIONS: Record<Role, string[]> = {
     'pos.*',
     'sac.*'
   ],
+  'sac-agent': [
+    'sac.*',
+    'eventos.visualizar'
+  ],
+  'sac-supervisor': [
+    'sac.*',
+    'eventos.visualizar'
+  ],
   'viewer': [
     'eventos.visualizar',
     'financeiro.visualizar',

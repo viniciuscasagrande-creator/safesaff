@@ -1446,8 +1446,9 @@ export default function App() {
         )}
 
         {/* SAC */}
-        {page === 'sac-chat' && <SacChatPage producerId={scopedProducerId} />}
-        {page.startsWith('sac-') && page !== 'sac-chat' && (
+        {page === 'sac-chat' && <SacChatPage producerId={scopedProducerId} initialView="dashboard" />}
+        {page === 'sac-dashboard' && <SacChatPage producerId={scopedProducerId} initialView="dashboard" />}
+        {page.startsWith('sac-') && page !== 'sac-chat' && page !== 'sac-dashboard' && (
           <SupportPage
             events={visibleEvents}
             producerId={scopedProducerId}

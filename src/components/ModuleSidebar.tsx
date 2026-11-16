@@ -88,6 +88,7 @@ const mainItems: Item[] = [
   { key: 'facial', label: 'Status Faciais', icon: ScanFace },
   { key: 'pos', label: 'Terminais POS', icon: MonitorSmartphone },
   { key: 'sac-hub', label: 'Atendimento / SAC', icon: Headphones },
+  { key: 'sac-dashboard', label: 'Dashboard SAC', icon: BarChart3 },
   { key: 'sac-chat', label: 'Chat SAC', icon: Headphones },
   { key: 'admin-hub', label: 'Administração', icon: Building2 },
 ]
@@ -356,7 +357,7 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
         </CollapsibleSection>
 
         <CollapsibleSection label="Vendas e Atendimento" icon={ShoppingCart} open={openSection === 'sales'} onToggle={() => handleSectionToggle('sales')}>
-          {mainItems.filter(it => ['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-chat'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'sac-hub' && page.startsWith('sac-'))} onNavigate={onNavigate} indent />)}
+          {mainItems.filter(it => ['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-dashboard', 'sac-chat'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'sac-hub' && page.startsWith('sac-') && page !== 'sac-chat' && page !== 'sac-dashboard')} onNavigate={onNavigate} indent />)}
         </CollapsibleSection>
 
         <CollapsibleSection label="Operações e Tecnologia" icon={Terminal} open={openSection === 'operations'} onToggle={() => handleSectionToggle('operations')}>

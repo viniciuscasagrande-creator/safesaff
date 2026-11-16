@@ -1,0 +1,32 @@
+{
+  "note": "DADOS FICTICIOS PARA CONTRATO; NAO REPRESENTAM A OPERACAO REAL",
+  "producerId": 1,
+  "localDate": "2026-11-16",
+  "timeZone": "America/Sao_Paulo",
+  "generatedAt": "2026-11-16T14:00:00Z",
+  "coverage": {
+    "chat": { "integration": "available", "source": "SacChatConversation" },
+    "email": { "integration": "not_connected", "source": null },
+    "whatsapp": { "integration": "not_connected", "source": null }
+  },
+  "kpis": {
+    "openedToday": 35,
+    "resolvedToday": 21,
+    "queueCurrent": 8,
+    "queueDelta10m": 4,
+    "efficiencyPct": 87.5,
+    "slaFirstResponsePct": 93.3,
+    "slaResolutionPct": 90,
+    "avgHandlingSeconds": null,
+    "availableAgents": 3,
+    "activeAgents": 4,
+    "metricsStatus": "partial"
+  },
+  "channels": [
+    { "channel": "chat", "opened": 35, "resolved": 21 },
+    { "channel": "email", "opened": null, "resolved": null },
+    { "channel": "whatsapp", "opened": null, "resolved": null }
+  ],
+  "queue": { "oldestWaitSeconds": 360, "riskCount": 2, "alertLevel": "warning", "alertAudioEnabledBySupervisor": false },
+  "ai": { "status": "not_configured", "suggestionsProposed": null, "suggestionsAccepted": null, "handoffs": null, "verifiedResolutions": null }
+}

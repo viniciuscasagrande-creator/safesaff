@@ -19,12 +19,15 @@ import {
   type SacConversation,
   type SacMessage
 } from '../../services/sacChat.service'
+import { SacDashboardPage } from './dashboard/SacDashboardPage'
 
 interface Props {
   producerId?: number | null
+  initialView?: 'dashboard' | 'chat'
 }
 
-export function SacChatPage({ producerId }: Props) {
+export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
+  const [sacView, setSacView] = useState<'dashboard' | 'chat'>(initialView)
   const [list, setList] = useState<SacConversation[]>([])
   const [staff, setStaff] = useState(true)
   const [supervisor, setSupervisor] = useState(true)
@@ -184,6 +187,45 @@ export function SacChatPage({ producerId }: Props) {
 
   return (
     <main className="p-4 md:p-6 space-y-4 text-slate-100" aria-label="Chat do SAC">
+      {/* Barra de Alternância Rápida: Dashboard SAC (SLA, ITIL, Alerta Sonoro & Skills) vs Chat Operacional */}
+      <div className="bg-[#111827] border border-slate-800 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSacView('dashboard')}
+            data-testid="tab-sac-dashboard-view"
+            className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+              sacView === 'dashboard'
+                ? 'bg-[#157347] text-white shadow'
+                : 'bg-slate-900 text-slate-300 hover:text-white'
+            }`}
+          >
+            📊 Dashboard SAC (Eficiência, Fila c/ Alerta Sonoro, SLA/ITIL & Skills)
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSacView('chat')}
+            data-testid="tab-sac-live-chat-view"
+            className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
+              sacView === 'chat'
+                ? 'bg-blue-600 text-white shadow'
+                : 'bg-slate-900 text-slate-300 hover:text-white'
+            }`}
+          >
+            💬 Operação Chat SAC em Tempo Real ({kpis.queued} na fila • {kpis.myActive}/3 ativos)
+          </button>
+        </div>
+
+        <span className="text-[11px] text-slate-400 pr-2">
+          Central Integrada SAC SafeSaff • SLA & ITIL + IA Copiloto
+        </span>
+      </div>
+
+      {sacView === 'dashboard' ? (
+        <SacDashboardPage onOpenLiveChat={() => setSacView('chat')} />
+      ) : (
+        <>
       {/* =====================================================================
           1. CABEÇALHO E KPIS EM TEMPO REAL DA CENTRAL SAC — CHAT
       ===================================================================== */}
@@ -804,6 +846,8 @@ export function SacChatPage({ producerId }: Props) {
           )}
         </aside>
       </div>
+        </>
+      )}
     </main>
   )
 }

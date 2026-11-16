@@ -1,25 +1,37 @@
-import { getApiBaseUrl, getAuthHeader } from './api'
+import { getApiBaseUrl, getAuthHeader, hasStoredToken } from './api'
 
 async function apiRequest<T>(
   path: string,
   options?: { method?: string; body?: unknown }
 ): Promise<T> {
-  const cleanPath = path.replace(/^\/api/, '')
-  const res = await fetch(`${getApiBaseUrl()}${cleanPath}`, {
-    method: options?.method ?? 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeader()
-    },
-    body: options?.body ? JSON.stringify(options.body) : undefined
-  })
-  const payload = await res.json().catch(() => ({}))
-  if (!res.ok) {
-    throw new Error(
-      (payload as { error?: string }).error || `Falha na API IA SAC (${res.status}).`
-    )
+  if (!hasStoredToken()) {
+    throw new Error('FALLBACK_LOCAL_SAC_AI')
   }
-  return payload as T
+  const cleanPath = path.replace(/^\/api/, '')
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 2500)
+  try {
+    const res = await fetch(`${getApiBaseUrl()}${cleanPath}`, {
+      method: options?.method ?? 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      signal: controller.signal,
+      body: options?.body ? JSON.stringify(options.body) : undefined
+    })
+    const payload = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      throw new Error(
+        (payload as { error?: string; message?: string }).error ||
+          (payload as { message?: string }).message ||
+          `Falha na API IA SAC (${res.status}).`
+      )
+    }
+    return payload as T
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 export interface SacAiSuggestion {
@@ -67,9 +79,9 @@ export interface CustomerAiTopicFlow {
   }[]
 }
 
-const STORAGE_KB_KEY = 'safesaff_sac_ai_knowledge_v1'
-const STORAGE_SUGGESTIONS_KEY = 'safesaff_sac_ai_suggestions_v1'
-const STORAGE_AI_METRICS_KEY = 'safesaff_sac_ai_metrics_v1'
+const STORAGE_KB_KEY = 'safesaff_sac_ai_knowledge_v2'
+const STORAGE_SUGGESTIONS_KEY = 'safesaff_sac_ai_suggestions_v2'
+const STORAGE_AI_METRICS_KEY = 'safesaff_sac_ai_metrics_v2'
 
 export interface SacAiMetricsSnapshot {
   totalAiAttendances: number
@@ -370,40 +382,26 @@ function saveLocalSuggestions(rows: SacAiSuggestion[]) {
 }
 
 export function getSacAiMetricsSnapshot(): SacAiMetricsSnapshot {
+  const defaultReconciled: SacAiMetricsSnapshot = {
+    totalAiAttendances: 4,
+    resolvedByAiPercent: 50,
+    transferredToSacPercent: 50,
+    slaAiToHumanPercent: 100,
+    copilotSuggestionsTotal: 3,
+    copilotAcceptedCount: 2
+  }
   if (typeof window === 'undefined') {
-    return {
-      totalAiAttendances: 124,
-      resolvedByAiPercent: 68,
-      transferredToSacPercent: 32,
-      slaAiToHumanPercent: 97,
-      copilotSuggestionsTotal: 42,
-      copilotAcceptedCount: 36
-    }
+    return defaultReconciled
   }
   try {
     const raw = localStorage.getItem(STORAGE_AI_METRICS_KEY)
     if (!raw) {
-      const initial: SacAiMetricsSnapshot = {
-        totalAiAttendances: 124,
-        resolvedByAiPercent: 68,
-        transferredToSacPercent: 32,
-        slaAiToHumanPercent: 97,
-        copilotSuggestionsTotal: 42,
-        copilotAcceptedCount: 36
-      }
-      localStorage.setItem(STORAGE_AI_METRICS_KEY, JSON.stringify(initial))
-      return initial
+      localStorage.setItem(STORAGE_AI_METRICS_KEY, JSON.stringify(defaultReconciled))
+      return defaultReconciled
     }
     return JSON.parse(raw) as SacAiMetricsSnapshot
   } catch {
-    return {
-      totalAiAttendances: 124,
-      resolvedByAiPercent: 68,
-      transferredToSacPercent: 32,
-      slaAiToHumanPercent: 97,
-      copilotSuggestionsTotal: 42,
-      copilotAcceptedCount: 36
-    }
+    return defaultReconciled
   }
 }
 
@@ -493,6 +491,8 @@ function query(producerId?: number | null) {
 }
 
 export const sacAiApi = {
+  getInitialKnowledge: (): SacKnowledgeArticle[] => loadLocalKnowledge(),
+
   suggest: async (
     conversationId: number,
     producerId?: number | null,

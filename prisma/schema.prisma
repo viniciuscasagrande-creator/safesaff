@@ -1731,6 +1731,7 @@ model SacChatConversation {
   assignedAgentId Int?
   assignedAgent User? @relation("SacChatAgent", fields: [assignedAgentId], references: [id])
   status String @default("queued") // queued | active | closed
+  requiredSkill String?
   assignedAt DateTime?
   closedAt DateTime?
   createdAt DateTime @default(now())
@@ -1748,6 +1749,7 @@ model SacAgentState {
   userId Int
   user User @relation(fields: [userId], references: [id])
   status String @default("offline") // available | busy | offline
+  skills String @default("N1,ERP")
   lastSeenAt DateTime @default(now())
   lastAssignedAt DateTime?
   updatedAt DateTime @updatedAt

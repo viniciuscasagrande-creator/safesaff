@@ -16,6 +16,8 @@ import {
   Users
 } from 'lucide-react'
 import {
+  ensureGlobalSacPresenceHeartbeat,
+  formatRemainingSla,
   sacChatApi,
   type SacAgentInfo,
   type SacConversation,
@@ -44,14 +46,19 @@ interface CustomerBotTurn {
 }
 
 export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
+  const initialSnap = useMemo(() => sacChatApi.getInitialSnapshot(), [])
   const [sacView, setSacView] = useState<'dashboard' | 'chat'>(initialView)
-  const [list, setList] = useState<SacConversation[]>([])
+  const [list, setList] = useState<SacConversation[]>(initialSnap.rows)
   const [staff, setStaff] = useState(true)
   const [supervisor, setSupervisor] = useState(true)
-  const [selected, setSelected] = useState<number | null>(null)
-  const [messages, setMessages] = useState<SacMessage[]>([])
-  const [availability, setAvailability] = useState<'available' | 'busy' | 'offline'>('available')
+  const [selected, setSelected] = useState<number | null>(initialSnap.rows[0]?.id ?? null)
+  const [messages, setMessages] = useState<SacMessage[]>(
+    initialSnap.rows[0]?.id ? initialSnap.messagesMap[initialSnap.rows[0].id] || [] : []
+  )
   const [activeAgentId, setActiveAgentId] = useState<number>(101)
+  const [availability, setAvailability] = useState<'available' | 'busy' | 'offline'>(() =>
+    sacChatApi.getAgentSavedStatus(101)
+  )
   const [showNewClientChatModal, setShowNewClientChatModal] = useState(false)
   const [showCustomerAiAssistant, setShowCustomerAiAssistant] = useState(true)
   const [showKnowledgePanel, setShowKnowledgePanel] = useState(false)
@@ -63,7 +70,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
   const [error, setError] = useState('')
   const [feedback, setFeedback] = useState('')
   const [filter, setFilter] = useState<'all' | 'queued' | 'mine' | 'active' | 'closed'>('all')
-  const [agents, setAgents] = useState<SacAgentInfo[]>([])
+  const [agents, setAgents] = useState<SacAgentInfo[]>(initialSnap.agents)
   const [target, setTarget] = useState('')
 
   // Estado do Copiloto IA do Atendente
@@ -71,7 +78,9 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
   const [aiLoading, setAiLoading] = useState(false)
 
   // Estado da Base de Conhecimento da IA (SAC)
-  const [knowledge, setKnowledge] = useState<SacKnowledgeArticle[]>([])
+  const [knowledge, setKnowledge] = useState<SacKnowledgeArticle[]>(() =>
+    sacAiApi.getInitialKnowledge()
+  )
   const [kbTitle, setKbTitle] = useState('')
   const [kbCategory, setKbCategory] = useState('Cancelamento de show')
   const [kbTags, setKbTags] = useState('')
@@ -145,16 +154,9 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
   }, [selected])
 
   useEffect(() => {
-    if (!staff || availability === 'offline') return
-    const heartbeat = setInterval(
-      () =>
-        void sacChatApi
-          .status(availability, producerId, activeAgentId)
-          .catch(e => setError(e.message)),
-      20000
-    )
-    return () => clearInterval(heartbeat)
-  }, [staff, availability, producerId, activeAgentId])
+    ensureGlobalSacPresenceHeartbeat(producerId, activeAgentId)
+    setAvailability(sacChatApi.getAgentSavedStatus(activeAgentId))
+  }, [producerId, activeAgentId])
 
   async function action(callback: () => Promise<unknown>, okMsg?: string) {
     try {
@@ -362,27 +364,23 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
   async function handleHandoffCustomerAiToHuman(topic: CustomerAiTopicFlow | null) {
     const chosen = topic || CUSTOMER_AI_TOPICS[0]
-    const transcriptSummary = botTurns
-      .slice(-4)
-      .map(t => `${t.sender === 'client' ? 'Cliente' : 'IA SafeSaff'}: ${t.text}`)
-      .join('\n')
-
-    const initialMessage = `[Triagem IA SafeSaff • Assunto: ${chosen.label} • Prioridade sugerida: ${chosen.priority} • Skill recomendada: ${chosen.requiredSkill} • Pedido: ${clientOrderCode}]\n\nResumo da conversa com a Assistente Virtual:\n${transcriptSummary}`
-
     recordSacAiOutcome('transferred_to_human')
 
     await action(async () => {
-      const created = await sacChatApi.create(
-        `[IA → SAC] ${chosen.label} (${clientOrderCode})`,
-        initialMessage,
-        producerId,
-        clientName.trim() || 'Fernanda Lima Souza'
-      )
+      const created = await sacChatApi.handoffFromAi({
+        subject: `[IA → SAC] ${chosen.label} (${clientOrderCode})`,
+        clientName: clientName.trim() || 'Fernanda Lima Souza',
+        orderCode: clientOrderCode,
+        priority: chosen.priority,
+        requiredSkill: chosen.requiredSkill,
+        transcriptTurns: botTurns,
+        producerId
+      })
       setSelected(created.id)
       setFeedback(
         created.status === 'active'
-          ? `🤖➡️👤 IA transferiu o atendimento ${created.ticket.code} (${chosen.label}) com histórico completo para ${created.assignedAgent?.name}!`
-          : `🤖➡️⏳ IA transferiu o atendimento ${created.ticket.code} (${chosen.label}) para a Fila Central do SAC preservando todo o histórico.`
+          ? `🤖➡️👤 IA transferiu o protocolo ${created.ticket.code} (${chosen.label} • Skill: ${chosen.requiredSkill}) com histórico completo para ${created.assignedAgent?.name}!`
+          : `🤖➡️⏳ IA transferiu o protocolo ${created.ticket.code} (${chosen.label} • Skill: ${chosen.requiredSkill}) para a Fila Central do SAC preservando todo o histórico.`
       )
     })
   }
@@ -960,7 +958,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           }`}
                         >
                           {c.status === 'queued'
-                            ? '⏱ SLA: 8 min'
+                            ? `⏱ ${formatRemainingSla(c).label}`
                             : c.status === 'active'
                             ? 'Em atendimento'
                             : 'Encerrada'}
@@ -1005,7 +1003,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           {conversation.ticket.subject}
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40 text-[10px] font-bold">
-                          ⏱ SLA 8 min
+                          ⏱ {formatRemainingSla(conversation).label} ({conversation.ticket.priority || 'P3'})
                         </span>
                       </div>
                       <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
@@ -1290,17 +1288,19 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   {/* Card SLA do Atendimento em Laranja (como na Referência C) */}
                   <div className="p-3 rounded-xl bg-[#FFF7ED] dark:bg-[#FF9A35]/15 border border-[#FED7AA] dark:border-[#FF9A35]/40 space-y-1.5">
                     <span className="text-[10px] font-extrabold uppercase text-[#BD5D00] dark:text-[#FF9A35] block">
-                      SLA do atendimento
+                      SLA do atendimento ({conversation.ticket.priority || 'P3'})
                     </span>
                     <strong className="text-base font-black text-[#BD5D00] dark:text-[#FF9A35] block">
-                      ⏱ 8 min restantes
+                      ⏱ {formatRemainingSla(conversation).label}
                     </strong>
                     <div className="h-1.5 rounded-full bg-[#FED7AA] dark:bg-[#101620] overflow-hidden">
                       <div className="h-full bg-[#EA580C] dark:bg-[#FF9A35] w-3/5 rounded-full" />
                     </div>
                     <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0]">
-                      <span>Meta: 20 min</span>
-                      <span>Decorrido: 12 min</span>
+                      <span>
+                        Meta: {conversation.ticket.priority === 'P1' ? '15 min' : conversation.ticket.priority === 'P2' ? '30 min' : '60 min'}
+                      </span>
+                      <span>Skill: {conversation.requiredSkill || 'N1'}</span>
                     </div>
                   </div>
 

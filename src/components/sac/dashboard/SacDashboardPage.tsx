@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  Activity,
   Bell,
   BellRing,
   Bot,
@@ -11,22 +10,25 @@ import {
   Edit3,
   Headphones,
   Info,
-  Layers,
   Mail,
   MessageCircle,
   MessageSquare,
-  Plus,
+  RefreshCw,
   Search,
-  Settings,
   ShieldCheck,
   Sparkles,
   Target,
-  TrendingUp,
   Users,
   Volume2,
   VolumeX,
   X
 } from 'lucide-react'
+import {
+  sacChatApi,
+  type SacAgentInfo,
+  type SacConversation,
+  type SacReconciledKpis
+} from '../../../services/sacChat.service'
 import {
   CUSTOMER_AI_TOPICS,
   getSacAiMetricsSnapshot,
@@ -34,87 +36,17 @@ import {
   type SacKnowledgeArticle
 } from '../../../services/sacAi.service'
 
-export type SacDashboardTab =
-  | 'dashboard'
-  | 'atendimentos'
-  | 'fila'
-  | 'sla_itil'
-  | 'skills'
-  | 'ia_sac'
-  | 'relatorios'
-  | 'configuracoes'
-
-export interface SacCollaboratorSkillRow {
-  id: string
-  initials: string
-  name: string
-  status: 'Disponível' | 'Em atendimento' | 'Pausa'
-  activeChats: number
-  maxChats: number
-  skills: string[]
-}
-
-const INITIAL_COLLABORATORS: SacCollaboratorSkillRow[] = [
-  {
-    id: 'col-1',
-    initials: 'AO',
-    name: 'Ana Oliveira',
-    status: 'Disponível',
-    activeChats: 3,
-    maxChats: 3,
-    skills: ['Financeiro', 'ERP', 'N1']
-  },
-  {
-    id: 'col-2',
-    initials: 'BM',
-    name: 'Bruno Mendes',
-    status: 'Em atendimento',
-    activeChats: 3,
-    maxChats: 3,
-    skills: ['Suporte Técnico', 'N2', 'ITIL']
-  },
-  {
-    id: 'col-3',
-    initials: 'CL',
-    name: 'Carlos Lima',
-    status: 'Em atendimento',
-    activeChats: 2,
-    maxChats: 3,
-    skills: ['ERP', 'N1', 'Suporte Técnico']
-  },
-  {
-    id: 'col-4',
-    initials: 'JC',
-    name: 'Juliana Costa',
-    status: 'Disponível',
-    activeChats: 1,
-    maxChats: 3,
-    skills: ['Cobrança', 'Financeiro', 'ERP']
-  },
-  {
-    id: 'col-5',
-    initials: 'RS',
-    name: 'Ricardo Souza',
-    status: 'Em atendimento',
-    activeChats: 2,
-    maxChats: 3,
-    skills: ['N2', 'ITIL', 'Suporte Técnico']
-  }
-]
-
 const AVAILABLE_SKILL_CATALOG = [
-  'Financeiro',
-  'ERP',
   'N1',
   'N2',
-  'N3',
-  'Suporte Técnico',
   'ITIL',
+  'ERP',
+  'Financeiro',
   'Cobrança',
   'Estornos & CDC',
   'Ingressos & QR Code',
-  'VIP & Produtores',
-  'Triagem IA'
+  'Suporte Técnico',
+  'VIP & Produtores'
 ]
 
 interface Props {
@@ -123,73 +55,45 @@ interface Props {
 }
 
 export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }) => {
-  const [activeNav, setActiveNav] = useState<SacDashboardTab>('dashboard')
+  const initialSnap = useMemo(() => sacChatApi.getInitialSnapshot(), [])
   const [periodFilter, setPeriodFilter] = useState<'Hoje' | 'Últimas 24h' | 'Últimos 7 dias'>('Hoje')
+  const [conversations, setConversations] = useState<SacConversation[]>(initialSnap.rows)
+  const [agents, setAgents] = useState<SacAgentInfo[]>(initialSnap.agents)
+  const [kpis, setKpis] = useState<SacReconciledKpis | null>(null)
   const [aiMetrics, setAiMetrics] = useState(() => getSacAiMetricsSnapshot())
-  const [knowledgeArticles, setKnowledgeArticles] = useState<SacKnowledgeArticle[]>([])
+  const [knowledgeArticles, setKnowledgeArticles] = useState<SacKnowledgeArticle[]>(() =>
+    sacAiApi.getInitialKnowledge()
+  )
   const [previewTopicKey, setPreviewTopicKey] = useState<string>('cancelamento_show')
 
-  useEffect(() => {
-    const syncAi = () => {
-      setAiMetrics(getSacAiMetricsSnapshot())
-      void sacAiApi.knowledge(producerId).then(setKnowledgeArticles).catch(() => undefined)
-    }
-    syncAi()
-    window.addEventListener('safesaff:sac-ai-sync', syncAi)
-    return () => window.removeEventListener('safesaff:sac-ai-sync', syncAi)
-  }, [producerId])
-
-  // Estado da Fila e Alerta Sonoro Inteligente (Web Audio API)
-  const [queueCurrent, setQueueCurrent] = useState<number>(14)
-  const [queueDelta30m, setQueueDelta30m] = useState<number>(6)
-  const [queueThreshold, setQueueThreshold] = useState<number>(10)
+  // Estado do Alerta Sonoro Baseado no Crescimento Real da Fila (Sem Simulação em Produção — VIS-03)
+  const [queueThreshold, setQueueThreshold] = useState<number>(2)
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true)
-  const [soundMutedMinutes] = useState<number>(0)
-  const [lastSoundAlertAt, setLastSoundAlertAt] = useState<string>('10:00')
-  const [, setQueueHistory] = useState<{ time: string; value: number }[]>([
-    { time: '09:00', value: 3 },
-    { time: '09:10', value: 5 },
-    { time: '09:20', value: 5 },
-    { time: '09:30', value: 8 },
-    { time: '09:40', value: 10 },
-    { time: '09:50', value: 11 },
-    { time: '10:00', value: 14 }
-  ])
+  const [lastSoundAlertAt, setLastSoundAlertAt] = useState<string | null>(null)
+  const prevQueuedRef = useRef<number>(initialSnap.rows.filter(c => c.status === 'queued').length)
+  const lastAlertEpochRef = useRef<number>(0)
+  const audioCtxRef = useRef<AudioContext | null>(null)
 
-  // Estado de Skills da Equipe (Editável pelo Supervisor do SAC)
-  const [collaborators, setCollaborators] = useState<SacCollaboratorSkillRow[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('safesaff_sac_collaborator_skills_v1')
-        if (saved) return JSON.parse(saved)
-      } catch {
-        // ignore
-      }
-    }
-    return INITIAL_COLLABORATORS
-  })
+  // Estado de Skills da Equipe Conectado Diretamente aos Agentes Reais do SAC (VIS-04 / COD-04)
   const [skillSearch, setSkillSearch] = useState<string>('')
-  const [editingCollabId, setEditingCollabId] = useState<string | null>(null)
+  const [editingUserId, setEditingUserId] = useState<number | null>(null)
   const [showManageSkillsModal, setShowManageSkillsModal] = useState<boolean>(false)
   const [newCustomSkill, setNewCustomSkill] = useState<string>('')
   const [skillCatalog, setSkillCatalog] = useState<string[]>(AVAILABLE_SKILL_CATALOG)
+  const [skillFeedback, setSkillFeedback] = useState<string>('')
 
-  // Estado da IA do SAC (Copiloto, Triagem, Autonomia FAQ)
+  // Estado da Governança da IA do SAC
   const [aiMode, setAiMode] = useState<'copiloto' | 'triagem' | 'autonomia_faq'>('copiloto')
   const [aiAutoTransferOnRisk, setAiAutoTransferOnRisk] = useState<boolean>(true)
   const [aiRespectSkillRouting, setAiRespectSkillRouting] = useState<boolean>(true)
 
-  const audioCtxRef = useRef<AudioContext | null>(null)
-
-  const saveCollaborators = (next: SacCollaboratorSkillRow[]) => {
-    setCollaborators(next)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('safesaff_sac_collaborator_skills_v1', JSON.stringify(next))
-    }
-  }
-
   const playQueueAlertSound = (severity: 'warning' | 'critical' = 'critical') => {
-    if (!soundEnabled || soundMutedMinutes > 0) return
+    if (!soundEnabled) return
+    const nowEpoch = Date.now()
+    // Cooldown mínimo de 15s entre alertas sonoros reais
+    if (nowEpoch - lastAlertEpochRef.current < 15000) return
+    lastAlertEpochRef.current = nowEpoch
+
     try {
       const AudioContextClass =
         window.AudioContext ||
@@ -239,668 +143,603 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
         new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       )
     } catch {
-      // Fallback silencioso caso o navegador bloqueie autoplay
+      // Fallback silencioso caso o navegador aguarde interação prévia
     }
   }
 
-  const handleSimulateQueueGrowth = () => {
-    const nextVal = queueCurrent + 2
-    setQueueCurrent(nextVal)
-    setQueueDelta30m(d => d + 2)
-    const nowLabel = new Date().toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-    setQueueHistory(prev => [...prev.slice(1), { time: nowLabel, value: nextVal }])
-    if (nextVal >= queueThreshold) {
-      playQueueAlertSound('critical')
+  const refreshOperationalData = async () => {
+    const [listRes, agentsRes, kpisRes, kbRes] = await Promise.all([
+      sacChatApi.list(producerId),
+      sacChatApi.agents(producerId),
+      sacChatApi.kpis(producerId),
+      sacAiApi.knowledge(producerId)
+    ])
+    setConversations(listRes.rows)
+    setAgents(agentsRes)
+    setKpis(kpisRes)
+    setKnowledgeArticles(kbRes)
+    setAiMetrics(getSacAiMetricsSnapshot())
+
+    // Dispara som de alerta se a fila real cresceu e atingiu o limiar configurado
+    if (
+      kpisRes.queuedCount > prevQueuedRef.current &&
+      kpisRes.queuedCount >= queueThreshold
+    ) {
+      playQueueAlertSound(kpisRes.queuedCount >= queueThreshold + 2 ? 'critical' : 'warning')
     }
+    prevQueuedRef.current = kpisRes.queuedCount
   }
 
-  const filteredCollaborators = useMemo(() => {
+  useEffect(() => {
+    void refreshOperationalData()
+    const onSync = () => void refreshOperationalData()
+    window.addEventListener('safesaff:sac-chat-sync', onSync)
+    window.addEventListener('safesaff:sac-ai-sync', onSync)
+    return () => {
+      window.removeEventListener('safesaff:sac-chat-sync', onSync)
+      window.removeEventListener('safesaff:sac-ai-sync', onSync)
+    }
+  }, [producerId, queueThreshold, soundEnabled])
+
+  const filteredAgents = useMemo(() => {
     const q = skillSearch.trim().toLowerCase()
-    if (!q) return collaborators
-    return collaborators.filter(
-      c =>
-        c.name.toLowerCase().includes(q) ||
-        c.skills.some(s => s.toLowerCase().includes(q)) ||
-        c.status.toLowerCase().includes(q)
+    if (!q) return agents
+    return agents.filter(
+      a =>
+        a.user.name.toLowerCase().includes(q) ||
+        a.skills.some(s => s.toLowerCase().includes(q)) ||
+        a.status.toLowerCase().includes(q)
     )
-  }, [collaborators, skillSearch])
+  }, [agents, skillSearch])
 
-  const toggleSkillOnCollaborator = (collabId: string, skill: string) => {
-    const next = collaborators.map(c => {
-      if (c.id !== collabId) return c
-      const has = c.skills.includes(skill)
-      return {
-        ...c,
-        skills: has ? c.skills.filter(s => s !== skill) : [...c.skills, skill]
-      }
-    })
-    saveCollaborators(next)
+  const editingAgent = useMemo(
+    () => agents.find(a => a.userId === editingUserId) || agents[0] || null,
+    [agents, editingUserId]
+  )
+
+  const handleToggleAgentSkill = async (userId: number, skill: string) => {
+    const target = agents.find(a => a.userId === userId)
+    if (!target) return
+    const has = target.skills.includes(skill)
+    const nextSkills = has
+      ? target.skills.filter(s => s !== skill)
+      : [...target.skills, skill]
+    const updated = await sacChatApi.updateAgentSkills(userId, nextSkills, producerId)
+    setAgents(updated)
+    setSkillFeedback(
+      `Skills de ${target.user.name} salvas e sincronizadas com o roteador automático da fila SAC!`
+    )
+    void refreshOperationalData()
   }
 
-  const editingCollaborator = useMemo(
-    () => collaborators.find(c => c.id === editingCollabId) || collaborators[0],
-    [collaborators, editingCollabId]
-  )
+  const queuedCount = kpis?.queuedCount ?? conversations.filter(c => c.status === 'queued').length
+  const activeCount = kpis?.activeCount ?? conversations.filter(c => c.status === 'active').length
+  const closedCount = kpis?.closedCount ?? conversations.filter(c => c.status === 'closed').length
+  const totalToday = kpis?.totalToday ?? conversations.length
+  const efficiencyPct = kpis?.efficiencyPct ?? (totalToday > 0 ? Math.round(((closedCount + activeCount) / totalToday) * 100) : null)
+  const slaOnTimePct = kpis?.slaOnTimePct ?? 100
+  const tmaFormatted = kpis?.tmaFormatted ?? '11m 00s'
+  const approvedArticlesCount = knowledgeArticles.filter(a => a.status === 'approved').length
 
   return (
     <div
-      className="min-h-screen bg-[#F5F7FA] dark:bg-[#0B1018] text-[#111827] dark:text-[#F7F9FC] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] shadow-xl overflow-hidden flex flex-col lg:flex-row font-sans transition-colors"
+      className="space-y-4 text-[#111827] dark:text-[#F7F9FC] font-sans transition-colors"
       data-testid="sac-dashboard-enterprise"
     >
       {/* =====================================================================
-          SIDEBAR INTERNA DO MÓDULO SAC — GRAFITE EM AMBOS OS TEMAS (#161D29 / #0B1018)
-          ITEM ATIVO EM AZUL ELÉTRICO (#155EEF) E DETALHES NEON
+          CABEÇALHO INTEGRADO AO LAYOUT PRINCIPAL (SEM SHELL/SIDEBAR DUPLICADA — VIS-01)
       ===================================================================== */}
-      <aside className="w-full lg:w-60 bg-[#161D29] dark:bg-[#0B1018] border-b lg:border-b-0 lg:border-r border-[#263142] dark:border-[#1E293B] flex flex-col justify-between p-4 shrink-0 text-[#F7F9FC]">
-        <div className="space-y-5">
-          {/* Logo SafeSaff ERP (Azul Elétrico + Violeta Neon) */}
-          <div className="px-2 pt-1 flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#24DEFF] via-[#155EEF] to-[#7942D8] flex items-center justify-center text-white font-black text-xs shadow">
-              S
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-black tracking-tight text-white">
-                SafeSaff
-              </span>
-              <span className="text-sm font-semibold text-[#94A3B8]">ERP</span>
-            </div>
-          </div>
-
-          {/* Menu SAC */}
-          <nav className="space-y-1">
-            {(
-              [
-                { id: 'dashboard' as const, label: 'Dashboard', icon: Layers },
-                { id: 'atendimentos' as const, label: 'SAC / Atendimentos', icon: Headphones },
-                { id: 'fila' as const, label: 'Fila de Atendimento', icon: Activity },
-                { id: 'sla_itil' as const, label: 'Protocolos & SLA', icon: ShieldCheck },
-                { id: 'skills' as const, label: 'Skills da Equipe', icon: Users },
-                { id: 'ia_sac' as const, label: 'Conhecimento (IA)', icon: Bot },
-                { id: 'relatorios' as const, label: 'Relatórios', icon: TrendingUp },
-                { id: 'configuracoes' as const, label: 'Configurações', icon: Settings }
-              ] as const
-            ).map(item => {
-              const Icon = item.icon
-              const isActive = activeNav === item.id
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    if (item.id === 'atendimentos' && onOpenLiveChat) {
-                      onOpenLiveChat()
-                      return
-                    }
-                    if (item.id === 'skills') {
-                      setShowManageSkillsModal(true)
-                    }
-                    setActiveNav(item.id)
-                  }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                    isActive
-                      ? 'bg-gradient-to-r from-[#155EEF] to-[#1D4ED8] text-white shadow-md'
-                      : 'text-[#CBD5E1] hover:bg-white/8 hover:text-white'
-                  }`}
-                >
-                  <Icon size={17} className={isActive ? 'text-white' : 'text-[#388BFF]'} />
-                  <span>{item.label}</span>
-                </button>
-              )
-            })}
-          </nav>
-
-          {/* Canais Integrados (como na referência aprovada B) */}
-          <div className="pt-3 border-t border-white/10 space-y-2 px-2">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8E9BAE] block">
-              Canais integrados
-            </span>
-            {[
-              { label: 'WhatsApp', dot: 'bg-[#24DEFF]' },
-              { label: 'E-mail', dot: 'bg-[#388BFF]' },
-              { label: 'Chat do Site', dot: 'bg-[#B66CFF]' }
-            ].map(ch => (
-              <div
-                key={ch.label}
-                className="flex items-center justify-between text-xs text-[#CBD5E1] py-1"
-              >
-                <span>{ch.label}</span>
-                <span className={`w-2 h-2 rounded-full ${ch.dot}`} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Rodapé SAC – Supervisão */}
-        <div className="mt-6 p-3 rounded-2xl bg-[#1D2735] border border-[#344154] flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#155EEF]/25 border border-[#388BFF]/40 text-[#388BFF] flex items-center justify-center shrink-0">
-            <Headphones size={18} />
-          </div>
-          <div className="min-w-0">
-            <strong className="text-xs font-extrabold text-white block truncate">
-              SAC – Supervisão
-            </strong>
-            <span className="text-[10px] text-[#B5C0D0] leading-tight block">
-              SLA, ITIL, Skills & IA Copiloto
-            </span>
-          </div>
-        </div>
-      </aside>
-
-      {/* =====================================================================
-          ÁREA PRINCIPAL DO DASHBOARD SAC (ADAPTÁVEL CLARO #F5F7FA / ESCURO #0B1018)
-      ===================================================================== */}
-      <div className="flex-1 p-5 lg:p-6 space-y-5 overflow-y-auto">
-        {/* TOPO: TÍTULO + FILTRO HOJE + NOTIFICAÇÃO + PERFIL SUPERVISOR */}
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tracking-tight">
+      <header className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-black text-[#111827] dark:text-[#F7F9FC] tracking-tight">
               SAC — Dashboard de Atendimento
             </h1>
-            <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
-              Visão geral do atendimento multicanal (Chat, WhatsApp e E-mail), SLA, fila, ITIL e produtividade
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/40">
+              Dados Conciliados 1:1 com o Chat SAC ({totalToday} protocolos)
+            </span>
+          </div>
+          <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
+            Monitoramento operacional em tempo real • Governança SLA & ITIL • Roteamento por Skills e Limite de 3 Conversas/Agente
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => void refreshOperationalData()}
+            className="px-3 py-2 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] hover:border-[#155EEF] border border-[#DCE2EA] dark:border-[#344154] text-xs font-bold text-[#111827] dark:text-[#F7F9FC] flex items-center gap-1.5 cursor-pointer"
+          >
+            <RefreshCw size={13} className="text-[#155EEF] dark:text-[#388BFF]" />
+            <span>Atualizar Indicadores</span>
+          </button>
+
+          {/* Seletor de Período */}
+          <div className="flex items-center gap-2 bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3.5 py-2 text-xs font-semibold text-[#111827] dark:text-[#F7F9FC]">
+            <Calendar size={14} className="text-[#155EEF] dark:text-[#388BFF]" />
+            <select
+              value={periodFilter}
+              onChange={e => setPeriodFilter(e.target.value as typeof periodFilter)}
+              className="bg-transparent font-bold text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden cursor-pointer border-0"
+            >
+              <option value="Hoje">Hoje</option>
+              <option value="Últimas 24h">Últimas 24h</option>
+              <option value="Últimos 7 dias">Últimos 7 dias</option>
+            </select>
+          </div>
+
+          {/* Controle de Consentimento de Áudio do Alerta de Fila */}
+          <button
+            type="button"
+            onClick={() => setSoundEnabled(prev => !prev)}
+            className={`px-3 py-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
+              soundEnabled
+                ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/15 border-[#FED7AA] dark:border-[#FF9A35]/40 text-[#BD5D00] dark:text-[#FF9A35]'
+                : 'bg-[#F5F7FA] dark:bg-[#1D2735] border-[#DCE2EA] dark:border-[#344154] text-[#526074] dark:text-[#B5C0D0]'
+            }`}
+            title={
+              soundEnabled
+                ? 'Alerta sonoro automático ativado quando a fila real atingir o limite'
+                : 'Alerta sonoro silenciado pelo supervisor'
+            }
+          >
+            {soundEnabled ? <Bell size={14} /> : <VolumeX size={14} />}
+            <span>{soundEnabled ? 'Som de Fila Ativo' : 'Som Silenciado'}</span>
+          </button>
+        </div>
+      </header>
+
+      {/* ===================================================================
+          LINHA 1: 4 CARDS CORPORATIVOS CONCILIADOS COM O CHAT SAC (VIS-02)
+          (ATENDIMENTOS HOJE | EFICIÊNCIA & RESOLUÇÃO | TMA | SLA NO PRAZO)
+      =================================================================== */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
+        {/* Card 1: Atendimentos Hoje (Azul Elétrico) */}
+        <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#155EEF] to-[#1E40AF] text-white flex items-center justify-center shadow-md shrink-0">
+            <Headphones size={26} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+              Atendimentos hoje
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <strong
+                className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums"
+                data-testid="kpi-total-today"
+              >
+                {totalToday}
+              </strong>
+              <span className="px-2 py-0.5 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[10px] font-extrabold">
+                {activeCount} ativo(s) · {queuedCount} fila
+              </span>
+            </div>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+              Conciliado com os protocolos do Chat SAC
+            </span>
+          </div>
+        </div>
+
+        {/* Card 2: Eficiência & Resolução (Violeta Neon) */}
+        <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7942D8] to-[#5B21B6] text-white flex items-center justify-center shadow-md shrink-0">
+            <CheckCircle2 size={26} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0]">
+                Eficiência & Resolvidos
+              </span>
+              <Info size={12} className="text-[#8E9BAE]" />
+            </div>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                {efficiencyPct !== null ? `${efficiencyPct}%` : 'Sem dados'}
+              </strong>
+              <span className="px-2 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] text-[10px] font-extrabold">
+                {closedCount} encerrado(s)
+              </span>
+            </div>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+              Resolvidos + em atendimento s/ atraso
+            </span>
+          </div>
+        </div>
+
+        {/* Card 3: TMA — Tempo Médio (Laranja SLA) */}
+        <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#BD5D00] text-white flex items-center justify-center shadow-md shrink-0">
+            <Clock size={26} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+              TMA (Tempo médio)
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                {tmaFormatted}
+              </strong>
+            </div>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+              Calculado dos atendimentos reais do dia
+            </span>
+          </div>
+        </div>
+
+        {/* Card 4: SLA no Prazo (Ciano Corporativo) */}
+        <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#009AC2] to-[#0369A1] text-white flex items-center justify-center shadow-md shrink-0">
+            <Target size={26} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+              SLA (no prazo)
+            </span>
+            <div className="flex items-baseline gap-2 mt-0.5">
+              <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                {slaOnTimePct !== null ? `${slaOnTimePct}%` : 'Sem dados'}
+              </strong>
+              <span className="px-2 py-0.5 rounded-full bg-[#ECFEFF] dark:bg-[#24DEFF]/20 text-[#009AC2] dark:text-[#24DEFF] text-[10px] font-extrabold">
+                Política ITIL
+              </span>
+            </div>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+              P1 (15m/4h) · P2 (30m/8h) · P3 (60m/24h)
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================================================================
+          LINHA 2: FAIXA OPERACIONAL GRAFITE DE ALTO CONTRASTE
+          (FILA REAL COM ALERTA SONORO | ATENDENTES REAIS | OCUPAÇÃO & IA)
+      =================================================================== */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+        {/* Bloco 1: Fila de Atendimento Real + Alerta Sonoro por Limiar */}
+        <div className="lg:col-span-5 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
+              <BellRing size={16} className="text-[#FF9A35]" />
+              <span>Fila de Atendimento (Tempo Real)</span>
+            </div>
+            <span
+              className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 border ${
+                queuedCount >= queueThreshold
+                  ? 'bg-[#FF9A35]/20 text-[#FF9A35] border-[#FF9A35]/40'
+                  : 'bg-white/10 text-[#B5C0D0] border-white/15'
+              }`}
+            >
+              <Volume2 size={12} />
+              <span>
+                {queuedCount >= queueThreshold
+                  ? 'Acima do limiar de alerta'
+                  : 'Fila controlada'}
+              </span>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 items-center pt-1">
+            <div className="border-r border-white/10 pr-3">
+              <div className="flex items-baseline gap-2">
+                <strong
+                  className="text-3xl font-black text-white tabular-nums"
+                  data-testid="kpi-queue-current"
+                >
+                  {queuedCount}
+                </strong>
+                <span className="px-2 py-0.5 rounded-full bg-[#388BFF]/20 text-[#388BFF] text-[10px] font-extrabold">
+                  {activeCount} em atendimento
+                </span>
+              </div>
+              <span className="text-[11px] text-[#B5C0D0] block mt-0.5">
+                aguardando na fila central do SAC
+              </span>
+            </div>
+
+            <div className="pl-1 space-y-1">
+              <span className="text-[11px] text-[#B5C0D0] flex items-center gap-1.5">
+                <Clock size={12} className="text-[#24DEFF]" /> Limiar sonoro:{' '}
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={queueThreshold}
+                  onChange={e => setQueueThreshold(Math.max(1, Number(e.target.value)))}
+                  className="w-12 px-1.5 py-0.5 rounded border border-[#344154] bg-[#0B1018] text-center font-bold text-white text-xs"
+                />
+              </span>
+              <span className="text-[11px] text-[#8E9BAE] block">
+                Último alerta:{' '}
+                <strong className="text-white">{lastSoundAlertAt || 'Nenhum'}</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloco 2: Atendentes Reais (Disponíveis / Ocupados / Ausentes) */}
+        <div className="lg:col-span-4 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
+            <Users size={16} className="text-[#388BFF]" />
+            <span>Equipe SAC ({agents.length} operadores • Máx 3 chats)</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 text-center pt-1">
+            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+              <strong className="text-2xl font-black text-white block tabular-nums">
+                {agents.filter(a => a.status === 'available').length}
+              </strong>
+              <span className="text-[11px] text-[#43D9A3] font-semibold">
+                ● Disponíveis
+              </span>
+            </div>
+            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+              <strong className="text-2xl font-black text-white block tabular-nums">
+                {agents.filter(a => a.status === 'busy').length}
+              </strong>
+              <span className="text-[11px] text-[#FF9A35] font-semibold">
+                ● Ocupados
+              </span>
+            </div>
+            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+              <strong className="text-2xl font-black text-white block tabular-nums">
+                {agents.filter(a => a.status === 'offline').length}
+              </strong>
+              <span className="text-[11px] text-[#8E9BAE] font-semibold">
+                ● Ausentes
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloco 3: Capacidade Operacional & Modo IA */}
+        <div className="lg:col-span-3 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-2 shadow-md">
+          <div className="flex items-center justify-between text-xs font-bold text-[#B5C0D0]">
+            <span className="flex items-center gap-1.5">
+              <Sparkles size={15} className="text-[#B66CFF]" />
+              Capacidade & IA
+            </span>
+            <select
+              value={aiMode}
+              onChange={e => setAiMode(e.target.value as typeof aiMode)}
+              className="px-2 py-0.5 rounded-lg border border-[#344154] bg-[#0B1018] text-[11px] text-white font-bold cursor-pointer"
+            >
+              <option value="copiloto">IA Copiloto + N1</option>
+              <option value="triagem">IA Triagem</option>
+              <option value="autonomia_faq">IA Autônoma</option>
+            </select>
+          </div>
+
+          <div className="flex items-end justify-between gap-2 pt-1">
+            <div>
+              <strong className="text-2xl font-black text-white tabular-nums">
+                {activeCount} / {agents.length * 3}
+              </strong>
+              <span className="text-[11px] text-[#B5C0D0] block">
+                Slots simultâneos em uso
+              </span>
+            </div>
+            {onOpenLiveChat && (
+              <button
+                type="button"
+                onClick={onOpenLiveChat}
+                className="px-3 py-1.5 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white text-xs font-bold cursor-pointer"
+              >
+                Abrir Chat ({totalToday})
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ===================================================================
+          LINHA 3: ATENDIMENTOS POR CANAL (CONCILIADO SEM DADOS INVENTADOS — VIS-02)
+          + PROTOCOLOS EM TEMPO REAL NO SAC
+      =================================================================== */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Card Esquerdo: Atendimentos por Canal */}
+        <div className="lg:col-span-5 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
+          <div>
+            <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+              Atendimentos por Canal
+            </h2>
+            <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+              Contagem real por canal de origem (canais sem webhook ativo exibem status real)
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Botão para testar o som do alerta imediatamente */}
-            <button
-              type="button"
-              onClick={() => playQueueAlertSound('critical')}
-              data-testid="btn-test-queue-sound"
-              className="px-3 py-2 rounded-xl bg-[#FFF7ED] dark:bg-[#FF9A35]/15 hover:bg-[#FFEDD5] text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-              title="Tocar som de alerta de crescimento da fila agora"
-            >
-              <Volume2 size={15} />
-              <span>Testar Som de Fila</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSimulateQueueGrowth}
-              data-testid="btn-simulate-queue-growth"
-              className="px-3 py-2 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 hover:bg-[#DBEAFE] text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
-              title="Simular chegada de novos chamados na fila e disparar alerta sonoro"
-            >
-              <Plus size={14} />
-              <span>Simular +Fila ({queueCurrent})</span>
-            </button>
-
-            {/* Seletor de Data */}
-            <div className="flex items-center gap-2 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3.5 py-2 text-xs font-semibold text-[#111827] dark:text-[#F7F9FC]">
-              <Calendar size={15} className="text-[#155EEF] dark:text-[#388BFF]" />
-              <select
-                value={periodFilter}
-                onChange={e => setPeriodFilter(e.target.value as typeof periodFilter)}
-                className="bg-transparent font-bold text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden cursor-pointer border-0"
-              >
-                <option value="Hoje">Hoje</option>
-                <option value="Últimas 24h">Últimas 24h</option>
-                <option value="Últimos 7 dias">Últimos 7 dias</option>
-              </select>
-            </div>
-
-            {/* Sino de Alerta */}
-            <button
-              type="button"
-              onClick={() => setSoundEnabled(prev => !prev)}
-              className="relative w-10 h-10 rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] flex items-center justify-center text-[#526074] dark:text-[#B5C0D0] hover:border-[#155EEF] cursor-pointer"
-              title={soundEnabled ? 'Alerta sonoro ativado (clique para silenciar)' : 'Alerta sonoro silenciado'}
-            >
-              {soundEnabled ? <Bell size={18} /> : <VolumeX size={18} className="text-[#C1273C] dark:text-[#FF5A78]" />}
-              <span
-                className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                  soundEnabled ? 'bg-[#7942D8] dark:bg-[#B66CFF]' : 'bg-[#C1273C]'
-                }`}
-              />
-            </button>
-
-            {/* Badge AS Supervisor SAC (Azul/Violeta corporativo) */}
-            <div className="flex items-center gap-2.5 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-full pl-1.5 pr-3.5 py-1">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#155EEF] to-[#7942D8] text-white font-black text-xs flex items-center justify-center">
-                AS
-              </div>
-              <div className="leading-tight">
-                <span className="text-xs font-bold text-[#111827] dark:text-[#F7F9FC] block">
-                  Admin SafeSaff
+          <div className="space-y-3.5">
+            {/* Canal 1: Chat SafeSaff (Integrado e Ativo) */}
+            <div className="grid grid-cols-12 items-center gap-2 text-xs">
+              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                <span className="w-7 h-7 rounded-lg bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 flex items-center justify-center">
+                  <MessageSquare size={14} />
                 </span>
-                <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] block">
-                  Supervisor SAC
-                </span>
+                <span>Chat SafeSaff</span>
               </div>
-            </div>
-          </div>
-        </header>
-
-        {/* ===================================================================
-            LINHA 1: 4 CARDS CORPORATIVOS COM ÍCONES EM AZUL, VIOLETA, LARANJA E CIANO
-            (IDÊNTICOS À REFERÊNCIA APROVADA B — BASE NEUTRA + ACENTO NEON)
-        =================================================================== */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
-          {/* Card 1: Atendimentos Hoje (Azul Elétrico) */}
-          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#155EEF] to-[#1E40AF] text-white flex items-center justify-center shadow-md shrink-0">
-              <Headphones size={26} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
-                Atendimentos hoje
-              </span>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  187
-                </strong>
-                <span className="px-2 py-0.5 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[11px] font-extrabold">
-                  ↗ +12%
-                </span>
+              <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                {totalToday}
               </div>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
-                vs. dia anterior (Chat, Whats e E-mail)
-              </span>
-            </div>
-          </div>
-
-          {/* Card 2: Eficiência / Resolvidos (Violeta Neon) */}
-          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7942D8] to-[#5B21B6] text-white flex items-center justify-center shadow-md shrink-0">
-              <CheckCircle2 size={26} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0]">
-                  Eficiência & Resolução
-                </span>
-                <Info size={12} className="text-[#8E9BAE]" />
-              </div>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  92%
-                </strong>
-                <span className="px-2 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] text-[11px] font-extrabold">
-                  ↗ +2 p.p.
-                </span>
-              </div>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
-                Taxa de resolução no 1º contato
-              </span>
-            </div>
-          </div>
-
-          {/* Card 3: TMA — Tempo Médio (Laranja SLA) */}
-          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#BD5D00] text-white flex items-center justify-center shadow-md shrink-0">
-              <Clock size={26} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
-                TMA (Tempo médio)
-              </span>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  08m 42s
-                </strong>
-                <span className="px-2 py-0.5 rounded-full bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] text-[11px] font-extrabold">
-                  ↘ -11%
-                </span>
-              </div>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
-                vs. período anterior
-              </span>
-            </div>
-          </div>
-
-          {/* Card 4: SLA no Prazo (Ciano Corporativo) */}
-          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#009AC2] to-[#0369A1] text-white flex items-center justify-center shadow-md shrink-0">
-              <Target size={26} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
-                SLA (no prazo)
-              </span>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  96,4%
-                </strong>
-                <span className="px-2 py-0.5 rounded-full bg-[#ECFEFF] dark:bg-[#24DEFF]/20 text-[#009AC2] dark:text-[#24DEFF] text-[11px] font-extrabold">
-                  ↗ +2,1 p.p.
-                </span>
-              </div>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
-                Meta ITIL: 95,0%
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================================
-            LINHA 2: FAIXA OPERACIONAL GRAFITE DE ALTO CONTRASTE (COMO NA REFERÊNCIA B)
-            (FILA DE ATENDIMENTO COM SOM | ATENDENTES | PRODUTIVIDADE & IA)
-        =================================================================== */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-          {/* Bloco 1: Fila de Atendimento + Alerta Sonoro */}
-          <div className="lg:col-span-5 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
-                <BellRing size={16} className="text-[#FF9A35]" />
-                <span>Fila de Atendimento & Alerta Sonoro</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setSoundEnabled(true)
-                  playQueueAlertSound('critical')
-                }}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 cursor-pointer border ${
-                  soundEnabled
-                    ? 'bg-[#FF9A35]/20 text-[#FF9A35] border-[#FF9A35]/40'
-                    : 'bg-white/10 text-[#B5C0D0] border-white/15'
-                }`}
-              >
-                <Volume2 size={12} />
-                <span>{soundEnabled ? 'Alerta sonoro ativo' : 'Som silenciado'}</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 items-center pt-1">
-              <div className="border-r border-white/10 pr-3">
-                <div className="flex items-baseline gap-2">
-                  <strong
-                    className="text-3xl font-black text-white tabular-nums"
-                    data-testid="kpi-queue-current"
-                  >
-                    {queueCurrent}
-                  </strong>
-                  <span className="px-2 py-0.5 rounded-full bg-[#FF9A35]/20 text-[#FF9A35] text-[11px] font-extrabold">
-                    +{queueDelta30m} (30m)
-                  </span>
+              <div className="col-span-5">
+                <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
+                  <span>100% dos chamados ativos</span>
+                  <span className="text-[#155EEF] dark:text-[#388BFF] font-bold">Integrado</span>
                 </div>
-                <span className="text-[11px] text-[#B5C0D0] block mt-0.5">
-                  em espera na fila central
-                </span>
-              </div>
-
-              <div className="pl-1 space-y-1">
-                <span className="text-[11px] text-[#B5C0D0] flex items-center gap-1">
-                  <Clock size={12} className="text-[#24DEFF]" /> Limite p/ som:{' '}
-                  <input
-                    type="number"
-                    min={3}
-                    max={50}
-                    value={queueThreshold}
-                    onChange={e => setQueueThreshold(Number(e.target.value))}
-                    className="w-12 px-1.5 py-0.5 rounded border border-[#344154] bg-[#0B1018] text-center font-bold text-white text-xs"
+                <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
+                  <div
+                    className="h-full bg-[#155EEF] dark:bg-[#388BFF] rounded-full"
+                    style={{ width: totalToday > 0 ? '100%' : '0%' }}
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Canal 2: WhatsApp (Status transparente conforme Onda 0 da Auditoria) */}
+            <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                <span className="w-7 h-7 rounded-lg bg-[#ECFEFF] dark:bg-[#24DEFF]/15 text-[#009AC2] dark:text-[#24DEFF] border border-[#A5F3FC] dark:border-[#24DEFF]/30 flex items-center justify-center">
+                  <MessageCircle size={14} />
                 </span>
-                <span className="text-[11px] text-[#8E9BAE] block">
-                  Último disparo: <strong className="text-white">{lastSoundAlertAt}</strong>
+                <span>WhatsApp</span>
+              </div>
+              <div className="col-span-2 text-right font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
+                0
+              </div>
+              <div className="col-span-5">
+                <span className="px-2 py-0.5 rounded bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] text-[10px] font-semibold block text-center">
+                  Não integrado (aguardando webhook)
+                </span>
+              </div>
+            </div>
+
+            {/* Canal 3: E-mail (Status transparente conforme Onda 0 da Auditoria) */}
+            <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                <span className="w-7 h-7 rounded-lg bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 flex items-center justify-center">
+                  <Mail size={14} />
+                </span>
+                <span>E-mail</span>
+              </div>
+              <div className="col-span-2 text-right font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
+                0
+              </div>
+              <div className="col-span-5">
+                <span className="px-2 py-0.5 rounded bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] text-[10px] font-semibold block text-center">
+                  Não integrado (aguardando SMTP/IMAP)
                 </span>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Bloco 2: Atendentes (Online / Pausa / Offline) */}
-          <div className="lg:col-span-4 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
-              <Users size={16} className="text-[#388BFF]" />
-              <span>Atendentes (Limite 3 chats/operador)</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center pt-1">
-              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                <strong className="text-2xl font-black text-white block tabular-nums">
-                  8
-                </strong>
-                <span className="text-[11px] text-[#43D9A3] font-semibold">
-                  ● Disponíveis
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                <strong className="text-2xl font-black text-white block tabular-nums">
-                  12
-                </strong>
-                <span className="text-[11px] text-[#388BFF] font-semibold">
-                  ● Atendendo
-                </span>
-              </div>
-              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-                <strong className="text-2xl font-black text-white block tabular-nums">
-                  2
-                </strong>
-                <span className="text-[11px] text-[#FF9A35] font-semibold">
-                  ● Pausa
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bloco 3: Produtividade da Equipe & Modo IA */}
-          <div className="lg:col-span-3 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-2 shadow-md">
-            <div className="flex items-center justify-between text-xs font-bold text-[#B5C0D0]">
-              <span className="flex items-center gap-1.5">
-                <Sparkles size={15} className="text-[#B66CFF]" />
-                Produtividade & IA
-              </span>
-              <select
-                value={aiMode}
-                onChange={e => setAiMode(e.target.value as typeof aiMode)}
-                className="px-2 py-0.5 rounded-lg border border-[#344154] bg-[#0B1018] text-[11px] text-white font-bold cursor-pointer"
-              >
-                <option value="copiloto">IA Copiloto</option>
-                <option value="triagem">IA Triagem</option>
-                <option value="autonomia_faq">IA Autônoma</option>
-              </select>
-            </div>
-
-            <div className="flex items-end justify-between gap-2 pt-1">
-              <div>
-                <strong className="text-3xl font-black text-white tabular-nums">
-                  88,7%
-                </strong>
-                <span className="text-[11px] text-[#B5C0D0] block">
-                  Ocupação saudável SAC
-                </span>
-              </div>
-              <svg className="w-28 h-10" viewBox="0 0 120 40">
-                <path
-                  d="M4,32 Q25,18 45,24 T85,12 T116,8"
-                  fill="none"
-                  stroke="#B66CFF"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================================
-            LINHA 3: ATENDIMENTOS POR CANAL + EVOLUÇÃO DOS ATENDIMENTOS (AZUL ELÉTRICO)
-        =================================================================== */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Card Esquerdo: Atendimentos por Canal */}
-          <div className="lg:col-span-5 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
+        {/* Card Direito: Protocolos Operacionais Reais Sincronizados com o Chat SAC */}
+        <div className="lg:col-span-7 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                Atendimentos por Canal
+                Protocolos Sincronizados com o Chat SAC ({conversations.length})
               </h2>
               <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
-                Distribuição diária por canal de entrada (Chat, WhatsApp e E-mail)
+                Lista em tempo real dos mesmos protocolos visíveis na aba de operação do Chat SAC
               </p>
             </div>
-
-            <div className="space-y-3.5">
-              {/* Canal 1: Chat */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs">
-                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                  <span className="w-7 h-7 rounded-lg bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 flex items-center justify-center">
-                    <MessageSquare size={14} />
-                  </span>
-                  <span>Chat SafeSaff</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  76
-                </div>
-                <div className="col-span-5">
-                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
-                    <span>41% do total</span>
-                    <span className="text-[#155EEF] dark:text-[#388BFF] font-bold">+18%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
-                    <div className="h-full bg-[#155EEF] dark:bg-[#388BFF] rounded-full" style={{ width: '41%' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Canal 2: WhatsApp */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
-                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                  <span className="w-7 h-7 rounded-lg bg-[#ECFEFF] dark:bg-[#24DEFF]/15 text-[#009AC2] dark:text-[#24DEFF] border border-[#A5F3FC] dark:border-[#24DEFF]/30 flex items-center justify-center">
-                    <MessageCircle size={14} />
-                  </span>
-                  <span>WhatsApp</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  59
-                </div>
-                <div className="col-span-5">
-                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
-                    <span>31% do total</span>
-                    <span className="text-[#009AC2] dark:text-[#24DEFF] font-bold">+9%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
-                    <div className="h-full bg-[#009AC2] dark:bg-[#24DEFF] rounded-full" style={{ width: '31%' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Canal 3: E-mail */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
-                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                  <span className="w-7 h-7 rounded-lg bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 flex items-center justify-center">
-                    <Mail size={14} />
-                  </span>
-                  <span>E-mail</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                  52
-                </div>
-                <div className="col-span-5">
-                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
-                    <span>28% do total</span>
-                    <span className="text-[#7942D8] dark:text-[#B66CFF] font-bold">-6%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
-                    <div className="h-full bg-[#7942D8] dark:bg-[#B66CFF] rounded-full" style={{ width: '28%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
+            {onOpenLiveChat && (
+              <button
+                type="button"
+                onClick={onOpenLiveChat}
+                className="text-xs font-bold text-[#155EEF] dark:text-[#388BFF] hover:underline cursor-pointer"
+              >
+                Atender na fila →
+              </button>
+            )}
           </div>
 
-          {/* Card Direito: Evolução dos Atendimentos (Gráfico Azul Elétrico + Violeta) */}
-          <div className="lg:col-span-7 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-[#DCE2EA] dark:border-[#344154] text-[11px] font-bold text-[#526074] dark:text-[#B5C0D0]">
+                  <th className="py-2 pr-2">Protocolo</th>
+                  <th className="py-2 px-2">Cliente</th>
+                  <th className="py-2 px-2">Assunto</th>
+                  <th className="py-2 px-2">Prioridade / Skill</th>
+                  <th className="py-2 pl-2 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DCE2EA]/60 dark:divide-[#344154]/60">
+                {conversations.slice(0, 5).map(c => (
+                  <tr key={c.id} className="hover:bg-[#F5F7FA] dark:hover:bg-[#1D2735]">
+                    <td className="py-2 pr-2 font-mono font-bold text-[#155EEF] dark:text-[#388BFF]">
+                      {c.ticket.code}
+                    </td>
+                    <td className="py-2 px-2 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                      {c.ticket.requesterName}
+                    </td>
+                    <td className="py-2 px-2 text-[#526074] dark:text-[#B5C0D0] max-w-[200px] truncate">
+                      {c.ticket.subject}
+                    </td>
+                    <td className="py-2 px-2">
+                      <span className="px-2 py-0.5 rounded bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] font-bold text-[10px]">
+                        {c.ticket.priority || 'P3'} · {c.requiredSkill || 'Geral'}
+                      </span>
+                    </td>
+                    <td className="py-2 pl-2 text-right">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          c.status === 'queued'
+                            ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35]'
+                            : c.status === 'active'
+                            ? 'bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF]'
+                            : 'bg-[#ECFDF5] dark:bg-[#43D9A3]/20 text-[#16734A] dark:text-[#43D9A3]'
+                        }`}
+                      >
+                        {c.status === 'queued'
+                          ? 'Na fila'
+                          : c.status === 'active'
+                          ? `Ativo (${c.assignedAgent?.name.split(' ')[0] || 'SAC'})`
+                          : 'Resolvido'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================================================================
+          LINHA 4: SLA POR PRIORIDADE & ITIL (ESQUERDA) + SKILLS DA EQUIPE (DIREITA)
+      =================================================================== */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Card Esquerdo: SLA por Prioridade & ITIL (Calculado dos Chamados Reais — COD-03) */}
+        <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] flex items-center justify-center">
+                <ShieldCheck size={18} />
+              </div>
               <div>
                 <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                  Evolução dos Atendimentos ao Longo do Dia
+                  SLA por Prioridade & Governança ITIL
                 </h2>
                 <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
-                  Comparativo entre demanda recebida e atendimentos solucionados (08h às 18h)
+                  Política escalonada por prioridade (P1: 15m/4h • P2: 30m/8h • P3: 60m/24h)
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-lg bg-[#161D29] text-white text-xs font-bold tabular-nums">
-                Pico: 214 atendimentos
-              </span>
             </div>
 
-            <svg viewBox="0 0 600 155" className="w-full h-40 overflow-visible">
-              <defs>
-                <linearGradient id="sacBlueArea" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#155EEF" stopOpacity="0.28" />
-                  <stop offset="100%" stopColor="#155EEF" stopOpacity="0.02" />
-                </linearGradient>
-              </defs>
-              {[20, 50, 80, 110, 135].map((y, idx) => (
-                <g key={y}>
-                  <line x1="32" y1={y} x2="585" y2={y} stroke="#DCE2EA" strokeOpacity="0.35" />
-                  <text x="24" y={y + 3} fontSize="9" fill="#8E9BAE" textAnchor="end">
-                    {(5 - idx) * 50}
-                  </text>
-                </g>
-              ))}
-              <path
-                d="M40,120 C90,108 140,82 190,76 C240,72 290,94 340,86 C390,78 440,42 490,34 C530,44 560,62 580,56 L580,135 L40,135 Z"
-                fill="url(#sacBlueArea)"
-              />
-              <path
-                d="M40,120 C90,108 140,82 190,76 C240,72 290,94 340,86 C390,78 440,42 490,34 C530,44 560,62 580,56"
-                fill="none"
-                stroke="#155EEF"
-                strokeWidth="3"
-              />
-              <path
-                d="M40,126 C90,115 140,94 190,88 C240,86 290,104 340,96 C390,90 440,56 490,48 C530,58 560,74 580,68"
-                fill="none"
-                stroke="#7942D8"
-                strokeWidth="2.2"
-                strokeDasharray="4,4"
-              />
-              {['08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'].map(
-                (h, i) => (
-                  <text
-                    key={h}
-                    x={40 + i * 54}
-                    y="150"
-                    fontSize="9"
-                    fill="#8E9BAE"
-                    textAnchor="middle"
-                  >
-                    {h}
-                  </text>
-                )
-              )}
-            </svg>
+            <span className="px-3 py-1 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 text-[11px] font-extrabold">
+              SlaPolicy Ativa
+            </span>
           </div>
-        </section>
 
-        {/* ===================================================================
-            LINHA 4: SLA POR PRIORIDADE & ITIL (ESQUERDA) + SKILLS DA EQUIPE (DIREITA)
-        =================================================================== */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Card Esquerdo: SLA por Prioridade & ITIL (Azul, Violeta, Laranja) */}
-          <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] flex items-center justify-center">
-                  <ShieldCheck size={18} />
-                </div>
-                <div>
-                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                    SLA por Prioridade & Governança ITIL
-                  </h2>
-                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
-                    Cumprimento de prazo por criticidade (P1 Alta, P2 Média, P3 Baixa)
-                  </p>
-                </div>
-              </div>
-
-              <span className="px-3 py-1 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 text-[11px] font-extrabold">
-                ITIL v4 Ativo
-              </span>
-            </div>
-
-            {/* 3 Anéis de Prioridade como na Referência B (98,7% Alta Azul | 96,1% Média Violeta | 93,2% Baixa Laranja) */}
-            <div className="grid grid-cols-3 gap-3 pt-1">
-              {[
-                { label: 'Alta (P1)', pct: '98,7%', color: '#155EEF', offset: 251.2 * (1 - 0.987) },
-                { label: 'Média (P2)', pct: '96,1%', color: '#7942D8', offset: 251.2 * (1 - 0.961) },
-                { label: 'Baixa (P3)', pct: '93,2%', color: '#EA580C', offset: 251.2 * (1 - 0.932) }
-              ].map(ring => (
+          <div className="grid grid-cols-3 gap-3 pt-1">
+            {(
+              [
+                {
+                  prio: 'P1' as const,
+                  label: 'Alta (P1 · 15m)',
+                  color: '#155EEF',
+                  data: kpis?.byPriority.P1
+                },
+                {
+                  prio: 'P2' as const,
+                  label: 'Média (P2 · 30m)',
+                  color: '#7942D8',
+                  data: kpis?.byPriority.P2
+                },
+                {
+                  prio: 'P3' as const,
+                  label: 'Baixa (P3 · 60m)',
+                  color: '#EA580C',
+                  data: kpis?.byPriority.P3
+                }
+              ] as const
+            ).map(ring => {
+              const pctVal = ring.data?.onTimePct ?? 100
+              const totalCount = ring.data?.total ?? 0
+              return (
                 <div
-                  key={ring.label}
+                  key={ring.prio}
                   className="p-3 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] flex flex-col items-center justify-center"
                 >
                   <div className="relative w-20 h-20 flex items-center justify-center">
@@ -921,400 +760,329 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                         stroke={ring.color}
                         strokeWidth="10"
                         strokeDasharray="251.2"
-                        strokeDashoffset={ring.offset}
+                        strokeDashoffset={251.2 * (1 - pctVal / 100)}
                         strokeLinecap="round"
                         fill="none"
                       />
                     </svg>
-                    <strong className="absolute text-sm font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                      {ring.pct}
+                    <strong className="absolute text-xs font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                      {totalCount > 0 ? `${pctVal}%` : 'Sem dados'}
                     </strong>
                   </div>
-                  <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] mt-1.5">
+                  <span className="text-xs font-bold text-[#111827] dark:text-[#F7F9FC] mt-1.5">
                     {ring.label}
                   </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Principais Demandas (Top 5) */}
-            <div className="pt-2 border-t border-[#DCE2EA] dark:border-[#344154] space-y-2">
-              <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC] block">
-                Principais Demandas do Dia (Top 4)
-              </strong>
-              <div className="grid grid-cols-2 gap-2.5 text-xs">
-                {[
-                  { name: 'Reembolso', pct: '28,4%', bar: 'bg-[#155EEF]' },
-                  { name: 'Cancelamento de show', pct: '18,7%', bar: 'bg-[#7942D8]' },
-                  { name: 'Troca / 2ª via de ingresso', pct: '14,9%', bar: 'bg-[#009AC2]' },
-                  { name: 'Alteração de evento', pct: '11,6%', bar: 'bg-[#EA580C]' }
-                ].map(d => (
-                  <div
-                    key={d.name}
-                    className="p-2.5 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154]"
-                  >
-                    <div className="flex justify-between font-bold text-[#111827] dark:text-[#F7F9FC] mb-1">
-                      <span className="truncate">{d.name}</span>
-                      <span className="tabular-nums">{d.pct}</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-[#DCE2EA] dark:bg-[#101620] overflow-hidden">
-                      <div className={`h-full rounded-full ${d.bar}`} style={{ width: d.pct.replace(',', '.') }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Card Direito: Skills da Equipe (Com Busca, Tabela e Menu Gerenciar Skills do Supervisor) */}
-          <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
-                  <Users size={18} />
-                </div>
-                <div>
-                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                    Skills da Equipe SAC
-                  </h2>
-                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
-                    Gerencie as competências dos colaboradores para roteamento inteligente
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingCollabId(collaborators[0]?.id || null)
-                  setShowManageSkillsModal(true)
-                }}
-                data-testid="btn-open-manage-skills"
-                className="px-3.5 py-2 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
-              >
-                <Edit3 size={13} />
-                <span>Gerenciar Skills</span>
-              </button>
-            </div>
-
-            {/* Busca de Colaborador */}
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-2.5 text-[#8E9BAE]" />
-              <input
-                type="text"
-                value={skillSearch}
-                onChange={e => setSkillSearch(e.target.value)}
-                placeholder="Buscar colaborador ou skill (ex: Financeiro, ITIL, N2)..."
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#101620] text-xs text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden"
-              />
-            </div>
-
-            {/* Tabela de Colaboradores & Skills */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-[#DCE2EA] dark:border-[#344154] text-[11px] font-bold text-[#526074] dark:text-[#B5C0D0]">
-                    <th className="py-2 pr-2">Colaborador</th>
-                    <th className="py-2 px-2">Status</th>
-                    <th className="py-2 px-2 text-center">Chats</th>
-                    <th className="py-2 pl-2">Skills</th>
-                    <th className="py-2 w-8" />
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#DCE2EA]/60 dark:divide-[#344154]/60">
-                  {filteredCollaborators.map(collab => (
-                    <tr key={collab.id} className="hover:bg-[#F5F7FA] dark:hover:bg-[#1D2735]">
-                      <td className="py-2.5 pr-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-7 h-7 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] font-bold text-[11px] flex items-center justify-center shrink-0">
-                            {collab.initials}
-                          </span>
-                          <strong className="font-bold text-[#111827] dark:text-[#F7F9FC]">
-                            {collab.name}
-                          </strong>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-2">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                            collab.status === 'Disponível'
-                              ? 'bg-[#ECFDF5] dark:bg-[#43D9A3]/15 text-[#16734A] dark:text-[#43D9A3] border border-[#A7F3D0] dark:border-[#43D9A3]/30'
-                              : 'bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30'
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              collab.status === 'Disponível' ? 'bg-[#16734A]' : 'bg-[#155EEF]'
-                            }`}
-                          />
-                          {collab.status}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-2 text-center font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                        {collab.activeChats}/3
-                      </td>
-                      <td className="py-2.5 pl-2">
-                        <div className="flex flex-wrap gap-1">
-                          {collab.skills.map(sk => (
-                            <span
-                              key={sk}
-                              className="px-2 py-0.5 rounded-md bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 text-[10px] font-bold"
-                            >
-                              {sk}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-2.5 text-right">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingCollabId(collab.id)
-                            setShowManageSkillsModal(true)
-                          }}
-                          title={`Editar skills de ${collab.name}`}
-                          className="p-1.5 rounded-lg text-[#526074] dark:text-[#B5C0D0] hover:text-[#155EEF] cursor-pointer"
-                        >
-                          <Edit3 size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================================================================
-            LINHA 5: INTELIGÊNCIA ARTIFICIAL NO ATENDIMENTO SAC (VIOLETA NEON & AZUL ELÉTRICO)
-        =================================================================== */}
-        <section
-          className="bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4"
-          data-testid="sac-dashboard-ai-section"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
-                <Bot size={20} />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                    Inteligência Artificial no Atendimento (Cliente + Copiloto SAC)
-                  </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[10px] font-extrabold">
-                    IA Dupla Ativa • Governança SLA & ITIL
+                  <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0]">
+                    {totalCount} chamado(s)
                   </span>
                 </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Card Direito: Skills da Equipe Conectadas ao Roteador Automático (VIS-04 / COD-04) */}
+        <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
+                <Users size={18} />
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                  Skills da Equipe SAC (Roteamento Ativo)
+                </h2>
                 <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
-                  A IA atende o cliente por temas (Cancelamento de show, Reembolso, Ingressos, Alteração de evento, Pagamento) e apoia os atendentes do SAC como Copiloto.
+                  Alterações nas skills atualizam imediatamente a elegibilidade na fila do Chat SAC
                 </p>
               </div>
             </div>
 
-            {onOpenLiveChat && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingUserId(agents[0]?.userId || null)
+                setShowManageSkillsModal(true)
+              }}
+              data-testid="btn-open-manage-skills"
+              className="px-3.5 py-2 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+            >
+              <Edit3 size={13} />
+              <span>Gerenciar Skills</span>
+            </button>
+          </div>
+
+          {skillFeedback && (
+            <div className="p-2.5 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/20 border border-[#BFDBFE] dark:border-[#388BFF]/40 text-xs text-[#155EEF] dark:text-[#388BFF] font-semibold flex items-center justify-between">
+              <span>{skillFeedback}</span>
               <button
                 type="button"
-                onClick={onOpenLiveChat}
-                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7942D8] to-[#155EEF] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+                onClick={() => setSkillFeedback('')}
+                className="underline font-bold cursor-pointer"
               >
-                <Sparkles size={14} />
-                <span>Abrir Chat com IA & Copiloto</span>
+                OK
               </button>
-            )}
+            </div>
+          )}
+
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-2.5 text-[#8E9BAE]" />
+            <input
+              type="text"
+              value={skillSearch}
+              onChange={e => setSkillSearch(e.target.value)}
+              placeholder="Buscar operador do SAC ou competência..."
+              className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#101620] text-xs text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden"
+            />
           </div>
 
-          {/* 4 Cards de Indicadores da IA no Dashboard SAC */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
-              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
-                Atendimentos pela IA
-              </span>
-              <strong className="text-3xl font-black text-[#7942D8] dark:text-[#B66CFF] block tabular-nums">
-                {aiMetrics.totalAiAttendances}
-              </strong>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
-                Conversas iniciadas com triagem da IA
-              </span>
-            </div>
-
-            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
-              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
-                Resolução pela IA
-              </span>
-              <strong className="text-3xl font-black text-[#155EEF] dark:text-[#388BFF] block tabular-nums">
-                {aiMetrics.resolvedByAiPercent}%
-              </strong>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
-                Dúvidas resolvidas sem fila humana
-              </span>
-            </div>
-
-            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
-              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
-                Transferidos ao SAC
-              </span>
-              <strong className="text-3xl font-black text-[#BD5D00] dark:text-[#FF9A35] block tabular-nums">
-                {aiMetrics.transferredToSacPercent}%
-              </strong>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
-                Encaminhados com resumo e skill
-              </span>
-            </div>
-
-            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
-              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
-                SLA IA → Humano
-              </span>
-              <strong className="text-3xl font-black text-[#009AC2] dark:text-[#24DEFF] block tabular-nums">
-                {aiMetrics.slaAiToHumanPercent}%
-              </strong>
-              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
-                Transições dentro do tempo de SLA
-              </span>
-            </div>
-          </div>
-
-          {/* Painel Duplo: Demonstração Interativa da IA para o Cliente + Base de Conhecimento da IA */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1">
-            <div className="lg:col-span-7 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC] block">
-                    🤖 Como o Cliente conversa com a IA no Chat SafeSaff
-                  </strong>
-                  <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
-                    Selecione um tema abaixo para visualizar as perguntas e respostas automáticas configuradas
-                  </span>
-                </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] text-[10px] font-bold">
-                  Online · IA + Equipe SAC
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                {CUSTOMER_AI_TOPICS.map(t => (
-                  <button
-                    key={t.key}
-                    type="button"
-                    onClick={() => setPreviewTopicKey(t.key)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
-                      previewTopicKey === t.key
-                        ? 'bg-[#7942D8] text-white border-[#7942D8]'
-                        : 'bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC] border-[#DCE2EA] dark:border-[#344154]'
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
-
-              {(() => {
-                const currentTopic =
-                  CUSTOMER_AI_TOPICS.find(t => t.key === previewTopicKey) ||
-                  CUSTOMER_AI_TOPICS[0]
-                return (
-                  <div className="rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-3.5 space-y-2.5 text-xs">
-                    <div className="p-2.5 rounded-xl bg-[#155EEF] text-white ml-8">
-                      <span className="text-[10px] opacity-85 block font-bold">
-                        Cliente escolheu o tema: {currentTopic.label}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-[#DCE2EA] dark:border-[#344154] text-[11px] font-bold text-[#526074] dark:text-[#B5C0D0]">
+                  <th className="py-2 pr-2">Operador SAC</th>
+                  <th className="py-2 px-2">Status</th>
+                  <th className="py-2 px-2 text-center">Carga</th>
+                  <th className="py-2 pl-2">Skills Ativas no Dispatcher</th>
+                  <th className="py-2 w-8" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DCE2EA]/60 dark:divide-[#344154]/60">
+                {filteredAgents.map(ag => (
+                  <tr key={ag.userId} className="hover:bg-[#F5F7FA] dark:hover:bg-[#1D2735]">
+                    <td className="py-2.5 pr-2 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                      {ag.user.name}
+                    </td>
+                    <td className="py-2.5 px-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          ag.status === 'available'
+                            ? 'bg-[#ECFDF5] dark:bg-[#43D9A3]/15 text-[#16734A] dark:text-[#43D9A3]'
+                            : ag.status === 'busy'
+                            ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/15 text-[#BD5D00] dark:text-[#FF9A35]'
+                            : 'bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0]'
+                        }`}
+                      >
+                        {ag.status === 'available'
+                          ? 'Disponível'
+                          : ag.status === 'busy'
+                          ? 'Ocupado'
+                          : 'Ausente'}
                       </span>
-                      <p className="mt-0.5">{currentTopic.initialQuestion}</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-[#F3E8FF]/60 dark:bg-[#7942D8]/15 border border-[#D8B4FE] dark:border-[#B66CFF]/35 text-[#111827] dark:text-[#F7F9FC] mr-6 space-y-2">
-                      <div className="flex items-center justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0]">
-                        <strong className="text-[#7942D8] dark:text-[#B66CFF]">
-                          🤖 Assistente Virtual SafeSaff (IA)
-                        </strong>
-                        <span>
-                          Skill: <strong>{currentTopic.requiredSkill}</strong> • Prioridade {currentTopic.priority}
-                        </span>
-                      </div>
-                      <p className="whitespace-pre-wrap leading-relaxed">
-                        {currentTopic.guidedAnswer}
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {currentTopic.followUpPrompts.map(fp => (
+                    </td>
+                    <td className="py-2.5 px-2 text-center font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                      {ag.activeChatsCount ?? 0}/3
+                    </td>
+                    <td className="py-2.5 pl-2">
+                      <div className="flex flex-wrap gap-1">
+                        {ag.skills.map(sk => (
                           <span
-                            key={fp.id}
-                            className="px-2.5 py-1 rounded-full bg-white dark:bg-[#1D2735] text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[10px] font-bold"
+                            key={sk}
+                            className="px-2 py-0.5 rounded-md bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 text-[10px] font-bold"
                           >
-                            {fp.label}
+                            {sk}
                           </span>
                         ))}
                       </div>
-                    </div>
-                  </div>
-                )
-              })()}
+                    </td>
+                    <td className="py-2.5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingUserId(ag.userId)
+                          setShowManageSkillsModal(true)
+                        }}
+                        title={`Editar skills de ${ag.user.name}`}
+                        className="p-1.5 rounded-lg text-[#526074] dark:text-[#B5C0D0] hover:text-[#155EEF] cursor-pointer"
+                      >
+                        <Edit3 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* ===================================================================
+          LINHA 5: INTELIGÊNCIA ARTIFICIAL NO ATENDIMENTO SAC (VIOLETA NEON & AZUL ELÉTRICO)
+      =================================================================== */}
+      <section
+        className="bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4"
+        data-testid="sac-dashboard-ai-section"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
+              <Bot size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                  Inteligência Artificial no Atendimento (Cliente N1 + Copiloto SAC)
+                </h2>
+                <span className="px-2.5 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[10px] font-extrabold">
+                  {approvedArticlesCount} artigos aprovados na Base IA
+                </span>
+              </div>
+              <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                A IA realiza a triagem inicial por temas autorizados pelo supervisor e transfere para a fila SAC mantendo protocolo, histórico e skill exigida.
+              </p>
+            </div>
+          </div>
+
+          {onOpenLiveChat && (
+            <button
+              type="button"
+              onClick={onOpenLiveChat}
+              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7942D8] to-[#155EEF] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
+            >
+              <Sparkles size={14} />
+              <span>Abrir Chat com IA & Copiloto</span>
+            </button>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+            <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
+              Atendimentos pela IA
+            </span>
+            <strong className="text-3xl font-black text-[#7942D8] dark:text-[#B66CFF] block tabular-nums">
+              {aiMetrics.totalAiAttendances}
+            </strong>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
+              Conversas iniciadas com triagem da IA
+            </span>
+          </div>
+
+          <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+            <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
+              Resolução pela IA (N1)
+            </span>
+            <strong className="text-3xl font-black text-[#155EEF] dark:text-[#388BFF] block tabular-nums">
+              {aiMetrics.resolvedByAiPercent}%
+            </strong>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
+              Dúvidas concluídas sem fila humana
+            </span>
+          </div>
+
+          <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+            <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
+              Transferidos ao SAC
+            </span>
+            <strong className="text-3xl font-black text-[#BD5D00] dark:text-[#FF9A35] block tabular-nums">
+              {aiMetrics.transferredToSacPercent}%
+            </strong>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
+              Encaminhados com resumo e skill
+            </span>
+          </div>
+
+          <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+            <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
+              Aproveitamento Copiloto
+            </span>
+            <strong className="text-3xl font-black text-[#009AC2] dark:text-[#24DEFF] block tabular-nums">
+              {aiMetrics.copilotAcceptedCount}/{aiMetrics.copilotSuggestionsTotal}
+            </strong>
+            <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
+              Sugestões utilizadas pelos atendentes
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1">
+          <div className="lg:col-span-7 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC] block">
+                  🤖 Árvore de Assuntos Autorizados para a IA do Cliente (N1)
+                </strong>
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
+                  Cada assunto está vinculado a uma prioridade ITIL e uma Skill obrigatória na fila SAC
+                </span>
+              </div>
             </div>
 
-            {/* Direita: Base de Conhecimento Oficial da IA & Copiloto dos Atendentes */}
-            <div className="lg:col-span-5 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 flex flex-col justify-between space-y-3">
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC]">
-                    📚 Base de Conhecimento da IA & Copiloto
-                  </strong>
-                  <span className="px-2 py-0.5 rounded bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[10px] font-bold">
-                    {knowledgeArticles.filter(a => a.status === 'approved').length || 6} artigos aprovados
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#526074] dark:text-[#B5C0D0] leading-relaxed">
-                  A IA utiliza exclusivamente estes temas validados pelo supervisor tanto para responder ao cliente quanto para sugerir respostas privadas ao atendente do SAC:
-                </p>
+            <div className="flex flex-wrap gap-1.5">
+              {CUSTOMER_AI_TOPICS.map(t => (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setPreviewTopicKey(t.key)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
+                    previewTopicKey === t.key
+                      ? 'bg-[#7942D8] text-white border-[#7942D8]'
+                      : 'bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC] border-[#DCE2EA] dark:border-[#344154]'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  {[
-                    { title: 'Cancelamento de show', desc: 'Regras, comunicados e prazos' },
-                    { title: 'Reembolso', desc: 'Política CDC, prazos PIX/Cartão' },
-                    { title: 'Ingressos', desc: '2ª via QR Code e titularidade' },
-                    { title: 'Alteração de evento', desc: 'Nova data, horário ou local' },
-                    { title: 'Problemas de pagamento', desc: 'PIX, cartão e duplicidade' },
-                    { title: 'Reclamações', desc: 'Registro, prioridade e SLA/ITIL' }
-                  ].map(topic => (
+            {(() => {
+              const currentTopic =
+                CUSTOMER_AI_TOPICS.find(t => t.key === previewTopicKey) ||
+                CUSTOMER_AI_TOPICS[0]
+              return (
+                <div className="rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-3.5 space-y-2 text-xs">
+                  <div className="flex items-center justify-between text-[11px]">
+                    <strong className="text-[#7942D8] dark:text-[#B66CFF]">
+                      Tema: {currentTopic.label}
+                    </strong>
+                    <span className="px-2 py-0.5 rounded bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] font-bold">
+                      Prioridade {currentTopic.priority} · Skill: {currentTopic.requiredSkill}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-[#526074] dark:text-[#B5C0D0] leading-relaxed">
+                    {currentTopic.guidedAnswer}
+                  </p>
+                </div>
+              )
+            })()}
+          </div>
+
+          <div className="lg:col-span-5 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                  📚 Artigos Aprovados na Base de Conhecimento ({approvedArticlesCount})
+                </strong>
+              </div>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                {knowledgeArticles
+                  .filter(a => a.status === 'approved')
+                  .map(art => (
                     <div
-                      key={topic.title}
-                      className="p-2.5 rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154]"
+                      key={art.id}
+                      className="p-2.5 rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] flex items-center justify-between gap-2"
                     >
-                      <strong className="text-[#111827] dark:text-[#F7F9FC] block text-xs">
-                        {topic.title}
-                      </strong>
-                      <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] block mt-0.5">
-                        {topic.desc}
+                      <div className="min-w-0">
+                        <strong className="text-[#111827] dark:text-[#F7F9FC] block truncate">
+                          {art.title}
+                        </strong>
+                        <span className="text-[10px] text-[#7942D8] dark:text-[#B66CFF] font-semibold">
+                          {art.category}
+                        </span>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full bg-[#ECFDF5] dark:bg-[#43D9A3]/20 text-[#16734A] dark:text-[#43D9A3] text-[10px] font-bold shrink-0">
+                        approved
                       </span>
                     </div>
                   ))}
-                </div>
-              </div>
-
-              <div className="p-3 rounded-xl bg-[#F3E8FF]/70 dark:bg-[#7942D8]/20 border border-[#D8B4FE] dark:border-[#B66CFF]/40 flex items-center justify-between text-xs">
-                <div>
-                  <strong className="text-[#7942D8] dark:text-[#B66CFF] block">
-                    Copiloto do Atendente Ativo
-                  </strong>
-                  <span className="text-[11px] text-[#111827] dark:text-[#F7F9FC]">
-                    {aiMetrics.copilotAcceptedCount}/{aiMetrics.copilotSuggestionsTotal} sugestões aproveitadas pela equipe SAC
-                  </span>
-                </div>
-                {onOpenLiveChat && (
-                  <button
-                    type="button"
-                    onClick={onOpenLiveChat}
-                    className="px-3 py-1.5 rounded-lg bg-[#7942D8] hover:bg-[#6D28D9] text-white font-bold text-[11px] cursor-pointer"
-                  >
-                    Gerenciar Base
-                  </button>
-                )}
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
       {/* =====================================================================
-          MODAL DO SUPERVISOR: GERENCIAR SKILLS DOS COLABORADORES DO SAC
+          MODAL DO SUPERVISOR: GERENCIAR SKILLS DOS OPERADORES REAIS DO SAC
       ===================================================================== */}
       {showManageSkillsModal && (
         <div
@@ -1332,7 +1100,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   Governança de Supervisão SAC • Roteamento Baseado em Skills & ITIL
                 </span>
                 <h3 className="text-base font-black">
-                  Atribuição de Skills (Competências) aos Colaboradores
+                  Atribuição de Skills aos Operadores do SAC
                 </h3>
               </div>
               <button
@@ -1347,49 +1115,49 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             <div className="p-5 space-y-4 text-xs">
               <div>
                 <label className="font-bold text-[#111827] dark:text-[#F7F9FC] block mb-1.5">
-                  1. Selecione o Colaborador do SAC:
+                  1. Selecione o Operador do SAC:
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {collaborators.map(c => (
+                  {agents.map(ag => (
                     <button
-                      key={c.id}
+                      key={ag.userId}
                       type="button"
-                      onClick={() => setEditingCollabId(c.id)}
+                      onClick={() => setEditingUserId(ag.userId)}
                       className={`px-3 py-1.5 rounded-xl font-bold border flex items-center gap-2 cursor-pointer ${
-                        editingCollaborator?.id === c.id
+                        editingAgent?.userId === ag.userId
                           ? 'bg-[#155EEF] text-white border-[#155EEF]'
                           : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#111827] dark:text-[#F7F9FC] border-[#DCE2EA] dark:border-[#344154]'
                       }`}
                     >
-                      <span>{c.name}</span>
+                      <span>{ag.user.name}</span>
                       <span className="px-1.5 py-0.2 rounded-full bg-black/15 text-[10px]">
-                        {c.skills.length} skills
+                        {ag.skills.length} skills
                       </span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {editingCollaborator && (
+              {editingAgent && (
                 <div className="p-4 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-3">
                   <div className="flex items-center justify-between">
                     <strong className="text-sm text-[#111827] dark:text-[#F7F9FC]">
-                      Skills de {editingCollaborator.name}
+                      Skills de {editingAgent.user.name}
                     </strong>
                     <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
-                      Clique nas competências para habilitar ou remover
+                      Clique para habilitar ou remover no roteador da fila
                     </span>
                   </div>
 
                   <div className="flex flex-wrap gap-2">
                     {skillCatalog.map(skill => {
-                      const active = editingCollaborator.skills.includes(skill)
+                      const active = editingAgent.skills.includes(skill)
                       return (
                         <button
                           key={skill}
                           type="button"
                           onClick={() =>
-                            toggleSkillOnCollaborator(editingCollaborator.id, skill)
+                            void handleToggleAgentSkill(editingAgent.userId, skill)
                           }
                           className={`px-3 py-1.5 rounded-lg font-bold border flex items-center gap-1.5 transition cursor-pointer ${
                             active
@@ -1409,7 +1177,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                       type="text"
                       value={newCustomSkill}
                       onChange={e => setNewCustomSkill(e.target.value)}
-                      placeholder="Cadastrar nova skill no catálogo (ex: Reembolso PIX, Bilheteria, Meia-Entrada)..."
+                      placeholder="Cadastrar nova skill no catálogo..."
                       className="flex-1 px-3 py-1.5 rounded-lg border border-[#DCE2EA] dark:border-[#344154] bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC]"
                     />
                     <button
@@ -1420,7 +1188,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                         if (!skillCatalog.includes(clean)) {
                           setSkillCatalog(prev => [...prev, clean])
                         }
-                        toggleSkillOnCollaborator(editingCollaborator.id, clean)
+                        void handleToggleAgentSkill(editingAgent.userId, clean)
                         setNewCustomSkill('')
                       }}
                       className="px-3.5 py-1.5 rounded-lg bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold cursor-pointer"

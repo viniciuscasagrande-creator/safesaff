@@ -22,17 +22,17 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       <div>
         {eyebrow && (
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-extrabold tracking-widest uppercase text-[#64748B]">
+            <span className="text-[11px] font-extrabold tracking-widest uppercase text-[#009AC2] dark:text-[#24DEFF]">
               {eyebrow}
             </span>
             {badge}
           </div>
         )}
-        <h1 className="text-[24px] sm:text-[26px] font-bold text-[#0E1726] tracking-tight leading-tight">
+        <h1 className="text-[24px] sm:text-[26px] font-bold text-[#111827] dark:text-[#F7F9FC] tracking-tight leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-[13px] text-[#718096] mt-1 leading-relaxed">
+          <p className="text-[13px] text-[#526074] dark:text-[#B5C0D0] mt-1 leading-relaxed">
             {subtitle}
           </p>
         )}

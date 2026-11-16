@@ -25,25 +25,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`rounded-card border border-[#E2E8F0] bg-white p-3.5 shadow-card space-y-3 mb-6 ${className}`}>
+    <div className={`rounded-card border border-[#DCE2EA] dark:border-[#344154] bg-white dark:bg-[#151C27] p-3.5 shadow-card space-y-3 mb-6 ${className}`}>
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        {/* Search input and select dropdowns */}
         <div className="flex flex-1 flex-wrap items-center gap-3">
-          {/* Global search */}
           <div className="relative flex-1 min-w-[240px] max-w-md">
-            <Search size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+            <Search size={16} className="absolute left-3.5 text-[#64748B] dark:text-[#8E9BAE] pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
-              className="h-[38px] w-full rounded-input border border-[#CBD5E1] bg-[#F8FAFC] pl-10 pr-8 text-[13px] text-[#0E1726] placeholder:text-slate-400 outline-none transition focus:border-[#1677FF] focus:bg-white focus:shadow-inputFocus"
+              className="h-[38px] w-full rounded-input border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#101620] pl-10 pr-8 text-[13px] text-[#111827] dark:text-[#F7F9FC] placeholder:text-[#64748B] dark:placeholder:text-[#8E9BAE] outline-none transition focus:border-[#155EEF] dark:focus:border-[#388BFF] focus:bg-white dark:focus:bg-[#151C27]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => onSearchChange('')}
-                className="absolute right-2.5 text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 text-[#64748B] hover:text-[#111827] dark:hover:text-[#F7F9FC]"
               >
                 <X size={14} />
               </button>
@@ -53,10 +51,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {selectFilters}
         </div>
 
-        {/* Status Tabs and Quick Actions */}
         <div className="flex flex-wrap items-center gap-2.5">
           {statusTabs && (
-            <div className="inline-flex rounded-btn border border-[#CBD5E1] bg-[#F8FAFC] p-0.5">
+            <div className="inline-flex rounded-btn border border-[#DCE2EA] dark:border-[#344154] bg-[#EEF2F6] dark:bg-[#101620] p-0.5">
               {statusTabs.options.map((tab) => {
                 const isActive = statusTabs.current === tab.id;
                 return (
@@ -64,17 +61,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     key={tab.id}
                     type="button"
                     onClick={() => statusTabs.onChange(tab.id)}
-                    className={`rounded-[6px] px-3 py-1 text-[12px] font-bold transition select-none ${
+                    className={`rounded-[6px] px-3 py-1 text-[12px] font-bold transition select-none cursor-pointer ${
                       isActive
-                        ? 'bg-white text-[#1677FF] shadow-xs'
-                        : 'text-[#64748B] hover:text-[#0E1726]'
+                        ? 'bg-white dark:bg-[#1D2735] text-[#155EEF] dark:text-[#388BFF] shadow-xs'
+                        : 'text-[#526074] dark:text-[#B5C0D0] hover:text-[#111827] dark:hover:text-[#F7F9FC]'
                     }`}
                   >
                     <span>{tab.label}</span>
                     {typeof tab.count === 'number' && (
-                      <span className={`ml-1.5 rounded-full px-1.5 py-0.2 text-[10px] ${
-                        isActive ? 'bg-[#1677FF]/10 text-[#1677FF]' : 'bg-slate-200 text-slate-600'
-                      }`}>
+                      <span
+                        className={`ml-1.5 rounded-full px-1.5 py-0.2 text-[10px] ${
+                          isActive
+                            ? 'bg-[#155EEF]/15 dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF]'
+                            : 'bg-[#DCE2EA] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0]'
+                        }`}
+                      >
                         {tab.count}
                       </span>
                     )}

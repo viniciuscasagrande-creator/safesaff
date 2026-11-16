@@ -36,40 +36,34 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+      <div
+        className="fixed inset-0 bg-slate-950/65 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
-      {/* Modal Dialog */}
-      <div 
-        className={`relative w-full ${maxWidth} bg-white rounded-card shadow-2xl border border-slate-200 overflow-hidden z-10 animate-in zoom-in-95 duration-200`}
+      <div
+        className={`relative w-full ${maxWidth} bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC] rounded-card shadow-2xl border border-[#DCE2EA] dark:border-[#344154] overflow-hidden z-10 animate-in zoom-in-95 duration-200`}
       >
-        {/* Header */}
-        <div className="flex items-start justify-between p-5 border-b border-slate-100">
+        <div className="flex items-start justify-between p-5 border-b border-[#DCE2EA] dark:border-[#344154]">
           <div>
-            <h3 className="text-[17px] font-bold text-slate-900 leading-tight">
+            <h3 className="text-[17px] font-bold text-[#111827] dark:text-[#F7F9FC] leading-tight">
               {title}
             </h3>
             {description && (
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
                 {description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-btn text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition"
+            className="flex h-8 w-8 items-center justify-center rounded-btn text-[#526074] dark:text-[#B5C0D0] hover:bg-[#EEF2F6] dark:hover:bg-[#1D2735] hover:text-[#111827] dark:hover:text-[#F7F9FC] transition cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-5">
-          {children}
-        </div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );

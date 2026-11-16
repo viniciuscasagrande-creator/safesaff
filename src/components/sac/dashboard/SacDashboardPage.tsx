@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
-  AlertTriangle,
   Bell,
   BellRing,
   Bot,
@@ -22,15 +21,12 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
-  TrendingDown,
   TrendingUp,
-  UserCheck,
   Users,
   Volume2,
   VolumeX,
   X
 } from 'lucide-react'
-
 import {
   CUSTOMER_AI_TOPICS,
   getSacAiMetricsSnapshot,
@@ -73,8 +69,8 @@ const INITIAL_COLLABORATORS: SacCollaboratorSkillRow[] = [
     initials: 'BM',
     name: 'Bruno Mendes',
     status: 'Em atendimento',
-    activeChats: 4,
-    maxChats: 4,
+    activeChats: 3,
+    maxChats: 3,
     skills: ['Suporte Técnico', 'N2', 'ITIL']
   },
   {
@@ -148,11 +144,9 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
   const [queueDelta30m, setQueueDelta30m] = useState<number>(6)
   const [queueThreshold, setQueueThreshold] = useState<number>(10)
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true)
-  const [soundMutedMinutes, setSoundMutedMinutes] = useState<number>(0)
+  const [soundMutedMinutes] = useState<number>(0)
   const [lastSoundAlertAt, setLastSoundAlertAt] = useState<string>('10:00')
-  const [queueHistory, setQueueHistory] = useState<
-    { time: string; value: number }[]
-  >([
+  const [, setQueueHistory] = useState<{ time: string; value: number }[]>([
     { time: '09:00', value: 3 },
     { time: '09:10', value: 5 },
     { time: '09:20', value: 5 },
@@ -194,12 +188,12 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
     }
   }
 
-  // Reprodutor de Alerta Sonoro Sintetizado (Web Audio API — não depende de arquivo externo)
   const playQueueAlertSound = (severity: 'warning' | 'critical' = 'critical') => {
     if (!soundEnabled || soundMutedMinutes > 0) return
     try {
       const AudioContextClass =
-        window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
       if (!AudioContextClass) return
       if (!audioCtxRef.current) {
         audioCtxRef.current = new AudioContextClass()
@@ -217,9 +211,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
       osc1.type = 'sine'
       osc2.type = 'triangle'
 
-      // Alerta duplo ascendente padrão supervisão de call center / NOC
-      const baseFreq = severity === 'critical' ? 587.33 : 440 // D5 ou A4
-      const secondFreq = severity === 'critical' ? 880 : 659.25 // A5 ou E5
+      const baseFreq = severity === 'critical' ? 587.33 : 440
+      const secondFreq = severity === 'critical' ? 880 : 659.25
 
       osc1.frequency.setValueAtTime(baseFreq, now)
       osc1.frequency.setValueAtTime(secondFreq, now + 0.16)
@@ -246,11 +239,10 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
         new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       )
     } catch {
-      // Fallback silencioso caso o navegador bloqueie autoplay antes de clique
+      // Fallback silencioso caso o navegador bloqueie autoplay
     }
   }
 
-  // Simular crescimento da fila e disparar o som de alerta se ultrapassar o limite configurado
   const handleSimulateQueueGrowth = () => {
     const nextVal = queueCurrent + 2
     setQueueCurrent(nextVal)
@@ -295,32 +287,38 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
 
   return (
     <div
-      className="min-h-screen bg-[#F4F7F6] text-slate-800 rounded-2xl border border-slate-200/90 shadow-xl overflow-hidden flex flex-col lg:flex-row font-sans"
+      className="min-h-screen bg-[#F5F7FA] dark:bg-[#0B1018] text-[#111827] dark:text-[#F7F9FC] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] shadow-xl overflow-hidden flex flex-col lg:flex-row font-sans transition-colors"
       data-testid="sac-dashboard-enterprise"
     >
       {/* =====================================================================
-          SIDEBAR INTERNA DO MÓDULO SAC (IDÊNTICA À IMAGEM APROVADA)
+          SIDEBAR INTERNA DO MÓDULO SAC — GRAFITE EM AMBOS OS TEMAS (#161D29 / #0B1018)
+          ITEM ATIVO EM AZUL ELÉTRICO (#155EEF) E DETALHES NEON
       ===================================================================== */}
-      <aside className="w-full lg:w-60 bg-[#F8FAF9] border-b lg:border-b-0 lg:border-r border-slate-200/80 flex flex-col justify-between p-4 shrink-0">
+      <aside className="w-full lg:w-60 bg-[#161D29] dark:bg-[#0B1018] border-b lg:border-b-0 lg:border-r border-[#263142] dark:border-[#1E293B] flex flex-col justify-between p-4 shrink-0 text-[#F7F9FC]">
         <div className="space-y-5">
-          {/* Logo SafeSaff ERP */}
-          <div className="px-2 pt-1 flex items-center gap-1.5">
-            <span className="text-xl font-black tracking-tight text-[#0F6E4B]">
-              SafeSaff
-            </span>
-            <span className="text-lg font-medium text-slate-400">ERP</span>
+          {/* Logo SafeSaff ERP (Azul Elétrico + Violeta Neon) */}
+          <div className="px-2 pt-1 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#24DEFF] via-[#155EEF] to-[#7942D8] flex items-center justify-center text-white font-black text-xs shadow">
+              S
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-lg font-black tracking-tight text-white">
+                SafeSaff
+              </span>
+              <span className="text-sm font-semibold text-[#94A3B8]">ERP</span>
+            </div>
           </div>
 
           {/* Menu SAC */}
           <nav className="space-y-1">
             {(
               [
-                { id: 'dashboard' as const, label: 'Dashboard SAC', icon: Layers },
-                { id: 'atendimentos' as const, label: 'Atendimentos', icon: Headphones },
-                { id: 'fila' as const, label: 'Fila', icon: Activity },
-                { id: 'sla_itil' as const, label: 'SLA & ITIL', icon: ShieldCheck },
+                { id: 'dashboard' as const, label: 'Dashboard', icon: Layers },
+                { id: 'atendimentos' as const, label: 'SAC / Atendimentos', icon: Headphones },
+                { id: 'fila' as const, label: 'Fila de Atendimento', icon: Activity },
+                { id: 'sla_itil' as const, label: 'Protocolos & SLA', icon: ShieldCheck },
                 { id: 'skills' as const, label: 'Skills da Equipe', icon: Users },
-                { id: 'ia_sac' as const, label: 'IA do SAC (Copiloto)', icon: Bot },
+                { id: 'ia_sac' as const, label: 'Conhecimento (IA)', icon: Bot },
                 { id: 'relatorios' as const, label: 'Relatórios', icon: TrendingUp },
                 { id: 'configuracoes' as const, label: 'Configurações', icon: Settings }
               ] as const
@@ -343,59 +341,79 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   }}
                   className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                     isActive
-                      ? 'bg-[#D3EFE2] text-[#0E5E40] shadow-2xs'
-                      : 'text-slate-600 hover:bg-slate-200/60 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-[#155EEF] to-[#1D4ED8] text-white shadow-md'
+                      : 'text-[#CBD5E1] hover:bg-white/8 hover:text-white'
                   }`}
                 >
-                  <Icon size={17} className={isActive ? 'text-[#0E5E40]' : 'text-slate-500'} />
+                  <Icon size={17} className={isActive ? 'text-white' : 'text-[#388BFF]'} />
                   <span>{item.label}</span>
                 </button>
               )
             })}
           </nav>
+
+          {/* Canais Integrados (como na referência aprovada B) */}
+          <div className="pt-3 border-t border-white/10 space-y-2 px-2">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#8E9BAE] block">
+              Canais integrados
+            </span>
+            {[
+              { label: 'WhatsApp', dot: 'bg-[#24DEFF]' },
+              { label: 'E-mail', dot: 'bg-[#388BFF]' },
+              { label: 'Chat do Site', dot: 'bg-[#B66CFF]' }
+            ].map(ch => (
+              <div
+                key={ch.label}
+                className="flex items-center justify-between text-xs text-[#CBD5E1] py-1"
+              >
+                <span>{ch.label}</span>
+                <span className={`w-2 h-2 rounded-full ${ch.dot}`} />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Rodapé SAC – Supervisão */}
-        <div className="mt-6 p-3 rounded-2xl bg-[#EEF4F1] border border-slate-200/80 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#D3EFE2] text-[#0E5E40] flex items-center justify-center shrink-0">
+        <div className="mt-6 p-3 rounded-2xl bg-[#1D2735] border border-[#344154] flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-[#155EEF]/25 border border-[#388BFF]/40 text-[#388BFF] flex items-center justify-center shrink-0">
             <Headphones size={18} />
           </div>
           <div className="min-w-0">
-            <strong className="text-xs font-extrabold text-slate-800 block truncate">
+            <strong className="text-xs font-extrabold text-white block truncate">
               SAC – Supervisão
             </strong>
-            <span className="text-[10px] text-slate-500 leading-tight block">
-              Atendimento multicanal com controle de SLA e ITIL
+            <span className="text-[10px] text-[#B5C0D0] leading-tight block">
+              SLA, ITIL, Skills & IA Copiloto
             </span>
           </div>
         </div>
       </aside>
 
       {/* =====================================================================
-          ÁREA PRINCIPAL DO DASHBOARD SAC
+          ÁREA PRINCIPAL DO DASHBOARD SAC (ADAPTÁVEL CLARO #F5F7FA / ESCURO #0B1018)
       ===================================================================== */}
       <div className="flex-1 p-5 lg:p-6 space-y-5 overflow-y-auto">
         {/* TOPO: TÍTULO + FILTRO HOJE + NOTIFICAÇÃO + PERFIL SUPERVISOR */}
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-              Dashboard SAC
+            <h1 className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tracking-tight">
+              SAC — Dashboard de Atendimento
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Monitoramento diário de atendimento (Chat, E-mail e WhatsApp) • Baseado em SLA e ITIL
+            <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
+              Visão geral do atendimento multicanal (Chat, WhatsApp e E-mail), SLA, fila, ITIL e produtividade
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {/* Botão para testar o som do alerta imediatamente */}
             <button
               type="button"
               onClick={() => playQueueAlertSound('critical')}
               data-testid="btn-test-queue-sound"
-              className="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3 py-2 rounded-xl bg-[#FFF7ED] dark:bg-[#FF9A35]/15 hover:bg-[#FFEDD5] text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               title="Tocar som de alerta de crescimento da fila agora"
             >
-              <Volume2 size={15} className="text-rose-600" />
+              <Volume2 size={15} />
               <span>Testar Som de Fila</span>
             </button>
 
@@ -403,20 +421,20 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
               type="button"
               onClick={handleSimulateQueueGrowth}
               data-testid="btn-simulate-queue-growth"
-              className="px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3 py-2 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 hover:bg-[#DBEAFE] text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/40 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               title="Simular chegada de novos chamados na fila e disparar alerta sonoro"
             >
               <Plus size={14} />
               <span>Simular +Fila ({queueCurrent})</span>
             </button>
 
-            {/* Seletor de Data (Hoje) */}
-            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2 shadow-2xs text-xs font-semibold text-slate-700">
-              <Calendar size={15} className="text-slate-400" />
+            {/* Seletor de Data */}
+            <div className="flex items-center gap-2 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3.5 py-2 text-xs font-semibold text-[#111827] dark:text-[#F7F9FC]">
+              <Calendar size={15} className="text-[#155EEF] dark:text-[#388BFF]" />
               <select
                 value={periodFilter}
                 onChange={e => setPeriodFilter(e.target.value as typeof periodFilter)}
-                className="bg-transparent font-bold text-slate-800 focus:outline-hidden cursor-pointer"
+                className="bg-transparent font-bold text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden cursor-pointer border-0"
               >
                 <option value="Hoje">Hoje</option>
                 <option value="Últimas 24h">Últimas 24h</option>
@@ -424,640 +442,524 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
               </select>
             </div>
 
-            {/* Sino de Alerta com Ponto Verde */}
+            {/* Sino de Alerta */}
             <button
               type="button"
               onClick={() => setSoundEnabled(prev => !prev)}
-              className="relative w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 cursor-pointer shadow-2xs"
+              className="relative w-10 h-10 rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] flex items-center justify-center text-[#526074] dark:text-[#B5C0D0] hover:border-[#155EEF] cursor-pointer"
               title={soundEnabled ? 'Alerta sonoro ativado (clique para silenciar)' : 'Alerta sonoro silenciado'}
             >
-              {soundEnabled ? <Bell size={18} /> : <VolumeX size={18} className="text-rose-500" />}
+              {soundEnabled ? <Bell size={18} /> : <VolumeX size={18} className="text-[#C1273C] dark:text-[#FF5A78]" />}
               <span
                 className={`absolute top-2 right-2 w-2 h-2 rounded-full ${
-                  soundEnabled ? 'bg-emerald-500' : 'bg-rose-500'
+                  soundEnabled ? 'bg-[#7942D8] dark:bg-[#B66CFF]' : 'bg-[#C1273C]'
                 }`}
               />
             </button>
 
-            {/* Badge SP Supervisor SAC */}
-            <div className="flex items-center gap-2.5 bg-white border border-slate-200 rounded-full pl-1.5 pr-3.5 py-1 shadow-2xs">
-              <div className="w-8 h-8 rounded-full bg-[#157347] text-white font-black text-xs flex items-center justify-center">
-                SP
+            {/* Badge AS Supervisor SAC (Azul/Violeta corporativo) */}
+            <div className="flex items-center gap-2.5 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-full pl-1.5 pr-3.5 py-1">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#155EEF] to-[#7942D8] text-white font-black text-xs flex items-center justify-center">
+                AS
               </div>
-              <span className="text-xs font-bold text-slate-800">Supervisor SAC</span>
+              <div className="leading-tight">
+                <span className="text-xs font-bold text-[#111827] dark:text-[#F7F9FC] block">
+                  Admin SafeSaff
+                </span>
+                <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] block">
+                  Supervisor SAC
+                </span>
+              </div>
             </div>
           </div>
         </header>
 
         {/* ===================================================================
-            LINHA 1: 5 CARDS GRANDES (EFICIÊNCIA | FILA ATUAL | SLA NO PRAZO | TMA | ATENDIMENTOS DO DIA)
+            LINHA 1: 4 CARDS CORPORATIVOS COM ÍCONES EM AZUL, VIOLETA, LARANJA E CIANO
+            (IDÊNTICOS À REFERÊNCIA APROVADA B — BASE NEUTRA + ACENTO NEON)
         =================================================================== */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3.5">
-          {/* Card 1: Eficiência */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#E6F7EE] to-[#D4F0E2] border border-[#BFE6D3] p-4 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-              <div className="w-7 h-7 rounded-lg bg-[#15803D]/15 text-[#15803D] flex items-center justify-center">
-                <Target size={16} />
-              </div>
-              <span>Eficiência</span>
-              <Info size={13} className="text-slate-400" />
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
+          {/* Card 1: Atendimentos Hoje (Azul Elétrico) */}
+          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#155EEF] to-[#1E40AF] text-white flex items-center justify-center shadow-md shrink-0">
+              <Headphones size={26} />
             </div>
-            <div className="mt-3 flex items-baseline gap-2.5">
-              <strong className="text-3xl font-black text-slate-900">92%</strong>
-              <span className="px-2 py-0.5 rounded-full bg-[#BCEAD2] text-[#0E6235] text-[11px] font-extrabold">
-                ▲ +2 p.p.
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+                Atendimentos hoje
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  187
+                </strong>
+                <span className="px-2 py-0.5 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[11px] font-extrabold">
+                  ↗ +12%
+                </span>
+              </div>
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+                vs. dia anterior (Chat, Whats e E-mail)
               </span>
             </div>
-            <svg className="w-full h-7 mt-2 opacity-45" viewBox="0 0 200 32" preserveAspectRatio="none">
-              <path d="M0,26 Q45,18 90,22 T160,12 T200,6 L200,32 L0,32 Z" fill="#10B981" />
-            </svg>
           </div>
 
-          {/* Card 2: Fila Atual */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#FDF1E6] to-[#FBE4D2] border border-[#F5D0B5] p-4 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-              <div className="w-7 h-7 rounded-lg bg-[#D97706]/15 text-[#B45309] flex items-center justify-center">
-                <Users size={16} />
-              </div>
-              <span>Fila Atual</span>
-              <Info size={13} className="text-slate-400" />
+          {/* Card 2: Eficiência / Resolvidos (Violeta Neon) */}
+          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#7942D8] to-[#5B21B6] text-white flex items-center justify-center shadow-md shrink-0">
+              <CheckCircle2 size={26} />
             </div>
-            <div className="mt-2.5 flex items-baseline gap-2.5">
-              <strong className="text-3xl font-black text-slate-900" data-testid="kpi-queue-current">
-                {queueCurrent}
-              </strong>
-              <span className="px-2 py-0.5 rounded-full bg-[#FCD5CE] text-[#B91C1C] text-[11px] font-extrabold">
-                ▲ +{queueDelta30m}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0]">
+                  Eficiência & Resolução
+                </span>
+                <Info size={12} className="text-[#8E9BAE]" />
+              </div>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  92%
+                </strong>
+                <span className="px-2 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] text-[11px] font-extrabold">
+                  ↗ +2 p.p.
+                </span>
+              </div>
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+                Taxa de resolução no 1º contato
               </span>
             </div>
-            <span className="text-[11px] font-medium text-slate-600 block mt-1">
-              Chamados aguardando atendimento
-            </span>
           </div>
 
-          {/* Card 3: SLA no Prazo */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#E6F7EE] to-[#D4F0E2] border border-[#BFE6D3] p-4 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-              <div className="w-7 h-7 rounded-lg bg-[#15803D]/15 text-[#15803D] flex items-center justify-center">
-                <ShieldCheck size={16} />
-              </div>
-              <span>SLA no Prazo</span>
-              <Info size={13} className="text-slate-400" />
+          {/* Card 3: TMA — Tempo Médio (Laranja SLA) */}
+          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EA580C] to-[#BD5D00] text-white flex items-center justify-center shadow-md shrink-0">
+              <Clock size={26} />
             </div>
-            <div className="mt-3 flex items-baseline gap-2.5">
-              <strong className="text-3xl font-black text-slate-900">96%</strong>
-              <span className="px-2 py-0.5 rounded-full bg-[#BCEAD2] text-[#0E6235] text-[11px] font-extrabold">
-                ▲ +1 p.p.
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+                TMA (Tempo médio)
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  08m 42s
+                </strong>
+                <span className="px-2 py-0.5 rounded-full bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] text-[11px] font-extrabold">
+                  ↘ -11%
+                </span>
+              </div>
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+                vs. período anterior
               </span>
             </div>
-            <svg className="w-full h-7 mt-2 opacity-45" viewBox="0 0 200 32" preserveAspectRatio="none">
-              <path d="M0,25 Q55,20 110,16 T200,8 L200,32 L0,32 Z" fill="#10B981" />
-            </svg>
           </div>
 
-          {/* Card 4: TMA */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#EBF3FE] to-[#DCEAFE] border border-[#C3Dafe] p-4 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-              <div className="w-7 h-7 rounded-lg bg-blue-600/15 text-blue-700 flex items-center justify-center">
-                <Clock size={16} />
-              </div>
-              <span>TMA</span>
-              <Info size={13} className="text-slate-400" />
+          {/* Card 4: SLA no Prazo (Ciano Corporativo) */}
+          <div className="rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 flex items-center gap-3.5 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#009AC2] to-[#0369A1] text-white flex items-center justify-center shadow-md shrink-0">
+              <Target size={26} />
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
-              <strong className="text-2xl font-black text-slate-900">08m 42s</strong>
-              <span className="px-2 py-0.5 rounded-full bg-[#BCEAD2] text-[#0E6235] text-[10px] font-extrabold">
-                ▼ -01m 18s
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-semibold text-[#526074] dark:text-[#B5C0D0] block">
+                SLA (no prazo)
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  96,4%
+                </strong>
+                <span className="px-2 py-0.5 rounded-full bg-[#ECFEFF] dark:bg-[#24DEFF]/20 text-[#009AC2] dark:text-[#24DEFF] text-[11px] font-extrabold">
+                  ↗ +2,1 p.p.
+                </span>
+              </div>
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block mt-0.5">
+                Meta ITIL: 95,0%
               </span>
             </div>
-            <svg className="w-full h-7 mt-2 opacity-45" viewBox="0 0 200 32" preserveAspectRatio="none">
-              <path d="M0,22 Q65,12 130,18 T200,9 L200,32 L0,32 Z" fill="#3B82F6" />
-            </svg>
-          </div>
-
-          {/* Card 5: Atendimentos do Dia */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#F3EEFD] to-[#E7DDFB] border border-[#D5C5F7] p-4 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-              <div className="w-7 h-7 rounded-lg bg-purple-600/15 text-purple-700 flex items-center justify-center">
-                <Headphones size={16} />
-              </div>
-              <span>Atendimentos do Dia</span>
-            </div>
-            <div className="mt-3 flex items-baseline gap-2.5">
-              <strong className="text-3xl font-black text-slate-900">187</strong>
-              <span className="px-2 py-0.5 rounded-full bg-[#BCEAD2] text-[#0E6235] text-[11px] font-extrabold">
-                ▲ +12%
-              </span>
-            </div>
-            <svg className="w-full h-7 mt-2 opacity-45" viewBox="0 0 200 32" preserveAspectRatio="none">
-              <path d="M0,26 Q60,22 120,14 T200,7 L200,32 L0,32 Z" fill="#8B5CF6" />
-            </svg>
           </div>
         </section>
 
         {/* ===================================================================
-            LINHA 2: ATENDIMENTO POR CANAL (CHAT, E-MAIL, WHATSAPP) + ALERTA DE FILA COM SOM
+            LINHA 2: FAIXA OPERACIONAL GRAFITE DE ALTO CONTRASTE (COMO NA REFERÊNCIA B)
+            (FILA DE ATENDIMENTO COM SOM | ATENDENTES | PRODUTIVIDADE & IA)
         =================================================================== */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Card Esquerdo: Atendimento por Canal */}
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
-            <div>
-              <h2 className="text-base font-extrabold text-slate-900">
-                Atendimento por Canal
-              </h2>
-              <p className="text-xs text-slate-500">
-                Volume de atendimentos do dia por canal (multicanal)
-              </p>
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+          {/* Bloco 1: Fila de Atendimento + Alerta Sonoro */}
+          <div className="lg:col-span-5 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
+                <BellRing size={16} className="text-[#FF9A35]" />
+                <span>Fila de Atendimento & Alerta Sonoro</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSoundEnabled(true)
+                  playQueueAlertSound('critical')
+                }}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 cursor-pointer border ${
+                  soundEnabled
+                    ? 'bg-[#FF9A35]/20 text-[#FF9A35] border-[#FF9A35]/40'
+                    : 'bg-white/10 text-[#B5C0D0] border-white/15'
+                }`}
+              >
+                <Volume2 size={12} />
+                <span>{soundEnabled ? 'Alerta sonoro ativo' : 'Som silenciado'}</span>
+              </button>
             </div>
 
-            <div className="space-y-3.5">
-              {/* Canal 1: Chat */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs">
-                <div className="col-span-4 flex items-center gap-2.5 font-bold text-slate-800">
-                  <span className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                    <MessageSquare size={14} />
-                  </span>
-                  <span>Chat</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-base text-slate-900">
-                  76
-                </div>
-                <div className="col-span-2">
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px]">
-                    ▲ +18%
+            <div className="grid grid-cols-2 gap-3 items-center pt-1">
+              <div className="border-r border-white/10 pr-3">
+                <div className="flex items-baseline gap-2">
+                  <strong
+                    className="text-3xl font-black text-white tabular-nums"
+                    data-testid="kpi-queue-current"
+                  >
+                    {queueCurrent}
+                  </strong>
+                  <span className="px-2 py-0.5 rounded-full bg-[#FF9A35]/20 text-[#FF9A35] text-[11px] font-extrabold">
+                    +{queueDelta30m} (30m)
                   </span>
                 </div>
-                <div className="col-span-4">
-                  <span className="text-[10px] text-slate-500 font-semibold block mb-1">
-                    41% do total
-                  </span>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-[#15803D] rounded-full" style={{ width: '41%' }} />
-                  </div>
-                </div>
+                <span className="text-[11px] text-[#B5C0D0] block mt-0.5">
+                  em espera na fila central
+                </span>
               </div>
 
-              {/* Canal 2: E-mail */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-slate-100">
-                <div className="col-span-4 flex items-center gap-2.5 font-bold text-slate-800">
-                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center">
-                    <Mail size={14} />
-                  </span>
-                  <span>E-mail</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-base text-slate-900">
-                  52
-                </div>
-                <div className="col-span-2">
-                  <span className="px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 font-bold text-[10px]">
-                    ▼ -6%
-                  </span>
-                </div>
-                <div className="col-span-4">
-                  <span className="text-[10px] text-slate-500 font-semibold block mb-1">
-                    28% do total
-                  </span>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-[#15803D] rounded-full" style={{ width: '28%' }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Canal 3: WhatsApp */}
-              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-slate-100">
-                <div className="col-span-4 flex items-center gap-2.5 font-bold text-slate-800">
-                  <span className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                    <MessageCircle size={14} />
-                  </span>
-                  <span>WhatsApp</span>
-                </div>
-                <div className="col-span-2 text-right font-black text-base text-slate-900">
-                  59
-                </div>
-                <div className="col-span-2">
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px]">
-                    ▲ +9%
-                  </span>
-                </div>
-                <div className="col-span-4">
-                  <span className="text-[10px] text-slate-500 font-semibold block mb-1">
-                    31% do total
-                  </span>
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div className="h-full bg-[#15803D] rounded-full" style={{ width: '31%' }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card Direito: Alerta de Fila (com Alerta Sonoro Ativo + Gráfico Evolução da Fila) */}
-          <div className="lg:col-span-7 bg-gradient-to-r from-[#FFF5F5] via-white to-white rounded-2xl border border-rose-200/90 p-5 shadow-2xs grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            <div className="md:col-span-7 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-2xs">
-                    <BellRing size={24} className="animate-bounce" />
-                  </div>
-                  <h2 className="text-base font-black text-slate-900">
-                    Alerta de Fila
-                  </h2>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSoundEnabled(true)
-                    playQueueAlertSound('critical')
-                  }}
-                  className={`px-3 py-1 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 cursor-pointer ${
-                    soundEnabled
-                      ? 'bg-rose-100 text-rose-700 border border-rose-300'
-                      : 'bg-slate-200 text-slate-600'
-                  }`}
-                >
-                  <Volume2 size={13} />
-                  <span>{soundEnabled ? 'Alerta sonoro ativo' : 'Som silenciado'}</span>
-                </button>
-              </div>
-
-              <p className="text-xs text-slate-600 leading-relaxed">
-                O sistema emite um som de alerta quando a fila de atendimentos cresce acima do limite configurado (<strong>{queueThreshold} chamados</strong> • último disparo às {lastSoundAlertAt}).
-              </p>
-
-              <div className="p-3 rounded-xl bg-rose-50/90 border border-rose-200/80 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <TrendingUp size={18} className="text-rose-600 shrink-0" />
-                  <div>
-                    <strong className="text-xs font-extrabold text-rose-800 block">
-                      Fila em crescimento
-                    </strong>
-                    <span className="text-[11px] text-slate-600">
-                      +{queueDelta30m} chamados nos últimos 30 min
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-[11px]">
-                  <span className="text-slate-500">Limite:</span>
+              <div className="pl-1 space-y-1">
+                <span className="text-[11px] text-[#B5C0D0] flex items-center gap-1">
+                  <Clock size={12} className="text-[#24DEFF]" /> Limite p/ som:{' '}
                   <input
                     type="number"
                     min={3}
                     max={50}
                     value={queueThreshold}
                     onChange={e => setQueueThreshold(Number(e.target.value))}
-                    className="w-12 px-1.5 py-0.5 rounded border border-rose-300 bg-white text-center font-bold text-slate-800"
+                    className="w-12 px-1.5 py-0.5 rounded border border-[#344154] bg-[#0B1018] text-center font-bold text-white text-xs"
                   />
-                </div>
+                </span>
+                <span className="text-[11px] text-[#8E9BAE] block">
+                  Último disparo: <strong className="text-white">{lastSoundAlertAt}</strong>
+                </span>
               </div>
             </div>
+          </div>
 
-            {/* Mini-Gráfico: Evolução da Fila (última hora) */}
-            <div className="md:col-span-5 bg-white rounded-xl border border-slate-200/80 p-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-700">
-                  Evolução da Fila (última hora)
-                </span>
-                <span className="px-2 py-0.5 rounded bg-rose-600 text-white font-black text-xs">
-                  {queueCurrent}
+          {/* Bloco 2: Atendentes (Online / Pausa / Offline) */}
+          <div className="lg:col-span-4 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
+              <Users size={16} className="text-[#388BFF]" />
+              <span>Atendentes (Limite 3 chats/operador)</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center pt-1">
+              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                <strong className="text-2xl font-black text-white block tabular-nums">
+                  8
+                </strong>
+                <span className="text-[11px] text-[#43D9A3] font-semibold">
+                  ● Disponíveis
                 </span>
               </div>
-              <svg viewBox="0 0 240 100" className="w-full h-24 overflow-visible">
-                <defs>
-                  <linearGradient id="queueAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#EF4444" stopOpacity="0.32" />
-                    <stop offset="100%" stopColor="#EF4444" stopOpacity="0.02" />
-                  </linearGradient>
-                </defs>
-                {/* Linhas horizontais de grade */}
-                {[20, 45, 70, 90].map(y => (
-                  <line
-                    key={y}
-                    x1="20"
-                    y1={y}
-                    x2="230"
-                    y2={y}
-                    stroke="#E2E8F0"
-                    strokeDasharray="2,2"
-                  />
-                ))}
-                {/* Área e Linha */}
+              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                <strong className="text-2xl font-black text-white block tabular-nums">
+                  12
+                </strong>
+                <span className="text-[11px] text-[#388BFF] font-semibold">
+                  ● Atendendo
+                </span>
+              </div>
+              <div className="p-2 rounded-xl bg-white/5 border border-white/10">
+                <strong className="text-2xl font-black text-white block tabular-nums">
+                  2
+                </strong>
+                <span className="text-[11px] text-[#FF9A35] font-semibold">
+                  ● Pausa
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bloco 3: Produtividade da Equipe & Modo IA */}
+          <div className="lg:col-span-3 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-2 shadow-md">
+            <div className="flex items-center justify-between text-xs font-bold text-[#B5C0D0]">
+              <span className="flex items-center gap-1.5">
+                <Sparkles size={15} className="text-[#B66CFF]" />
+                Produtividade & IA
+              </span>
+              <select
+                value={aiMode}
+                onChange={e => setAiMode(e.target.value as typeof aiMode)}
+                className="px-2 py-0.5 rounded-lg border border-[#344154] bg-[#0B1018] text-[11px] text-white font-bold cursor-pointer"
+              >
+                <option value="copiloto">IA Copiloto</option>
+                <option value="triagem">IA Triagem</option>
+                <option value="autonomia_faq">IA Autônoma</option>
+              </select>
+            </div>
+
+            <div className="flex items-end justify-between gap-2 pt-1">
+              <div>
+                <strong className="text-3xl font-black text-white tabular-nums">
+                  88,7%
+                </strong>
+                <span className="text-[11px] text-[#B5C0D0] block">
+                  Ocupação saudável SAC
+                </span>
+              </div>
+              <svg className="w-28 h-10" viewBox="0 0 120 40">
                 <path
-                  d="M25,78 L58,70 L92,68 L125,54 L158,46 L192,39 L225,22 L225,90 L25,90 Z"
-                  fill="url(#queueAreaGrad)"
-                />
-                <path
-                  d="M25,78 L58,70 L92,68 L125,54 L158,46 L192,39 L225,22"
+                  d="M4,32 Q25,18 45,24 T85,12 T116,8"
                   fill="none"
-                  stroke="#DC2626"
-                  strokeWidth="2.5"
+                  stroke="#B66CFF"
+                  strokeWidth="3"
+                  strokeLinecap="round"
                 />
-                {[
-                  { x: 25, y: 78, t: '09:00' },
-                  { x: 58, y: 70, t: '09:10' },
-                  { x: 92, y: 68, t: '09:20' },
-                  { x: 125, y: 54, t: '09:30' },
-                  { x: 158, y: 46, t: '09:40' },
-                  { x: 192, y: 39, t: '09:50' },
-                  { x: 225, y: 22, t: '10:00' }
-                ].map((pt, i) => (
-                  <g key={pt.t}>
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r={i === 6 ? 4.5 : 3}
-                      fill={i === 6 ? '#DC2626' : '#FFFFFF'}
-                      stroke="#DC2626"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x={pt.x}
-                      y="99"
-                      fontSize="7.5"
-                      fill="#64748B"
-                      textAnchor="middle"
-                    >
-                      {pt.t}
-                    </text>
-                  </g>
-                ))}
               </svg>
             </div>
           </div>
         </section>
 
         {/* ===================================================================
-            LINHA 3: FILA E ATENDIMENTO AO LONGO DO DIA + SUPERVISÃO EM TEMPO REAL
+            LINHA 3: ATENDIMENTOS POR CANAL + EVOLUÇÃO DOS ATENDIMENTOS (AZUL ELÉTRICO)
         =================================================================== */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Gráfico Comparativo ao Longo do Dia */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-3">
+          {/* Card Esquerdo: Atendimentos por Canal */}
+          <div className="lg:col-span-5 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
             <div>
-              <h2 className="text-base font-extrabold text-slate-900">
-                Fila e Atendimento ao Longo do Dia
+              <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                Atendimentos por Canal
               </h2>
-              <p className="text-xs text-slate-500">
-                Comparativo entre demanda recebida e atendimentos solucionados (08:00 às 18:00)
+              <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                Distribuição diária por canal de entrada (Chat, WhatsApp e E-mail)
               </p>
             </div>
 
-            <svg viewBox="0 0 600 170" className="w-full h-44 overflow-visible">
-              <defs>
-                <linearGradient id="solvedBlueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.01" />
-                </linearGradient>
-              </defs>
-              {[25, 55, 85, 115, 145].map((y, idx) => (
-                <g key={y}>
-                  <line x1="32" y1={y} x2="585" y2={y} stroke="#F1F5F9" />
-                  <text x="24" y={y + 3} fontSize="9" fill="#94A3B8" textAnchor="end">
-                    {(5 - idx) * 10}
-                  </text>
-                </g>
-              ))}
-              {/* Curva Azul: Atendimentos Solucionados */}
-              <path
-                d="M40,128 C90,115 140,85 190,82 C240,80 290,112 340,108 C390,104 440,62 490,68 C530,74 560,102 580,108 L580,145 L40,145 Z"
-                fill="url(#solvedBlueGrad)"
-              />
-              <path
-                d="M40,128 C90,115 140,85 190,82 C240,80 290,112 340,108 C390,104 440,62 490,68 C530,74 560,102 580,108"
-                fill="none"
-                stroke="#2563EB"
-                strokeWidth="2.5"
-              />
-              {/* Curva Verde: Demanda (Entradas) */}
-              <path
-                d="M40,125 C90,102 140,65 190,62 C240,60 290,98 340,94 C390,90 440,46 490,52 C530,58 560,88 580,96"
-                fill="none"
-                stroke="#16A34A"
-                strokeWidth="2.5"
-              />
-              {[
-                '08:00',
-                '09:00',
-                '10:00',
-                '11:00',
-                '12:00',
-                '13:00',
-                '14:00',
-                '15:00',
-                '16:00',
-                '17:00',
-                '18:00'
-              ].map((h, i) => (
-                <text
-                  key={h}
-                  x={40 + i * 54}
-                  y="162"
-                  fontSize="9"
-                  fill="#64748B"
-                  textAnchor="middle"
-                >
-                  {h}
-                </text>
-              ))}
-            </svg>
+            <div className="space-y-3.5">
+              {/* Canal 1: Chat */}
+              <div className="grid grid-cols-12 items-center gap-2 text-xs">
+                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 flex items-center justify-center">
+                    <MessageSquare size={14} />
+                  </span>
+                  <span>Chat SafeSaff</span>
+                </div>
+                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  76
+                </div>
+                <div className="col-span-5">
+                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
+                    <span>41% do total</span>
+                    <span className="text-[#155EEF] dark:text-[#388BFF] font-bold">+18%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
+                    <div className="h-full bg-[#155EEF] dark:bg-[#388BFF] rounded-full" style={{ width: '41%' }} />
+                  </div>
+                </div>
+              </div>
 
-            <div className="flex items-center justify-center gap-6 text-xs font-bold pt-1">
-              <span className="flex items-center gap-2 text-slate-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#16A34A]" />
-                Demanda (entradas) – <strong>198</strong>
-              </span>
-              <span className="flex items-center gap-2 text-slate-700">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
-                Atendimentos (solucionados) – <strong>187</strong>
-              </span>
+              {/* Canal 2: WhatsApp */}
+              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#ECFEFF] dark:bg-[#24DEFF]/15 text-[#009AC2] dark:text-[#24DEFF] border border-[#A5F3FC] dark:border-[#24DEFF]/30 flex items-center justify-center">
+                    <MessageCircle size={14} />
+                  </span>
+                  <span>WhatsApp</span>
+                </div>
+                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  59
+                </div>
+                <div className="col-span-5">
+                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
+                    <span>31% do total</span>
+                    <span className="text-[#009AC2] dark:text-[#24DEFF] font-bold">+9%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
+                    <div className="h-full bg-[#009AC2] dark:bg-[#24DEFF] rounded-full" style={{ width: '31%' }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Canal 3: E-mail */}
+              <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+                <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 flex items-center justify-center">
+                    <Mail size={14} />
+                  </span>
+                  <span>E-mail</span>
+                </div>
+                <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  52
+                </div>
+                <div className="col-span-5">
+                  <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
+                    <span>28% do total</span>
+                    <span className="text-[#7942D8] dark:text-[#B66CFF] font-bold">-6%</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[#EEF2F6] dark:bg-[#1D2735] overflow-hidden">
+                    <div className="h-full bg-[#7942D8] dark:bg-[#B66CFF] rounded-full" style={{ width: '28%' }} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Card Supervisão (Situação da equipe e da fila em tempo real) */}
-          <div className="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                <Users size={18} />
-              </div>
+          {/* Card Direito: Evolução dos Atendimentos (Gráfico Azul Elétrico + Violeta) */}
+          <div className="lg:col-span-7 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">Supervisão</h2>
-                <p className="text-xs text-slate-500">
-                  Situação da equipe e da fila em tempo real
+                <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                  Evolução dos Atendimentos ao Longo do Dia
+                </h2>
+                <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                  Comparativo entre demanda recebida e atendimentos solucionados (08h às 18h)
                 </p>
               </div>
+              <span className="px-3 py-1 rounded-lg bg-[#161D29] text-white text-xs font-bold tabular-nums">
+                Pico: 214 atendimentos
+              </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-2xl bg-[#EAF8F0] border border-[#C6E9D6] p-4 text-center space-y-1">
-                <span className="text-xs font-bold text-slate-700 block">
-                  Agentes disponíveis
-                </span>
-                <strong className="text-3xl font-black text-[#15803D] block">8</strong>
-              </div>
-
-              <div className="rounded-2xl bg-[#EEF5FF] border border-[#CFE0FC] p-4 text-center space-y-1">
-                <span className="text-xs font-bold text-slate-700 block">
-                  Agentes em atendimento
-                </span>
-                <strong className="text-3xl font-black text-[#1D4ED8] block">12</strong>
-              </div>
-
-              <div className="rounded-2xl bg-[#FFF0F0] border border-[#FCD2D2] p-4 text-center space-y-1">
-                <span className="text-xs font-bold text-slate-700 block">
-                  Clientes em fila
-                </span>
-                <strong className="text-3xl font-black text-[#DC2626] block">
-                  {queueCurrent}
-                </strong>
-              </div>
-            </div>
-
-            {/* Controle Rápido da IA do SAC pelo Supervisor */}
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-2">
-                <Bot size={16} className="text-[#0F6E4B]" />
-                <div>
-                  <strong className="text-slate-800 block">
-                    IA do SAC: Modo {aiMode === 'copiloto' ? 'Copiloto Assistido' : aiMode === 'triagem' ? 'Triagem + Skills' : 'Autonomia FAQ'}
-                  </strong>
-                  <span className="text-[11px] text-slate-500">
-                    Limite de 3 conversas/agente + roteamento por Skill ativo
-                  </span>
-                </div>
-              </div>
-              <select
-                value={aiMode}
-                onChange={e => setAiMode(e.target.value as typeof aiMode)}
-                className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white font-bold text-xs text-slate-800 cursor-pointer"
-              >
-                <option value="copiloto">1. IA Copiloto (Recomendado)</option>
-                <option value="triagem">2. IA Triagem & Skills</option>
-                <option value="autonomia_faq">3. IA FAQ Autônomo</option>
-              </select>
-            </div>
+            <svg viewBox="0 0 600 155" className="w-full h-40 overflow-visible">
+              <defs>
+                <linearGradient id="sacBlueArea" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#155EEF" stopOpacity="0.28" />
+                  <stop offset="100%" stopColor="#155EEF" stopOpacity="0.02" />
+                </linearGradient>
+              </defs>
+              {[20, 50, 80, 110, 135].map((y, idx) => (
+                <g key={y}>
+                  <line x1="32" y1={y} x2="585" y2={y} stroke="#DCE2EA" strokeOpacity="0.35" />
+                  <text x="24" y={y + 3} fontSize="9" fill="#8E9BAE" textAnchor="end">
+                    {(5 - idx) * 50}
+                  </text>
+                </g>
+              ))}
+              <path
+                d="M40,120 C90,108 140,82 190,76 C240,72 290,94 340,86 C390,78 440,42 490,34 C530,44 560,62 580,56 L580,135 L40,135 Z"
+                fill="url(#sacBlueArea)"
+              />
+              <path
+                d="M40,120 C90,108 140,82 190,76 C240,72 290,94 340,86 C390,78 440,42 490,34 C530,44 560,62 580,56"
+                fill="none"
+                stroke="#155EEF"
+                strokeWidth="3"
+              />
+              <path
+                d="M40,126 C90,115 140,94 190,88 C240,86 290,104 340,96 C390,90 440,56 490,48 C530,58 560,74 580,68"
+                fill="none"
+                stroke="#7942D8"
+                strokeWidth="2.2"
+                strokeDasharray="4,4"
+              />
+              {['08h', '09h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h'].map(
+                (h, i) => (
+                  <text
+                    key={h}
+                    x={40 + i * 54}
+                    y="150"
+                    fontSize="9"
+                    fill="#8E9BAE"
+                    textAnchor="middle"
+                  >
+                    {h}
+                  </text>
+                )
+              )}
+            </svg>
           </div>
         </section>
 
         {/* ===================================================================
-            LINHA 4: SLA & ITIL (ESQUERDA) + SKILLS DA EQUIPE COM EDIÇÃO DO SUPERVISOR (DIREITA)
+            LINHA 4: SLA POR PRIORIDADE & ITIL (ESQUERDA) + SKILLS DA EQUIPE (DIREITA)
         =================================================================== */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Card Esquerdo: SLA & ITIL */}
-          <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
+          {/* Card Esquerdo: SLA por Prioridade & ITIL (Azul, Violeta, Laranja) */}
+          <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] flex items-center justify-center">
                   <ShieldCheck size={18} />
                 </div>
                 <div>
-                  <h2 className="text-base font-extrabold text-slate-900">SLA & ITIL</h2>
-                  <p className="text-xs text-slate-500">
-                    Conformidade, prioridades e indicadores de atendimento
+                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                    SLA por Prioridade & Governança ITIL
+                  </h2>
+                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                    Cumprimento de prazo por criticidade (P1 Alta, P2 Média, P3 Baixa)
                   </p>
                 </div>
               </div>
 
-              <span className="px-3 py-1 rounded-full bg-[#E6F7EE] text-[#0E6235] border border-[#BFE6D3] text-[11px] font-extrabold flex items-center gap-1">
-                <Check size={13} /> Operação baseada em SLA e ITIL
+              <span className="px-3 py-1 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 text-[11px] font-extrabold">
+                ITIL v4 Ativo
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center pt-1">
-              {/* Donut 96% SLA no Prazo */}
-              <div className="md:col-span-3 flex flex-col items-center justify-center">
-                <div className="relative w-28 h-28 flex items-center justify-center">
-                  <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#E2E8F0"
-                      strokeWidth="10"
-                      fill="none"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#15803D"
-                      strokeWidth="10"
-                      strokeDasharray="251.2"
-                      strokeDashoffset={251.2 * (1 - 0.96)}
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <strong className="text-xl font-black text-slate-900">96%</strong>
-                    <span className="text-[10px] font-semibold text-slate-500">
-                      SLA no Prazo
-                    </span>
+            {/* 3 Anéis de Prioridade como na Referência B (98,7% Alta Azul | 96,1% Média Violeta | 93,2% Baixa Laranja) */}
+            <div className="grid grid-cols-3 gap-3 pt-1">
+              {[
+                { label: 'Alta (P1)', pct: '98,7%', color: '#155EEF', offset: 251.2 * (1 - 0.987) },
+                { label: 'Média (P2)', pct: '96,1%', color: '#7942D8', offset: 251.2 * (1 - 0.961) },
+                { label: 'Baixa (P3)', pct: '93,2%', color: '#EA580C', offset: 251.2 * (1 - 0.932) }
+              ].map(ring => (
+                <div
+                  key={ring.label}
+                  className="p-3 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] flex flex-col items-center justify-center"
+                >
+                  <div className="relative w-20 h-20 flex items-center justify-center">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke="#DCE2EA"
+                        strokeOpacity="0.35"
+                        strokeWidth="10"
+                        fill="none"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke={ring.color}
+                        strokeWidth="10"
+                        strokeDasharray="251.2"
+                        strokeDashoffset={ring.offset}
+                        strokeLinecap="round"
+                        fill="none"
+                      />
+                    </svg>
+                    <strong className="absolute text-sm font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                      {ring.pct}
+                    </strong>
                   </div>
+                  <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] mt-1.5">
+                    {ring.label}
+                  </span>
                 </div>
-              </div>
+              ))}
+            </div>
 
-              {/* Prioridades (P1, P2, P3) + Prazo 1ª Resposta e Resolução */}
-              <div className="md:col-span-5 space-y-2.5">
-                <span className="text-[11px] font-bold text-slate-700 block">
-                  Prioridades (chamados do dia)
-                </span>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-black text-[11px]">
-                      P1
-                    </span>
-                    <span className="font-bold text-slate-800">7 (4%)</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-black text-[11px]">
-                      P2
-                    </span>
-                    <span className="font-bold text-slate-800">32 (17%)</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[11px]">
-                      P3
-                    </span>
-                    <span className="font-bold text-slate-800">148 (79%)</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <span className="text-[10px] text-slate-500 block leading-tight">
-                      Em atraso (aging)
-                    </span>
-                    <strong className="text-lg font-black text-rose-600">4</strong>
-                  </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <span className="text-[10px] text-slate-500 block leading-tight">
-                      SLA 1ª Resp.
-                    </span>
-                    <strong className="text-lg font-black text-[#15803D]">98%</strong>
-                  </div>
-                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/70">
-                    <span className="text-[10px] text-slate-500 block leading-tight">
-                      SLA Resolução
-                    </span>
-                    <strong className="text-lg font-black text-[#15803D]">96%</strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* Checklist Baseado em SLA e ITIL */}
-              <div className="md:col-span-4 space-y-1.5 text-[11px] text-slate-700 border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-4">
-                <strong className="text-xs font-extrabold text-slate-900 block mb-2">
-                  Baseado em SLA e ITIL
-                </strong>
+            {/* Principais Demandas (Top 5) */}
+            <div className="pt-2 border-t border-[#DCE2EA] dark:border-[#344154] space-y-2">
+              <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC] block">
+                Principais Demandas do Dia (Top 4)
+              </strong>
+              <div className="grid grid-cols-2 gap-2.5 text-xs">
                 {[
-                  'Priorização por criticidade (P1, P2, P3)',
-                  'Controle de prazos (1ª resposta e resolução)',
-                  'Gestão de fila e escalonamento',
-                  'Registro e categorização de chamados',
-                  'Conformidade com práticas ITIL'
-                ].map(item => (
-                  <div key={item} className="flex items-start gap-1.5">
-                    <Check size={13} className="text-[#15803D] shrink-0 mt-0.5" />
-                    <span>{item}</span>
+                  { name: 'Reembolso', pct: '28,4%', bar: 'bg-[#155EEF]' },
+                  { name: 'Cancelamento de show', pct: '18,7%', bar: 'bg-[#7942D8]' },
+                  { name: 'Troca / 2ª via de ingresso', pct: '14,9%', bar: 'bg-[#009AC2]' },
+                  { name: 'Alteração de evento', pct: '11,6%', bar: 'bg-[#EA580C]' }
+                ].map(d => (
+                  <div
+                    key={d.name}
+                    className="p-2.5 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154]"
+                  >
+                    <div className="flex justify-between font-bold text-[#111827] dark:text-[#F7F9FC] mb-1">
+                      <span className="truncate">{d.name}</span>
+                      <span className="tabular-nums">{d.pct}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-[#DCE2EA] dark:bg-[#101620] overflow-hidden">
+                      <div className={`h-full rounded-full ${d.bar}`} style={{ width: d.pct.replace(',', '.') }} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1065,18 +967,18 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
           </div>
 
           {/* Card Direito: Skills da Equipe (Com Busca, Tabela e Menu Gerenciar Skills do Supervisor) */}
-          <div className="lg:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-3.5">
+          <div className="lg:col-span-6 bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-3.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
                   <Users size={18} />
                 </div>
                 <div>
-                  <h2 className="text-base font-extrabold text-slate-900">
-                    Skills da Equipe
+                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
+                    Skills da Equipe SAC
                   </h2>
-                  <p className="text-xs text-slate-500">
-                    Gerencie as skills (competências) dos colaboradores do SAC
+                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                    Gerencie as competências dos colaboradores para roteamento inteligente
                   </p>
                 </div>
               </div>
@@ -1088,7 +990,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   setShowManageSkillsModal(true)
                 }}
                 data-testid="btn-open-manage-skills"
-                className="px-3.5 py-2 rounded-xl bg-[#157347] hover:bg-[#115c39] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <Edit3 size={13} />
                 <span>Gerenciar Skills</span>
@@ -1097,13 +999,13 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
 
             {/* Busca de Colaborador */}
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+              <Search size={14} className="absolute left-3 top-2.5 text-[#8E9BAE]" />
               <input
                 type="text"
                 value={skillSearch}
                 onChange={e => setSkillSearch(e.target.value)}
                 placeholder="Buscar colaborador ou skill (ex: Financeiro, ITIL, N2)..."
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70 text-xs text-slate-800 focus:bg-white focus:outline-hidden"
+                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#101620] text-xs text-[#111827] dark:text-[#F7F9FC] focus:outline-hidden"
               />
             </div>
 
@@ -1111,23 +1013,23 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 text-[11px] font-bold text-slate-500">
+                  <tr className="border-b border-[#DCE2EA] dark:border-[#344154] text-[11px] font-bold text-[#526074] dark:text-[#B5C0D0]">
                     <th className="py-2 pr-2">Colaborador</th>
                     <th className="py-2 px-2">Status</th>
-                    <th className="py-2 px-2 text-center">Atendimentos Ativos</th>
-                    <th className="py-2 pl-2">Skills (editar)</th>
+                    <th className="py-2 px-2 text-center">Chats</th>
+                    <th className="py-2 pl-2">Skills</th>
                     <th className="py-2 w-8" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#DCE2EA]/60 dark:divide-[#344154]/60">
                   {filteredCollaborators.map(collab => (
-                    <tr key={collab.id} className="hover:bg-slate-50/80">
+                    <tr key={collab.id} className="hover:bg-[#F5F7FA] dark:hover:bg-[#1D2735]">
                       <td className="py-2.5 pr-2">
                         <div className="flex items-center gap-2">
-                          <span className="w-7 h-7 rounded-full bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center justify-center shrink-0">
+                          <span className="w-7 h-7 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] font-bold text-[11px] flex items-center justify-center shrink-0">
                             {collab.initials}
                           </span>
-                          <strong className="font-bold text-slate-800">
+                          <strong className="font-bold text-[#111827] dark:text-[#F7F9FC]">
                             {collab.name}
                           </strong>
                         </div>
@@ -1136,29 +1038,27 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                         <span
                           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             collab.status === 'Disponível'
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-blue-50 text-blue-700 border border-blue-200'
+                              ? 'bg-[#ECFDF5] dark:bg-[#43D9A3]/15 text-[#16734A] dark:text-[#43D9A3] border border-[#A7F3D0] dark:border-[#43D9A3]/30'
+                              : 'bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30'
                           }`}
                         >
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              collab.status === 'Disponível'
-                                ? 'bg-emerald-600'
-                                : 'bg-blue-600'
+                              collab.status === 'Disponível' ? 'bg-[#16734A]' : 'bg-[#155EEF]'
                             }`}
                           />
                           {collab.status}
                         </span>
                       </td>
-                      <td className="py-2.5 px-2 text-center font-black text-slate-800">
-                        {collab.activeChats}
+                      <td className="py-2.5 px-2 text-center font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                        {collab.activeChats}/3
                       </td>
                       <td className="py-2.5 pl-2">
                         <div className="flex flex-wrap gap-1">
                           {collab.skills.map(sk => (
                             <span
                               key={sk}
-                              className="px-2 py-0.5 rounded-md bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] text-[10px] font-bold"
+                              className="px-2 py-0.5 rounded-md bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 text-[10px] font-bold"
                             >
                               {sk}
                             </span>
@@ -1173,7 +1073,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                             setShowManageSkillsModal(true)
                           }}
                           title={`Editar skills de ${collab.name}`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
+                          className="p-1.5 rounded-lg text-[#526074] dark:text-[#B5C0D0] hover:text-[#155EEF] cursor-pointer"
                         >
                           <Edit3 size={14} />
                         </button>
@@ -1187,29 +1087,28 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
         </section>
 
         {/* ===================================================================
-            LINHA 5: INTELIGÊNCIA ARTIFICIAL NO ATENDIMENTO SAC
-            (IA PARA O CLIENTE POR TEMA/ASSUNTO + COPILOTO DO ATENDENTE + 4 CARDS DE INDICADORES DA IA)
+            LINHA 5: INTELIGÊNCIA ARTIFICIAL NO ATENDIMENTO SAC (VIOLETA NEON & AZUL ELÉTRICO)
         =================================================================== */}
         <section
-          className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4"
+          className="bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] p-5 shadow-xs space-y-4"
           data-testid="sac-dashboard-ai-section"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#D3EFE2] text-[#0E5E40] flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] flex items-center justify-center">
                 <Bot size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-base font-extrabold text-slate-900">
+                  <h2 className="text-base font-extrabold text-[#111827] dark:text-[#F7F9FC]">
                     Inteligência Artificial no Atendimento (Cliente + Copiloto SAC)
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#E6F7EE] text-[#0E6235] border border-[#BFE6D3] text-[10px] font-extrabold">
-                    Ativo • Governança SLA & ITIL
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[10px] font-extrabold">
+                    IA Dupla Ativa • Governança SLA & ITIL
                   </span>
                 </div>
-                <p className="text-xs text-slate-500">
-                  A IA atende o cliente por temas (Cancelamento de show, Reembolso, Ingressos, Alteração de evento, Pagamento) e também apoia os atendentes do SAC como Copiloto.
+                <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
+                  A IA atende o cliente por temas (Cancelamento de show, Reembolso, Ingressos, Alteração de evento, Pagamento) e apoia os atendentes do SAC como Copiloto.
                 </p>
               </div>
             </div>
@@ -1218,7 +1117,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
               <button
                 type="button"
                 onClick={onOpenLiveChat}
-                className="px-3.5 py-2 rounded-xl bg-[#157347] hover:bg-[#115c39] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#7942D8] to-[#155EEF] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <Sparkles size={14} />
                 <span>Abrir Chat com IA & Copiloto</span>
@@ -1228,50 +1127,50 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
 
           {/* 4 Cards de Indicadores da IA no Dashboard SAC */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
-              <span className="text-xs font-bold text-slate-600 block">
+            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
                 Atendimentos pela IA
               </span>
-              <strong className="text-3xl font-black text-[#0F6E4B] block">
+              <strong className="text-3xl font-black text-[#7942D8] dark:text-[#B66CFF] block tabular-nums">
                 {aiMetrics.totalAiAttendances}
               </strong>
-              <span className="text-[11px] text-slate-500 block">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
                 Conversas iniciadas com triagem da IA
               </span>
             </div>
 
-            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
-              <span className="text-xs font-bold text-slate-600 block">
+            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
                 Resolução pela IA
               </span>
-              <strong className="text-3xl font-black text-[#0F6E4B] block">
+              <strong className="text-3xl font-black text-[#155EEF] dark:text-[#388BFF] block tabular-nums">
                 {aiMetrics.resolvedByAiPercent}%
               </strong>
-              <span className="text-[11px] text-slate-500 block">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
                 Dúvidas resolvidas sem fila humana
               </span>
             </div>
 
-            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
-              <span className="text-xs font-bold text-slate-600 block">
+            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
                 Transferidos ao SAC
               </span>
-              <strong className="text-3xl font-black text-[#D97706] block">
+              <strong className="text-3xl font-black text-[#BD5D00] dark:text-[#FF9A35] block tabular-nums">
                 {aiMetrics.transferredToSacPercent}%
               </strong>
-              <span className="text-[11px] text-slate-500 block">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
                 Encaminhados com resumo e skill
               </span>
             </div>
 
-            <div className="rounded-2xl bg-[#F8FAF9] border border-slate-200/90 p-4 space-y-1">
-              <span className="text-xs font-bold text-slate-600 block">
+            <div className="rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-1">
+              <span className="text-xs font-bold text-[#526074] dark:text-[#B5C0D0] block">
                 SLA IA → Humano
               </span>
-              <strong className="text-3xl font-black text-[#1D4ED8] block">
+              <strong className="text-3xl font-black text-[#009AC2] dark:text-[#24DEFF] block tabular-nums">
                 {aiMetrics.slaAiToHumanPercent}%
               </strong>
-              <span className="text-[11px] text-slate-500 block">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
                 Transições dentro do tempo de SLA
               </span>
             </div>
@@ -1279,18 +1178,17 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
 
           {/* Painel Duplo: Demonstração Interativa da IA para o Cliente + Base de Conhecimento da IA */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-1">
-            {/* Esquerda: Temas e Respostas da IA para o Cliente */}
-            <div className="lg:col-span-7 rounded-2xl bg-[#F8FAF9] border border-slate-200 p-4 space-y-3">
+            <div className="lg:col-span-7 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <strong className="text-xs font-extrabold text-slate-900 block">
+                  <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC] block">
                     🤖 Como o Cliente conversa com a IA no Chat SafeSaff
                   </strong>
-                  <span className="text-[11px] text-slate-500">
+                  <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                     Selecione um tema abaixo para visualizar as perguntas e respostas automáticas configuradas
                   </span>
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#D3EFE2] text-[#0E5E40] text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] text-[10px] font-bold">
                   Online · IA + Equipe SAC
                 </span>
               </div>
@@ -1303,8 +1201,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                     onClick={() => setPreviewTopicKey(t.key)}
                     className={`px-3 py-1.5 rounded-full text-xs font-bold border transition cursor-pointer ${
                       previewTopicKey === t.key
-                        ? 'bg-[#157347] text-white border-[#157347]'
-                        : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                        ? 'bg-[#7942D8] text-white border-[#7942D8]'
+                        : 'bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC] border-[#DCE2EA] dark:border-[#344154]'
                     }`}
                   >
                     {t.label}
@@ -1317,20 +1215,20 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   CUSTOMER_AI_TOPICS.find(t => t.key === previewTopicKey) ||
                   CUSTOMER_AI_TOPICS[0]
                 return (
-                  <div className="rounded-xl bg-white border border-slate-200 p-3.5 space-y-2.5 text-xs">
-                    <div className="p-2.5 rounded-xl bg-[#157347] text-white ml-8">
-                      <span className="text-[10px] opacity-80 block font-bold">
+                  <div className="rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-3.5 space-y-2.5 text-xs">
+                    <div className="p-2.5 rounded-xl bg-[#155EEF] text-white ml-8">
+                      <span className="text-[10px] opacity-85 block font-bold">
                         Cliente escolheu o tema: {currentTopic.label}
                       </span>
                       <p className="mt-0.5">{currentTopic.initialQuestion}</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 mr-6 space-y-2">
-                      <div className="flex items-center justify-between text-[10px] text-slate-500">
-                        <strong className="text-[#0F6E4B]">
-                          🤖 Assistente Virtual SafeSaff
+                    <div className="p-3 rounded-xl bg-[#F3E8FF]/60 dark:bg-[#7942D8]/15 border border-[#D8B4FE] dark:border-[#B66CFF]/35 text-[#111827] dark:text-[#F7F9FC] mr-6 space-y-2">
+                      <div className="flex items-center justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0]">
+                        <strong className="text-[#7942D8] dark:text-[#B66CFF]">
+                          🤖 Assistente Virtual SafeSaff (IA)
                         </strong>
                         <span>
-                          Skill vinculada: <strong>{currentTopic.requiredSkill}</strong> • Prioridade {currentTopic.priority}
+                          Skill: <strong>{currentTopic.requiredSkill}</strong> • Prioridade {currentTopic.priority}
                         </span>
                       </div>
                       <p className="whitespace-pre-wrap leading-relaxed">
@@ -1340,7 +1238,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                         {currentTopic.followUpPrompts.map(fp => (
                           <span
                             key={fp.id}
-                            className="px-2.5 py-1 rounded-full bg-[#E6F4EA] text-[#0E5E40] border border-[#BFE6D3] text-[10px] font-bold"
+                            className="px-2.5 py-1 rounded-full bg-white dark:bg-[#1D2735] text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[10px] font-bold"
                           >
                             {fp.label}
                           </span>
@@ -1353,17 +1251,17 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </div>
 
             {/* Direita: Base de Conhecimento Oficial da IA & Copiloto dos Atendentes */}
-            <div className="lg:col-span-5 rounded-2xl bg-[#F8FAF9] border border-slate-200 p-4 flex flex-col justify-between space-y-3">
+            <div className="lg:col-span-5 rounded-2xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] p-4 flex flex-col justify-between space-y-3">
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <strong className="text-xs font-extrabold text-slate-900">
+                  <strong className="text-xs font-extrabold text-[#111827] dark:text-[#F7F9FC]">
                     📚 Base de Conhecimento da IA & Copiloto
                   </strong>
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[10px] font-bold">
                     {knowledgeArticles.filter(a => a.status === 'approved').length || 6} artigos aprovados
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-600 leading-relaxed">
+                <p className="text-[11px] text-[#526074] dark:text-[#B5C0D0] leading-relaxed">
                   A IA utiliza exclusivamente estes temas validados pelo supervisor tanto para responder ao cliente quanto para sugerir respostas privadas ao atendente do SAC:
                 </p>
 
@@ -1378,12 +1276,12 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   ].map(topic => (
                     <div
                       key={topic.title}
-                      className="p-2.5 rounded-xl bg-white border border-slate-200/90"
+                      className="p-2.5 rounded-xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154]"
                     >
-                      <strong className="text-slate-900 block text-xs">
+                      <strong className="text-[#111827] dark:text-[#F7F9FC] block text-xs">
                         {topic.title}
                       </strong>
-                      <span className="text-[10px] text-slate-500 block mt-0.5">
+                      <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] block mt-0.5">
                         {topic.desc}
                       </span>
                     </div>
@@ -1391,12 +1289,12 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                 </div>
               </div>
 
-              <div className="p-3 rounded-xl bg-[#E6F7EE] border border-[#BFE6D3] flex items-center justify-between text-xs">
+              <div className="p-3 rounded-xl bg-[#F3E8FF]/70 dark:bg-[#7942D8]/20 border border-[#D8B4FE] dark:border-[#B66CFF]/40 flex items-center justify-between text-xs">
                 <div>
-                  <strong className="text-[#0E6235] block">
+                  <strong className="text-[#7942D8] dark:text-[#B66CFF] block">
                     Copiloto do Atendente Ativo
                   </strong>
-                  <span className="text-[11px] text-slate-700">
+                  <span className="text-[11px] text-[#111827] dark:text-[#F7F9FC]">
                     {aiMetrics.copilotAcceptedCount}/{aiMetrics.copilotSuggestionsTotal} sugestões aproveitadas pela equipe SAC
                   </span>
                 </div>
@@ -1404,7 +1302,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   <button
                     type="button"
                     onClick={onOpenLiveChat}
-                    className="px-3 py-1.5 rounded-lg bg-[#157347] text-white font-bold text-[11px] cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-[#7942D8] hover:bg-[#6D28D9] text-white font-bold text-[11px] cursor-pointer"
                   >
                     Gerenciar Base
                   </button>
@@ -1420,17 +1318,17 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
       ===================================================================== */}
       {showManageSkillsModal && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4"
           onClick={() => setShowManageSkillsModal(false)}
         >
           <div
-            className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-2xl overflow-hidden"
+            className="bg-white dark:bg-[#151C27] rounded-2xl border border-[#DCE2EA] dark:border-[#344154] shadow-2xl w-full max-w-2xl overflow-hidden text-[#111827] dark:text-[#F7F9FC]"
             onClick={e => e.stopPropagation()}
             data-testid="modal-manage-sac-skills"
           >
-            <div className="bg-[#0F6E4B] text-white px-5 py-4 flex items-center justify-between">
+            <div className="bg-[#161D29] text-white px-5 py-4 flex items-center justify-between border-b border-[#344154]">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-200 block">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#388BFF] block">
                   Governança de Supervisão SAC • Roteamento Baseado em Skills & ITIL
                 </span>
                 <h3 className="text-base font-black">
@@ -1447,9 +1345,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </div>
 
             <div className="p-5 space-y-4 text-xs">
-              {/* Seleção do Colaborador */}
               <div>
-                <label className="font-bold text-slate-700 block mb-1.5">
+                <label className="font-bold text-[#111827] dark:text-[#F7F9FC] block mb-1.5">
                   1. Selecione o Colaborador do SAC:
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -1460,8 +1357,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                       onClick={() => setEditingCollabId(c.id)}
                       className={`px-3 py-1.5 rounded-xl font-bold border flex items-center gap-2 cursor-pointer ${
                         editingCollaborator?.id === c.id
-                          ? 'bg-[#0F6E4B] text-white border-[#0F6E4B]'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          ? 'bg-[#155EEF] text-white border-[#155EEF]'
+                          : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#111827] dark:text-[#F7F9FC] border-[#DCE2EA] dark:border-[#344154]'
                       }`}
                     >
                       <span>{c.name}</span>
@@ -1473,14 +1370,13 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                 </div>
               </div>
 
-              {/* Grade de Skills para Ativar/Desativar no Colaborador */}
               {editingCollaborator && (
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="p-4 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-3">
                   <div className="flex items-center justify-between">
-                    <strong className="text-sm text-slate-900">
+                    <strong className="text-sm text-[#111827] dark:text-[#F7F9FC]">
                       Skills de {editingCollaborator.name}
                     </strong>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                       Clique nas competências para habilitar ou remover
                     </span>
                   </div>
@@ -1497,8 +1393,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                           }
                           className={`px-3 py-1.5 rounded-lg font-bold border flex items-center gap-1.5 transition cursor-pointer ${
                             active
-                              ? 'bg-[#157347] text-white border-[#157347] shadow-2xs'
-                              : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'
+                              ? 'bg-[#7942D8] text-white border-[#7942D8] shadow-2xs'
+                              : 'bg-white dark:bg-[#151C27] text-[#526074] dark:text-[#B5C0D0] border-[#DCE2EA] dark:border-[#344154]'
                           }`}
                         >
                           {active && <Check size={13} />}
@@ -1508,14 +1404,13 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                     })}
                   </div>
 
-                  {/* Criar nova Skill no Catálogo */}
-                  <div className="pt-2 border-t border-slate-200 flex items-center gap-2">
+                  <div className="pt-2 border-t border-[#DCE2EA] dark:border-[#344154] flex items-center gap-2">
                     <input
                       type="text"
                       value={newCustomSkill}
                       onChange={e => setNewCustomSkill(e.target.value)}
                       placeholder="Cadastrar nova skill no catálogo (ex: Reembolso PIX, Bilheteria, Meia-Entrada)..."
-                      className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800"
+                      className="flex-1 px-3 py-1.5 rounded-lg border border-[#DCE2EA] dark:border-[#344154] bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC]"
                     />
                     <button
                       type="button"
@@ -1528,7 +1423,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                         toggleSkillOnCollaborator(editingCollaborator.id, clean)
                         setNewCustomSkill('')
                       }}
-                      className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-lg bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold cursor-pointer"
                     >
                       + Adicionar Skill
                     </button>
@@ -1536,9 +1431,8 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                 </div>
               )}
 
-              {/* Regras de Roteamento por Skill + IA */}
-              <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 flex flex-wrap items-center justify-between gap-3">
-                <label className="flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+              <div className="p-3.5 rounded-xl bg-[#EFF6FF] dark:bg-[#388BFF]/15 border border-[#BFDBFE] dark:border-[#388BFF]/35 flex flex-wrap items-center justify-between gap-3">
+                <label className="flex items-center gap-2 font-semibold text-[#111827] dark:text-[#F7F9FC] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={aiRespectSkillRouting}
@@ -1550,7 +1444,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                   </span>
                 </label>
 
-                <label className="flex items-center gap-2 font-semibold text-slate-800 cursor-pointer">
+                <label className="flex items-center gap-2 font-semibold text-[#111827] dark:text-[#F7F9FC] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={aiAutoTransferOnRisk}
@@ -1565,7 +1459,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
                 <button
                   type="button"
                   onClick={() => setShowManageSkillsModal(false)}
-                  className="px-4 py-2 rounded-xl bg-[#157347] hover:bg-[#115c39] text-white font-bold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold cursor-pointer"
                 >
                   Salvar & Fechar
                 </button>

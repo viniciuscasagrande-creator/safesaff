@@ -3,130 +3,136 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   DiskIngressos OS — tokens de tema (padrão shadcn/ui)
+   SafeSaff ERP — Design System Global v1.0 (Grafite, Branco & Neon)
    ========================================================================== */
 
 @layer base {
-  :root {
-    /* ---- superfícies ---- */
-    --background: 220 17.6% 96.7%;       /* #F5F6F8 — fundo da página */
-    --foreground: 218.2 21.6% 10%;       /* #14181F — texto principal */
+  :root,
+  html.light,
+  html[data-theme="light"] {
+    --background: 216 33% 97%;       /* #F5F7FA — canvas */
+    --foreground: 221 39% 11%;       /* #111827 — text-primary */
 
-    --card: 0 0% 100%;                   /* #FFFFFF — fundo do card */
-    --card-foreground: 218.2 21.6% 10%;
+    --card: 0 0% 100%;               /* #FFFFFF — surface */
+    --card-foreground: 221 39% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 218.2 21.6% 10%;
+    --popover-foreground: 221 39% 11%;
 
-    /* ---- marca / ação primária ---- */
-    --primary: 21 90.2% 47.8%;           /* #E8590C — laranja DiskIngressos */
+    --primary: 220 87% 51%;          /* #155EEF — action-primary (Azul Elétrico) */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 216 17.2% 94.3%;        /* #EEF0F3 — superfície rebaixada */
-    --secondary-foreground: 218.2 21.6% 10%;
+    --secondary: 214 32% 95%;
+    --secondary-foreground: 221 39% 11%;
 
-    --muted: 216 17.2% 94.3%;
-    --muted-foreground: 216.5 11.2% 40.2%; /* #5B6472 — texto secundário */
+    --muted: 214 32% 95%;
+    --muted-foreground: 215 17% 39%; /* #526074 — text-secondary */
 
-    --accent: 24 86.2% 94.3%;            /* #FDEEE4 — fundo "soft" do laranja */
-    --accent-foreground: 21.8 90.1% 31.8%; /* #9A3D08 */
+    --accent: 214 100% 96%;
+    --accent-foreground: 220 87% 45%;
 
-    /* ---- estados ---- */
-    --destructive: 354.6 68.1% 41.8%;    /* #B3222F */
+    --destructive: 352 66% 45%;      /* #C1273C — danger */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 155.3 78.1% 26.9%;        /* #0F7A4E */
+    --success: 154 68% 27%;          /* #16734A — success */
     --success-foreground: 0 0% 100%;
-    --success-soft: 146.2 44.4% 92.9%;   /* #E5F5EC */
-    --success-soft-foreground: 155.3 78.1% 26.9%;
+    --success-soft: 146 44% 93%;
+    --success-soft-foreground: 154 68% 27%;
 
-    --warning: 35.5 100% 30.2%;          /* #9A5B00 */
+    --warning: 30 100% 37%;          /* #BD5D00 — accent-orange / SLA */
     --warning-foreground: 0 0% 100%;
-    --warning-soft: 40 80.5% 92%;        /* #FBF0DA */
-    --warning-soft-foreground: 35.5 100% 30.2%;
+    --warning-soft: 40 80% 92%;
+    --warning-soft-foreground: 30 100% 37%;
 
-    --info: 219 68.8% 39%;               /* #1F4FA8 */
+    --info: 192 100% 38%;            /* #009AC2 — accent-cyan */
     --info-foreground: 0 0% 100%;
-    --info-soft: 219 71.4% 94.5%;        /* #E7EEFB */
-    --info-soft-foreground: 219 68.8% 39%;
+    --info-soft: 192 85% 94%;
+    --info-soft-foreground: 192 100% 38%;
 
-    /* ---- estrutura ---- */
-    --border: 216 17.9% 89%;             /* #DEE2E8 — SEMPRE visível, nos 2 temas */
-    --border-strong: 216.9 13.1% 80.6%;  /* #C7CCD4 */
-    --input: 216 17.9% 89%;
-    --ring: 21 90.2% 47.8%;
-
+    --border: 214 24% 89%;           /* #DCE2EA — border */
+    --border-strong: 215 20% 82%;
+    --input: 214 24% 89%;
+    --ring: 220 87% 51%;
     --radius: 0.75rem;
 
-    /* ---- compatibilidade legado ---- */
-    --sidebar: #222A36;
-    --sidebar-active: #3B4553;
-    --submenu-active: #173A52;
-    --blue: #1677FF;
-    --green: #10B981;
-    --orange: #F97316;
-    --red: #EF4444;
-    --cyan: #06B6D4;
-    --purple: #7C3AED;
-    --slate: #64748B;
-    --bg: #F4F6F9;
-    --text-main: #0E1726;
-    --text-muted: #718096;
-    --input-border: #CBD5E1;
+    /* Aliases legados sincronizados */
+    --sidebar: #161D29;
+    --sidebar-active: #155EEF;
+    --submenu-active: #1E3A8A;
+    --blue: #155EEF;
+    --green: #16734A;
+    --orange: #BD5D00;
+    --red: #C1273C;
+    --cyan: #009AC2;
+    --purple: #7942D8;
+    --slate: #526074;
+    --bg: #F5F7FA;
+    --text-main: #111827;
+    --text-muted: #526074;
+    --input-border: #DCE2EA;
   }
 
-  .dark {
-    --background: 217.5 16.7% 9.4%;      /* #14171C */
-    --foreground: 220 12% 95.1%;         /* #F1F2F4 */
+  .dark,
+  html.dark,
+  html[data-theme="dark"] {
+    --background: 217 37% 7%;        /* #0B1018 — canvas */
+    --foreground: 216 33% 98%;       /* #F7F9FC — text-primary */
 
-    --card: 218.2 16.9% 12.7%;           /* #1B1F26 */
-    --card-foreground: 220 12% 95.1%;
+    --card: 217 30% 12%;             /* #151C27 — surface */
+    --card-foreground: 216 33% 98%;
 
-    --popover: 220 15.8% 14.9%;          /* #20242C */
-    --popover-foreground: 220 12% 95.1%;
+    --popover: 215 29% 16%;          /* #1D2735 — surface-raised */
+    --popover-foreground: 216 33% 98%;
 
-    --primary: 21.9 100% 64.5%;          /* #FF8C4A — mais claro p/ contraste no escuro */
-    --primary-foreground: 30 27.8% 7.1%; /* #17120D */
+    --primary: 215 100% 61%;         /* #388BFF — action-primary */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 214.3 17.9% 7.6%;       /* #101317 */
-    --secondary-foreground: 220 12% 95.1%;
+    --secondary: 215 29% 16%;
+    --secondary-foreground: 216 33% 98%;
 
-    --muted: 214.3 17.9% 7.6%;
-    --muted-foreground: 217.1 12.9% 68%; /* #A3ABB8 */
+    --muted: 218 33% 9%;
+    --muted-foreground: 216 19% 76%; /* #B5C0D0 — text-secondary */
 
-    --accent: 23.7 48.7% 15.3%;          /* #3A2314 */
-    --accent-foreground: 23.6 100% 76.1%; /* #FFB585 */
+    --accent: 215 45% 18%;
+    --accent-foreground: 215 100% 72%;
 
-    --destructive: 355.4 83.3% 69.4%;    /* #F2707A */
-    --destructive-foreground: 355.1 46.8% 15.5%;
+    --destructive: 349 100% 68%;     /* #FF5A78 — danger */
+    --destructive-foreground: 0 0% 100%;
 
-    --success: 153 57.4% 52.2%;          /* #3FCB8C */
-    --success-foreground: 156.4 47.8% 13.5%;
-    --success-soft: 156.4 47.8% 13.5%;   /* #123326 */
-    --success-soft-foreground: 153 57.4% 52.2%;
+    --success: 158 66% 56%;          /* #43D9A3 — success */
+    --success-foreground: 156 48% 12%;
+    --success-soft: 156 48% 14%;
+    --success-soft-foreground: 158 66% 56%;
 
-    --warning: 37.9 86.8% 61.4%;         /* #F2B347 */
-    --warning-foreground: 39.6 86.2% 11.4%;
-    --warning-soft: 39.6 86.2% 11.4%;    /* #362504 */
-    --warning-soft-foreground: 37.9 86.8% 61.4%;
+    --warning: 30 100% 60%;          /* #FF9A35 — accent-orange / SLA */
+    --warning-foreground: 30 80% 10%;
+    --warning-soft: 30 70% 14%;
+    --warning-soft-foreground: 30 100% 60%;
 
-    --info: 219.2 85.5% 72.9%;           /* #7FA8F5 */
-    --info-foreground: 218.8 47.2% 14.1%;
-    --info-soft: 218.8 47.2% 14.1%;      /* #131F35 */
-    --info-soft-foreground: 219.2 85.5% 72.9%;
+    --info: 189 100% 57%;            /* #24DEFF — accent-cyan */
+    --info-foreground: 192 70% 12%;
+    --info-soft: 192 60% 15%;
+    --info-soft-foreground: 189 100% 57%;
 
-    /* CRÍTICO: esta é a linha que resolve "não vejo os cards" no escuro.
-       Borda com luminosidade própria — não um tom quase igual ao --card. */
-    --border: 218.6 13.7% 20%;           /* #2C313A */
-    --border-strong: 218.8 12.4% 26.9%;  /* #3C424D */
-    --input: 218.6 13.7% 20%;
-    --ring: 21.9 100% 64.5%;
+    --border: 216 24% 27%;           /* #344154 — border */
+    --border-strong: 216 22% 35%;
+    --input: 216 24% 27%;
+    --ring: 215 100% 61%;
 
-    /* ---- compatibilidade legado no tema escuro ---- */
-    --bg: #14171C;
-    --text-main: #F1F2F4;
-    --text-muted: #A3ABB8;
-    --input-border: #2C313A;
+    --sidebar: #0B1018;
+    --sidebar-active: #388BFF;
+    --submenu-active: #1D4ED8;
+    --blue: #388BFF;
+    --green: #43D9A3;
+    --orange: #FF9A35;
+    --red: #FF5A78;
+    --cyan: #24DEFF;
+    --purple: #B66CFF;
+    --slate: #B5C0D0;
+    --bg: #0B1018;
+    --text-main: #F7F9FC;
+    --text-muted: #B5C0D0;
+    --input-border: #344154;
   }
 }
 
@@ -139,7 +145,7 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 14px;
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
@@ -149,7 +155,6 @@
     font-family: inherit;
   }
 
-  /* Todo componente de card ganha borda visível nos dois temas por padrão */
   .card, [data-slot="card"] {
     border-width: 1px;
     border-color: hsl(var(--border));
@@ -176,17 +181,9 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #2C313A;
+  background: #344154;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #3C424D;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb {
-  background: #3B4553;
-}
-
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: #4B5869;
+  background: #46566E;
 }

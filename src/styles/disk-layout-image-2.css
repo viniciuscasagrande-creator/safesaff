@@ -16,21 +16,21 @@
   --disk-layout-sidebar-width: 350px;
   --disk-layout-sidebar-collapsed: 76px;
 
-  /* ---- Modo Claro Harmonizado (SafeSaff Suave & Acolhedor) ---- */
-  --disk-layout-page-bg: #F4F1ED;
-  --disk-layout-header-bg: #FFFDF9;
-  --disk-layout-sidebar-bg: #202B3D;
-  --disk-layout-surface: #FFFAF2;
-  --disk-layout-surface-soft: #F5EEE5;
-  --disk-layout-surface-hover: #EBE0D2;
-  --disk-layout-border: #E6DED4;
-  --disk-layout-border-soft: #EDE4D8;
-  --disk-layout-border-strong: #D9CFC2;
-  --disk-layout-text: #1E293B;
-  --disk-layout-text-soft: #64748B;
-  --disk-layout-muted: #718096;
-  --disk-layout-accent: #E8590C;
-  --disk-layout-blue: #1677FF;
+  /* ---- Modo Claro Harmonizado (SafeSaff Clean Enterprise) ---- */
+  --disk-layout-page-bg: #F5F7FA;
+  --disk-layout-header-bg: #FFFFFF;
+  --disk-layout-sidebar-bg: #161D29;
+  --disk-layout-surface: #FFFFFF;
+  --disk-layout-surface-soft: #EEF2F6;
+  --disk-layout-surface-hover: #F1F5F9;
+  --disk-layout-border: #DCE2EA;
+  --disk-layout-border-soft: #E8ECF2;
+  --disk-layout-border-strong: #C5CEDB;
+  --disk-layout-text: #111827;
+  --disk-layout-text-soft: #526074;
+  --disk-layout-muted: #64748B;
+  --disk-layout-accent: #155EEF;
+  --disk-layout-blue: #155EEF;
 
   /* HSL shadcn tokens - Modo Claro */
   --background: 220 17.6% 96.7%;
@@ -237,15 +237,16 @@ html[data-ui-framework='limitless'] .event-context-sidebar {
   align-self: stretch !important;
   position: sticky !important;
   top: var(--disk-layout-header-height) !important;
-  background: var(--disk-layout-sidebar-bg, #0b1222) !important;
-  border-right: 1px solid var(--disk-layout-border-soft, #1e293b) !important;
+  background: var(--disk-layout-sidebar-bg, #ffffff) !important;
+  border-right: 1px solid var(--disk-layout-border-soft, #e2e8f0) !important;
+  color: var(--disk-layout-text, #0f172a) !important;
   box-shadow: none !important;
   display: flex !important;
   flex-direction: column !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   scrollbar-width: thin !important;
-  scrollbar-color: #334155 transparent !important;
+  scrollbar-color: #94a3b8 transparent !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior-y: contain !important;
   z-index: 30 !important;
@@ -259,11 +260,11 @@ html[data-ui-framework='limitless'] .event-context-sidebar {
   background: transparent !important;
 }
 .event-context-sidebar::-webkit-scrollbar-thumb {
-  background-color: #334155 !important;
+  background-color: #94a3b8 !important;
   border-radius: 9999px !important;
 }
 .event-context-sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: #475569 !important;
+  background-color: #64748b !important;
 }
 
 /* Botão de retorno sticky no topo para acesso imediato */
@@ -271,8 +272,9 @@ html[data-ui-framework='limitless'] .event-context-sidebar {
   position: sticky !important;
   top: 0 !important;
   z-index: 40 !important;
-  background: #0b1222 !important;
-  border-bottom: 1px solid #1e293b !important;
+  background: var(--disk-layout-sidebar-bg, #ffffff) !important;
+  color: var(--disk-layout-text, #0f172a) !important;
+  border-bottom: 1px solid var(--disk-layout-border-soft, #e2e8f0) !important;
 }
 
 /* Padding de segurança no final da navegação para nunca cortar os últimos itens */
@@ -350,12 +352,12 @@ html :is(
 .safesaff-sidebar .collapsible-section-head:hover,
 .safesaff-sidebar .collapsible-section-head.open {
   background: var(--disk-layout-surface-hover) !important;
-  color: #ffffff !important;
+  color: var(--disk-layout-text) !important;
 }
 
 .safesaff-sidebar .module-nav-item.active {
-  background: var(--disk-layout-surface-soft) !important;
-  color: #ffffff !important;
+  background: #FFF7ED !important;
+  color: var(--disk-layout-accent) !important;
   box-shadow: inset 3px 0 0 var(--disk-layout-accent) !important;
 }
 
@@ -485,7 +487,22 @@ html[data-ui-framework='limitless'] #main-app-content > .disk-content-container 
   background: var(--disk-layout-surface) !important;
   border: 1px solid var(--disk-layout-border) !important;
   border-radius: 12px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+}
+
+html.dark :is(
+  .card, .panel, .widget, .box, .tile, .table-card, .chart-card, .metric-card,
+  .dashboard-kpi-card, .finance-kpi, .finance-card, .balance-card, .hub-card,
+  .event-card, .summary-card, .content-card, .stat-card, .kpi-card, .report-card,
+  .filter-card, .form-card, .module-card, .section-card, .content-panel,
+  .table-wrapper, .profile-hero, .profile-kpi, .profile-section, .profile-shortcut,
+  .profile-event-list, .profile-event-row, [data-slot="card"], .disk-card,
+  .fa-panel, .fa-kpi, .fa-header, .fa-sign-card, .fa-report-grid article,
+  .ds-module-card, .ds-stat-card, .ds-spark-card, .ds-bi-card,
+  .ds-finance-header-card, .ds-spread-left-card, .ds-reconciliation-left-card,
+  .ds-divergence-card, .ds-cockpit-header, .ds-cockpit-order, .ds-data-table-wrap
+) {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Modos escuros: assegura que controles e divisores usem as bordas corretas da paleta oficial */
@@ -502,81 +519,7 @@ html[data-theme='dark'] :is(input, select, textarea, .form-control) {
   color: var(--disk-layout-text) !important;
 }
 
-/* ============================================================================
-   REGRA SUPREMA: TIPOGRAFIA ROXA NÃO EXISTE
-   Em fundo preto/escuro ou geral, qualquer tom roxo/índigo/violeta é substituído
-   por LARANJA DISK (#FF8047) ou BRANCO (#FFFFFF / #F4F7FB).
-   ============================================================================ */
-:is(
-  [class*='text-purple-'],
-  [class*='text-indigo-'],
-  [class*='text-violet-'],
-  .text-purple,
-  .text-indigo,
-  .text-violet
-) {
-  color: #ff8047 !important;
-}
-
-html.dark :is(
-  [class*='text-purple'],
-  [class*='text-indigo'],
-  [class*='text-violet'],
-  .text-purple,
-  .text-indigo,
-  .text-violet,
-  .pa-kpi.purple,
-  .rec-kpi-val.text-purple-600
-),
-html[data-theme='dark'] :is(
-  [class*='text-purple'],
-  [class*='text-indigo'],
-  [class*='text-violet'],
-  .text-purple,
-  .text-indigo,
-  .text-violet,
-  .pa-kpi.purple,
-  .rec-kpi-val.text-purple-600
-) {
-  color: #ff8047 !important;
-}
-
-/* Badges, tags e pílulas roxas convertidas para laranja com texto laranja ou branco */
-:is(
-  .ds-mini-tag.purple,
-  .ds-badge.purple,
-  .badge-subtle-purple,
-  .badge-subtle-indigo,
-  .module-hub-card-badge--purple,
-  [class*='bg-purple-'],
-  [class*='bg-indigo-'],
-  [class*='bg-violet-']
-) {
-  background-color: rgba(255, 128, 71, 0.16) !important;
-  color: #ff8047 !important;
-  border-color: rgba(255, 128, 71, 0.45) !important;
-}
-
-/* Ícones dentro de wraps roxos convertidos para laranja */
-:is(
-  .ds-card-icon-wrap.purple,
-  .tracking-kpi-icon.purple,
-  .tracking-kpi-icon.indigo,
-  .rec-kpi-icon.bg-purple-50
-) {
-  background: rgba(255, 128, 71, 0.16) !important;
-  color: #ff8047 !important;
-  border: 1px solid rgba(255, 128, 71, 0.4) !important;
-}
-
-/* Bordas roxas convertidas para laranja */
-:is(
-  [class*='border-purple-'],
-  [class*='border-indigo-'],
-  [class*='border-violet-']
-) {
-  border-color: #ff8047 !important;
-}
+/* Violeta Neon (#7942D8 / #B66CFF) habilitado para IA e KPIs conforme Design System Global v1.0 */
 
 :is(
   .card, .panel, .widget, .table-card, .chart-card, .metric-card, .dashboard-kpi-card,
@@ -1720,14 +1663,14 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
    ============================================================================ */
 
 /* Top Launcher Carousel */
-#main-app-content .ds-launcher-wrapper {
+html.dark #main-app-content .ds-launcher-wrapper {
   position: relative !important;
   display: flex !important;
   align-items: center !important;
   margin-bottom: 28px !important;
 }
 
-#main-app-content .ds-launcher-bar {
+html.dark #main-app-content .ds-launcher-bar {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 20px !important;
@@ -1743,7 +1686,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   scrollbar-color: #334155 transparent !important;
 }
 
-#main-app-content .ds-launcher-circle {
+html.dark #main-app-content .ds-launcher-circle {
   width: 54px !important;
   height: 54px !important;
   border-radius: 50% !important;
@@ -1756,21 +1699,21 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-#main-app-content .ds-launcher-item:hover .ds-launcher-circle {
+html.dark #main-app-content .ds-launcher-item:hover .ds-launcher-circle {
   transform: translateY(-2px) !important;
   border-color: #60a5fa !important;
   color: #ffffff !important;
   background: #1e293b !important;
 }
 
-#main-app-content .ds-launcher-item.active .ds-launcher-circle {
+html.dark #main-app-content .ds-launcher-item.active .ds-launcher-circle {
   background: radial-gradient(circle at center, #3b82f6 0%, #1d4ed8 100%) !important;
   border-color: #93c5fd !important;
   color: #ffffff !important;
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.6) !important;
 }
 
-#main-app-content .ds-launcher-label {
+html.dark #main-app-content .ds-launcher-label {
   font-size: 11px !important;
   font-weight: 700 !important;
   color: #94a3b8 !important;
@@ -1778,12 +1721,12 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   text-align: center !important;
 }
 
-#main-app-content .ds-launcher-item.active .ds-launcher-label {
+html.dark #main-app-content .ds-launcher-item.active .ds-launcher-label {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
 
-#main-app-content .ds-launcher-scroll-btn {
+html.dark #main-app-content .ds-launcher-scroll-btn {
   position: absolute !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
@@ -1801,18 +1744,18 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .ds-launcher-scroll-btn:hover {
+html.dark #main-app-content .ds-launcher-scroll-btn:hover {
   background: #2563eb !important;
   border-color: #2563eb !important;
   color: #ffffff !important;
 }
 
 /* Header & Toggles */
-#main-app-content .ds-section-title {
+html.dark #main-app-content .ds-section-title {
   color: #94a3b8 !important;
 }
 
-#main-app-content .ds-view-btn {
+html.dark #main-app-content .ds-view-btn {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   border-radius: 8px !important;
@@ -1828,20 +1771,20 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .ds-view-btn:hover {
+html.dark #main-app-content .ds-view-btn:hover {
   background: #1e293b !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-#main-app-content .ds-view-btn.active {
+html.dark #main-app-content .ds-view-btn.active {
   background: #3b82f6 !important;
   color: #ffffff !important;
   border-color: #3b82f6 !important;
 }
 
 /* 15 Módulos Principais Cards */
-#main-app-content .ds-module-card {
+html.dark #main-app-content .ds-module-card {
   background: linear-gradient(145deg, #0f172a 0%, #131c31 100%) !important;
   border: 1px solid #1e293b !important;
   border-radius: 14px !important;
@@ -1856,13 +1799,13 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
 }
 
-#main-app-content .ds-module-card:hover {
+html.dark #main-app-content .ds-module-card:hover {
   transform: translateY(-2px) !important;
   border-color: #3b82f6 !important;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), 0 0 15px rgba(59, 130, 246, 0.15) !important;
 }
 
-#main-app-content .ds-card-text h4 {
+html.dark #main-app-content .ds-card-text h4 {
   margin: 0 0 3px !important;
   font-size: 14px !important;
   font-weight: 700 !important;
@@ -1872,7 +1815,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   text-overflow: ellipsis !important;
 }
 
-#main-app-content .ds-card-text p {
+html.dark #main-app-content .ds-card-text p {
   margin: 0 !important;
   font-size: 11px !important;
   color: #94a3b8 !important;
@@ -1883,52 +1826,52 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   overflow: hidden !important;
 }
 
-#main-app-content .ds-card-chevron {
+html.dark #main-app-content .ds-card-chevron {
   color: #475569 !important;
   flex: 0 0 auto !important;
   transition: transform 0.15s ease, color 0.15s ease !important;
 }
 
-#main-app-content .ds-module-card:hover .ds-card-chevron {
+html.dark #main-app-content .ds-module-card:hover .ds-card-chevron {
   color: #ffffff !important;
   transform: translateX(3px) !important;
 }
 
 /* Card Icon Wraps Dark Mode */
-#main-app-content .ds-card-icon-wrap.green { background: rgba(16, 185, 129, 0.12) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.cyan { background: rgba(6, 182, 212, 0.12) !important; color: #06b6d4 !important; border: 1px solid rgba(6, 182, 212, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.purple { background: rgba(255, 128, 71, 0.16) !important; color: #ff8047 !important; border: 1px solid rgba(255, 128, 71, 0.45) !important; }
-#main-app-content .ds-card-icon-wrap.yellow { background: rgba(245, 158, 11, 0.12) !important; color: #f59e0b !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.pink { background: rgba(236, 72, 153, 0.12) !important; color: #ec4899 !important; border: 1px solid rgba(236, 72, 153, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.emerald { background: rgba(5, 150, 105, 0.12) !important; color: #10b981 !important; border: 1px solid rgba(5, 150, 105, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.red { background: rgba(239, 68, 68, 0.12) !important; color: #ef4444 !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.blue { background: rgba(59, 130, 246, 0.12) !important; color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.orange { background: rgba(249, 115, 22, 0.12) !important; color: #f97316 !important; border: 1px solid rgba(249, 115, 22, 0.3) !important; }
-#main-app-content .ds-card-icon-wrap.teal { background: rgba(20, 184, 166, 0.12) !important; color: #14b8a6 !important; border: 1px solid rgba(20, 184, 166, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.green { background: rgba(16, 185, 129, 0.12) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.cyan { background: rgba(6, 182, 212, 0.12) !important; color: #06b6d4 !important; border: 1px solid rgba(6, 182, 212, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.purple { background: rgba(255, 128, 71, 0.16) !important; color: #ff8047 !important; border: 1px solid rgba(255, 128, 71, 0.45) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.yellow { background: rgba(245, 158, 11, 0.12) !important; color: #f59e0b !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.pink { background: rgba(236, 72, 153, 0.12) !important; color: #ec4899 !important; border: 1px solid rgba(236, 72, 153, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.emerald { background: rgba(5, 150, 105, 0.12) !important; color: #10b981 !important; border: 1px solid rgba(5, 150, 105, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.red { background: rgba(239, 68, 68, 0.12) !important; color: #ef4444 !important; border: 1px solid rgba(239, 68, 68, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.blue { background: rgba(59, 130, 246, 0.12) !important; color: #3b82f6 !important; border: 1px solid rgba(59, 130, 246, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.orange { background: rgba(249, 115, 22, 0.12) !important; color: #f97316 !important; border: 1px solid rgba(249, 115, 22, 0.3) !important; }
+html.dark #main-app-content .ds-card-icon-wrap.teal { background: rgba(20, 184, 166, 0.12) !important; color: #14b8a6 !important; border: 1px solid rgba(20, 184, 166, 0.3) !important; }
 
 /* Stats Strip */
-#main-app-content .ds-stat-card {
+html.dark #main-app-content .ds-stat-card {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content .ds-stat-icon-wrap {
+html.dark #main-app-content .ds-stat-icon-wrap {
   background: #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content .ds-stat-label {
+html.dark #main-app-content .ds-stat-label {
   color: #94a3b8 !important;
 }
 
-#main-app-content .ds-stat-val {
+html.dark #main-app-content .ds-stat-val {
   color: #ffffff !important;
 }
 
 /* Quick Actions */
-#main-app-content .ds-quick-action-pill {
+html.dark #main-app-content .ds-quick-action-pill {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   border-radius: 20px !important;
@@ -1940,7 +1883,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .ds-quick-action-pill:hover {
+html.dark #main-app-content .ds-quick-action-pill:hover {
   background: #1e293b !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
@@ -1948,103 +1891,103 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
 }
 
 /* Search 360, Cockpit, Omnichannel, Data Tables */
-#main-app-content .ds-search360-bar {
+html.dark #main-app-content .ds-search360-bar {
   background: #0f172a !important;
   border: 2px solid #2563eb !important;
   box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2) !important;
 }
 
-#main-app-content .ds-search360-input {
+html.dark #main-app-content .ds-search360-input {
   color: #ffffff !important;
 }
 
-#main-app-content .ds-cockpit-header {
+html.dark #main-app-content .ds-cockpit-header {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content .ds-cockpit-name-block h2 {
+html.dark #main-app-content .ds-cockpit-name-block h2 {
   color: #ffffff !important;
 }
 
-#main-app-content .ds-cockpit-order {
+html.dark #main-app-content .ds-cockpit-order {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content .ds-cockpit-order-header strong {
+html.dark #main-app-content .ds-cockpit-order-header strong {
   color: #ffffff !important;
 }
 
-#main-app-content .ds-filter-tab-btn {
+html.dark #main-app-content .ds-filter-tab-btn {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content .ds-filter-tab-btn:hover {
+html.dark #main-app-content .ds-filter-tab-btn:hover {
   background: #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content .ds-filter-tab-btn.active {
+html.dark #main-app-content .ds-filter-tab-btn.active {
   background: #2563eb !important;
   border-color: #2563eb !important;
   color: #ffffff !important;
 }
 
-#main-app-content .ds-data-table-wrap {
+html.dark #main-app-content .ds-data-table-wrap {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content .ds-data-table th {
+html.dark #main-app-content .ds-data-table th {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content .ds-data-table td {
+html.dark #main-app-content .ds-data-table td {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content .ds-inbox-conversations-panel,
-#main-app-content .ds-inbox-chat-panel,
-#main-app-content .ds-inbox-context-panel {
+html.dark #main-app-content .ds-inbox-conversations-panel,
+html.dark #main-app-content .ds-inbox-chat-panel,
+html.dark #main-app-content .ds-inbox-context-panel {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content .ds-conv-item:hover {
+html.dark #main-app-content .ds-conv-item:hover {
   background: #131b2e !important;
 }
 
-#main-app-content .ds-conv-item.active {
+html.dark #main-app-content .ds-conv-item.active {
   background: #1e293b !important;
   border-left: 3px solid #2563eb !important;
 }
 
-#main-app-content .ds-conv-name {
+html.dark #main-app-content .ds-conv-name {
   color: #ffffff !important;
 }
 
-#main-app-content .ds-chat-messages-area {
+html.dark #main-app-content .ds-chat-messages-area {
   background: #0b1120 !important;
 }
 
-#main-app-content .ds-chat-bubble.customer {
+html.dark #main-app-content .ds-chat-bubble.customer {
   background: #1e293b !important;
   color: #ffffff !important;
   border: 1px solid #334155 !important;
 }
 
-#main-app-content .ds-chat-input-bar {
+html.dark #main-app-content .ds-chat-input-bar {
   background: #0f172a !important;
   border-top: 1px solid #1e293b !important;
 }
 
-#main-app-content .ds-chat-input {
+html.dark #main-app-content .ds-chat-input {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
@@ -2057,499 +2000,499 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
    ============================================================================ */
 
 /* 1. Cockpit Operacional do Evento (EventCommandCenterPage) */
-#main-app-content :is(.event-os-hero) {
+html.dark #main-app-content :is(.event-os-hero) {
   background: linear-gradient(135deg, #0f172a 0%, #172033 100%) !important;
   border: 1px solid #1e293b !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
-#main-app-content :is(.event-os-hero) h2 {
+html.dark #main-app-content :is(.event-os-hero) h2 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-hero) p {
+html.dark #main-app-content :is(.event-os-hero) p {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.event-os-health) {
+html.dark #main-app-content :is(.event-os-health) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content :is(.event-os-health) strong {
+html.dark #main-app-content :is(.event-os-health) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-health) :is(span, small) {
+html.dark #main-app-content :is(.event-os-health) :is(span, small) {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.event-os-toolbar) {
+html.dark #main-app-content :is(.event-os-toolbar) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content :is(.event-os-toolbar) strong {
+html.dark #main-app-content :is(.event-os-toolbar) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-shortcuts-bar) {
+html.dark #main-app-content :is(.cockpit-shortcuts-bar) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content :is(.cockpit-shortcut-btn) {
+html.dark #main-app-content :is(.cockpit-shortcut-btn) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
 }
 
-#main-app-content :is(.cockpit-shortcut-btn):hover {
+html.dark #main-app-content :is(.cockpit-shortcut-btn):hover {
   background: #1e293b !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-period-btn) {
+html.dark #main-app-content :is(.cockpit-period-btn) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.cockpit-period-btn):hover {
+html.dark #main-app-content :is(.cockpit-period-btn):hover {
   background: #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-period-btn.active) {
+html.dark #main-app-content :is(.cockpit-period-btn.active) {
   background: #3b82f6 !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-kpi) {
+html.dark #main-app-content :is(.event-os-kpi) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content :is(.event-os-kpi) strong {
+html.dark #main-app-content :is(.event-os-kpi) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-kpi) span {
+html.dark #main-app-content :is(.event-os-kpi) span {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.event-os-kpi) small {
+html.dark #main-app-content :is(.event-os-kpi) small {
   color: #64748b !important;
 }
 
-#main-app-content :is(.event-os-panel) {
+html.dark #main-app-content :is(.event-os-panel) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content :is(.event-os-panel) h3 {
+html.dark #main-app-content :is(.event-os-panel) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-panel) header p {
+html.dark #main-app-content :is(.event-os-panel) header p {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.cockpit-lot-row, .cockpit-finance-item, .cockpit-marketing-item, .event-os-check, .event-os-alert-row, .cockpit-drilldown-row) {
+html.dark #main-app-content :is(.cockpit-lot-row, .cockpit-finance-item, .cockpit-marketing-item, .event-os-check, .event-os-alert-row, .cockpit-drilldown-row) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-finance-item strong, .cockpit-marketing-item strong, .event-os-check strong, .event-os-alert-row strong) {
+html.dark #main-app-content :is(.cockpit-finance-item strong, .cockpit-marketing-item strong, .event-os-check strong, .event-os-alert-row strong) {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-finance-item span, .cockpit-marketing-item span, .event-os-check small, .event-os-alert-row small) {
+html.dark #main-app-content :is(.cockpit-finance-item span, .cockpit-marketing-item span, .event-os-check small, .event-os-alert-row small) {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.cockpit-progress-bar) {
+html.dark #main-app-content :is(.cockpit-progress-bar) {
   background: #1e293b !important;
 }
 
-#main-app-content :is(.cockpit-eventday-banner) {
+html.dark #main-app-content :is(.cockpit-eventday-banner) {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content :is(.event-os-launch) {
+html.dark #main-app-content :is(.event-os-launch) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content :is(.event-os-launch) strong {
+html.dark #main-app-content :is(.event-os-launch) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.event-os-launch) small {
+html.dark #main-app-content :is(.event-os-launch) small {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.cockpit-modal-content) {
+html.dark #main-app-content :is(.cockpit-modal-content) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-modal-header) {
+html.dark #main-app-content :is(.cockpit-modal-header) {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-modal-header) h3 {
+html.dark #main-app-content :is(.cockpit-modal-header) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.cockpit-modal-body) {
+html.dark #main-app-content :is(.cockpit-modal-body) {
   background: #0f172a !important;
 }
 
 /* 2. Inventário Operacional (EventInventoryPage) */
-#main-app-content :is(.inventory-head) h2 {
+html.dark #main-app-content :is(.inventory-head) h2 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-head) p {
+html.dark #main-app-content :is(.inventory-head) p {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.inventory-event-strip, .inventory-toolbar, .inventory-panel) {
+html.dark #main-app-content :is(.inventory-event-strip, .inventory-toolbar, .inventory-panel) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.inventory-event-strip) strong {
+html.dark #main-app-content :is(.inventory-event-strip) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-kpi) {
+html.dark #main-app-content :is(.inventory-kpi) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-kpi) strong {
+html.dark #main-app-content :is(.inventory-kpi) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-kpi) small {
+html.dark #main-app-content :is(.inventory-kpi) small {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.inventory-panel-head) {
+html.dark #main-app-content :is(.inventory-panel-head) {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-panel-head) h3 {
+html.dark #main-app-content :is(.inventory-panel-head) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-table) th {
+html.dark #main-app-content :is(.inventory-table) th {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.inventory-table) td {
+html.dark #main-app-content :is(.inventory-table) td {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.inventory-table) td strong {
+html.dark #main-app-content :is(.inventory-table) td strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-search) {
+html.dark #main-app-content :is(.inventory-search) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-search) input {
+html.dark #main-app-content :is(.inventory-search) input {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-status-tabs) button {
+html.dark #main-app-content :is(.inventory-status-tabs) button {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.inventory-status-tabs) button.active {
+html.dark #main-app-content :is(.inventory-status-tabs) button.active {
   background: #3b82f6 !important;
   border-color: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-row-actions) button,
-#main-app-content :is(.inventory-recommendation) button,
-#main-app-content :is(.hold-row) button {
+html.dark #main-app-content :is(.inventory-row-actions) button,
+html.dark #main-app-content :is(.inventory-recommendation) button,
+html.dark #main-app-content :is(.hold-row) button {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.inventory-recommendation, .inventory-ok) {
+html.dark #main-app-content :is(.inventory-recommendation, .inventory-ok) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
 }
 
-#main-app-content :is(.inventory-recommendation) strong,
-#main-app-content :is(.inventory-ok) strong {
+html.dark #main-app-content :is(.inventory-recommendation) strong,
+html.dark #main-app-content :is(.inventory-ok) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-recommendation) span,
-#main-app-content :is(.inventory-ok) span {
+html.dark #main-app-content :is(.inventory-recommendation) span,
+html.dark #main-app-content :is(.inventory-ok) span {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.sector-row, .hold-row) {
+html.dark #main-app-content :is(.sector-row, .hold-row) {
   border-bottom: 1px solid #1e293b !important;
 }
 
-#main-app-content :is(.sector-copy strong, .hold-row strong) {
+html.dark #main-app-content :is(.sector-copy strong, .hold-row strong) {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-modal) {
+html.dark #main-app-content :is(.inventory-modal) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-modal-head) h3 {
+html.dark #main-app-content :is(.inventory-modal-head) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-modal) input,
-#main-app-content :is(.inventory-modal) select {
+html.dark #main-app-content :is(.inventory-modal) input,
+html.dark #main-app-content :is(.inventory-modal) select {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.inventory-loading) {
+html.dark #main-app-content :is(.inventory-loading) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
 /* 3. Central de Clientes (EventCustomer360Page) */
-#main-app-content :is(.customer360-head) h2 {
+html.dark #main-app-content :is(.customer360-head) h2 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-head) p {
+html.dark #main-app-content :is(.customer360-head) p {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.customer360-strip, .customer360-panel, .crm-kpi) {
+html.dark #main-app-content :is(.customer360-strip, .customer360-panel, .crm-kpi) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.crm-kpi) strong {
+html.dark #main-app-content :is(.crm-kpi) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-toolbar) {
+html.dark #main-app-content :is(.customer360-toolbar) {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-toolbar) h3 {
+html.dark #main-app-content :is(.customer360-toolbar) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-toolbar) label {
+html.dark #main-app-content :is(.customer360-toolbar) label {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-toolbar) input {
+html.dark #main-app-content :is(.customer360-toolbar) input {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-table-wrap) th {
+html.dark #main-app-content :is(.customer360-table-wrap) th {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.customer360-table-wrap) td {
+html.dark #main-app-content :is(.customer360-table-wrap) td {
   border-top: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.customer360-table-wrap) td strong {
+html.dark #main-app-content :is(.customer360-table-wrap) td strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.crm-profile-grid) > div {
+html.dark #main-app-content :is(.crm-profile-grid) > div {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.crm-profile-grid) strong {
+html.dark #main-app-content :is(.crm-profile-grid) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.crm-modal) {
+html.dark #main-app-content :is(.crm-modal) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.crm-modal) h3 {
+html.dark #main-app-content :is(.crm-modal) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.customer360-head) button,
-#main-app-content :is(.crm-open),
-#main-app-content :is(.crm-actions) button,
-#main-app-content :is(.crm-filters) select,
-#main-app-content :is(.crm-filters) button {
+html.dark #main-app-content :is(.customer360-head) button,
+html.dark #main-app-content :is(.crm-open),
+html.dark #main-app-content :is(.crm-actions) button,
+html.dark #main-app-content :is(.crm-filters) select,
+html.dark #main-app-content :is(.crm-filters) button {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.customer360-loading) {
+html.dark #main-app-content :is(.customer360-loading) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
 /* 4. Live Operations (EventLiveOpsPage) */
-#main-app-content :is(.elo-kpi-card, .elo-flow-section, .elo-panel, .elo-rejections-section) {
+html.dark #main-app-content :is(.elo-kpi-card, .elo-flow-section, .elo-panel, .elo-rejections-section) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.elo-kpi-card) strong,
-#main-app-content :is(.elo-panel-title) h3 {
+html.dark #main-app-content :is(.elo-kpi-card) strong,
+html.dark #main-app-content :is(.elo-panel-title) h3 {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.elo-gate-card) {
+html.dark #main-app-content :is(.elo-gate-card) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.elo-gate-top) {
+html.dark #main-app-content :is(.elo-gate-top) {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.elo-action-btn) {
+html.dark #main-app-content :is(.elo-action-btn) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.elo-devices-table) th {
+html.dark #main-app-content :is(.elo-devices-table) th {
   background: #131b2e !important;
   border-bottom: 1px solid #1e293b !important;
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.elo-devices-table) td {
+html.dark #main-app-content :is(.elo-devices-table) td {
   border-bottom: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
 /* 5. Incident Center (EventIncidentsPage) */
-#main-app-content :is(.eic-kpi-card, .eic-filter-bar, .eic-incident-card, .eic-panel) {
+html.dark #main-app-content :is(.eic-kpi-card, .eic-filter-bar, .eic-incident-card, .eic-panel) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.eic-kpi-card) strong {
+html.dark #main-app-content :is(.eic-kpi-card) strong {
   color: #ffffff !important;
 }
 
-#main-app-content :is(.eic-search-input, .eic-select) {
+html.dark #main-app-content :is(.eic-search-input, .eic-select) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
 /* 6. Revenue Intelligence (EventRevenueIntelPage) */
-#main-app-content :is(.eri-period-bar, .eri-kpi-card, .eri-panel, .eri-chart-card) {
+html.dark #main-app-content :is(.eri-period-bar, .eri-kpi-card, .eri-panel, .eri-chart-card) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.eri-period-tabs) {
+html.dark #main-app-content :is(.eri-period-tabs) {
   background: #131b2e !important;
 }
 
-#main-app-content :is(.eri-period-tab) {
+html.dark #main-app-content :is(.eri-period-tab) {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(.eri-period-tab.active) {
+html.dark #main-app-content :is(.eri-period-tab.active) {
   background: #3b82f6 !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.eri-kpi-card) strong,
-#main-app-content :is(.eri-panel) h3 {
+html.dark #main-app-content :is(.eri-kpi-card) strong,
+html.dark #main-app-content :is(.eri-panel) h3 {
   color: #ffffff !important;
 }
 
 /* 7. Global Search (EventGlobalSearchPage) */
-#main-app-content :is(.egs-command-bar, .egs-result-card, .egs-panel) {
+html.dark #main-app-content :is(.egs-command-bar, .egs-result-card, .egs-panel) {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.egs-search-input) {
+html.dark #main-app-content :is(.egs-search-input) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(.egs-scope-bar, .egs-btn) {
+html.dark #main-app-content :is(.egs-scope-bar, .egs-btn) {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.egs-scope-bar) b,
-#main-app-content :is(.egs-result-card) strong {
+html.dark #main-app-content :is(.egs-scope-bar) b,
+html.dark #main-app-content :is(.egs-result-card) strong {
   color: #ffffff !important;
 }
 
 /* 8. Demais Submódulos de Eventos (Forecast, Disk Intel, Day Command, Commercial, Producer Executive, Activity Stream, Order 360) */
-#main-app-content :is(
+html.dark #main-app-content :is(
   .efc-panel, .efc-kpi-card, .efc-filter-bar, .efc-container,
   .di-kpi, .di-panel, .di-card, .edi-container, .edi-kpi, .edi-panel, .edi-card,
   .edc-page, .edc-card, .edc-kpi-card, .edc-toolbar, .edc-gate-card, .edc-sector-box, .edc-actions-dropdown,
@@ -2564,7 +2507,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #f8fafc !important;
 }
 
-#main-app-content :is(
+html.dark #main-app-content :is(
   .efc-panel h3, .di-panel h3, .edi-panel h3, .edc-card-header h3, .epe-panel h3, .ecd-card-title, .advanced-panel h3, .eosx h2,
   .order-360-master-header h2, .order-360-card-title-wrap h3, .order-360-timeline-header h3,
   .efc-kpi-card strong, .di-kpi strong, .edi-kpi strong, .edc-kpi-card strong, .epe-kpi-card strong, .ecd-kpi-value,
@@ -2573,7 +2516,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #ffffff !important;
 }
 
-#main-app-content :is(
+html.dark #main-app-content :is(
   .edc-gate-card, .edc-sector-box, .edc-support-stat, .edc-risk-item, .edc-payment-methods, .edc-flow-stats,
   .order-360-breadcrumbs, .order-360-back-btn, .order-360-ticket-item, .order-360-micro-btn, .order-360-card-highlight,
   .ecd-tab-pill, .ecd-select, .ecd-btn-secondary, .ecd-velocity-kpis, .ecd-ticket-bar-wrap,
@@ -2584,7 +2527,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(
+html.dark #main-app-content :is(
   .edc-btn, .elo-btn, .eic-btn, .egs-btn, .eri-btn, .ecd-btn-secondary
 ):hover {
   background: #1e293b !important;
@@ -2593,7 +2536,7 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
 }
 
 /* 9. Subpáginas Internas de EventContextPage (Tickets, Cortesias, Relatórios, Detalhes, GA4, Tráfego, Meta Ads, Remarketing, Dashboard) */
-#main-app-content :is(
+html.dark #main-app-content :is(
   .event-context-page,
   .event-context-page .growth-panel,
   .event-context-page .growth-kpi,
@@ -2608,29 +2551,29 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #f8fafc !important;
 }
 
-#main-app-content .context-page-heading h2,
-#main-app-content .growth-kpi strong,
-#main-app-content .panel-head h3,
-#main-app-content .context-module-copy h3,
-#main-app-content .context-operation-row strong,
-#main-app-content .context-module-card strong,
-#main-app-content .traffic-item strong,
-#main-app-content .context-table td strong {
+html.dark #main-app-content .context-page-heading h2,
+html.dark #main-app-content .growth-kpi strong,
+html.dark #main-app-content .panel-head h3,
+html.dark #main-app-content .context-module-copy h3,
+html.dark #main-app-content .context-operation-row strong,
+html.dark #main-app-content .context-module-card strong,
+html.dark #main-app-content .traffic-item strong,
+html.dark #main-app-content .context-table td strong {
   color: #ffffff !important;
 }
 
-#main-app-content .context-page-heading > div > p:last-child,
-#main-app-content .growth-kpi .kpi-top,
-#main-app-content .panel-head p,
-#main-app-content .context-module-copy p,
-#main-app-content .context-operation-row,
-#main-app-content .context-module-card small,
-#main-app-content .traffic-item span,
-#main-app-content .context-table td small {
+html.dark #main-app-content .context-page-heading > div > p:last-child,
+html.dark #main-app-content .growth-kpi .kpi-top,
+html.dark #main-app-content .panel-head p,
+html.dark #main-app-content .context-module-copy p,
+html.dark #main-app-content .context-operation-row,
+html.dark #main-app-content .context-module-card small,
+html.dark #main-app-content .traffic-item span,
+html.dark #main-app-content .context-table td small {
   color: #94a3b8 !important;
 }
 
-#main-app-content :is(
+html.dark #main-app-content :is(
   .event-context-badge,
   .context-search,
   .context-module-card,
@@ -2651,15 +2594,15 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #cbd5e1 !important;
 }
 
-#main-app-content :is(.context-search) input,
-#main-app-content :is(.context-form-grid) input,
-#main-app-content :is(.context-form-grid) select {
+html.dark #main-app-content :is(.context-search) input,
+html.dark #main-app-content :is(.context-form-grid) input,
+html.dark #main-app-content :is(.context-form-grid) select {
   background: #131b2e !important;
   border-color: #1e293b !important;
   color: #ffffff !important;
 }
 
-#main-app-content :is(
+html.dark #main-app-content :is(
   .context-module-card:hover,
   .context-launch:hover,
   .context-quick-actions button:hover,
@@ -2671,32 +2614,32 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
   color: #ffffff !important;
 }
 
-#main-app-content .context-table-wrap {
+html.dark #main-app-content .context-table-wrap {
   border: 1px solid #1e293b !important;
   border-radius: 8px !important;
 }
 
-#main-app-content .context-table th {
+html.dark #main-app-content .context-table th {
   background: #131b2e !important;
   color: #94a3b8 !important;
   border-bottom: 1px solid #1e293b !important;
 }
 
-#main-app-content .context-table td {
+html.dark #main-app-content .context-table td {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content .context-table tr:hover td {
+html.dark #main-app-content .context-table tr:hover td {
   background: #131b2e !important;
 }
 
-#main-app-content .context-event-strip > div {
+html.dark #main-app-content .context-event-strip > div {
   border-right: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content .metric-bar i {
+html.dark #main-app-content .metric-bar i {
   background: #1e293b !important;
 }
 
@@ -2751,36 +2694,36 @@ html body :is(.grid-gap-4, .grid-gap-6, .grid-gap-8) {
    ============================================================================ */
 
 /* 1. CENTRAL ADMINISTRATIVA (admin-hub) */
-#main-app-content .admin-hub,
-html body .admin-hub {
+html.dark #main-app-content .admin-hub,
+html.dark body .admin-hub {
   padding-bottom: 32px !important;
 }
 
-#main-app-content .admin-intro h2,
-html body .admin-intro h2 {
+html.dark #main-app-content .admin-intro h2,
+html.dark body .admin-intro h2 {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
 
-#main-app-content .admin-intro p,
-html body .admin-intro p {
+html.dark #main-app-content .admin-intro p,
+html.dark body .admin-intro p {
   color: #94a3b8 !important;
 }
 
-#main-app-content .admin-intro .eyebrow,
-html body .admin-intro .eyebrow {
+html.dark #main-app-content .admin-intro .eyebrow,
+html.dark body .admin-intro .eyebrow {
   color: #38bdf8 !important;
 }
 
-#main-app-content .admin-card-grid,
-html body .admin-card-grid {
+html.dark #main-app-content .admin-card-grid,
+html.dark body .admin-card-grid {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 16px !important;
 }
 
-#main-app-content .admin-module-card,
-html body .admin-module-card {
+html.dark #main-app-content .admin-module-card,
+html.dark body .admin-module-card {
   min-height: 122px !important;
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
@@ -2797,16 +2740,16 @@ html body .admin-module-card {
   transition: all 0.2s ease !important;
 }
 
-#main-app-content .admin-module-card:hover,
-html body .admin-module-card:hover {
+html.dark #main-app-content .admin-module-card:hover,
+html.dark body .admin-module-card:hover {
   background: #131b2e !important;
   border-color: #334155 !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
   transform: translateY(-2px) !important;
 }
 
-#main-app-content .admin-card-icon,
-html body .admin-card-icon {
+html.dark #main-app-content .admin-card-icon,
+html.dark body .admin-card-icon {
   width: 50px !important;
   height: 50px !important;
   border-radius: 12px !important;
@@ -2817,55 +2760,55 @@ html body .admin-card-icon {
   place-items: center !important;
 }
 
-#main-app-content .admin-module-card strong,
-html body .admin-module-card strong {
+html.dark #main-app-content .admin-module-card strong,
+html.dark body .admin-module-card strong {
   font-size: 16px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
 }
 
-#main-app-content .admin-module-card small,
-html body .admin-module-card small {
+html.dark #main-app-content .admin-module-card small,
+html.dark body .admin-module-card small {
   font-size: 13px !important;
   color: #94a3b8 !important;
   line-height: 1.45 !important;
 }
 
-#main-app-content .admin-card-arrow,
-html body .admin-card-arrow {
+html.dark #main-app-content .admin-card-arrow,
+html.dark body .admin-card-arrow {
   color: #64748b !important;
   transition: all 0.2s ease !important;
 }
 
-#main-app-content .admin-module-card:hover .admin-card-arrow,
-html body .admin-module-card:hover .admin-card-arrow {
+html.dark #main-app-content .admin-module-card:hover .admin-card-arrow,
+html.dark body .admin-module-card:hover .admin-card-arrow {
   color: #38bdf8 !important;
   transform: translateX(3px) !important;
 }
 
 /* 2. USUÁRIOS E ACESSOS, PRODUTORAS & AUDITORIA */
-#main-app-content .users-page,
-html body .users-page {
+html.dark #main-app-content .users-page,
+html.dark body .users-page {
   padding-bottom: 32px !important;
 }
 
-#main-app-content .users-toolbar h2,
-html body .users-toolbar h2 {
+html.dark #main-app-content .users-toolbar h2,
+html.dark body .users-toolbar h2 {
   color: #ffffff !important;
 }
 
-#main-app-content .users-toolbar p,
-html body .users-toolbar p {
+html.dark #main-app-content .users-toolbar p,
+html.dark body .users-toolbar p {
   color: #94a3b8 !important;
 }
 
-#main-app-content .users-toolbar .eyebrow,
-html body .users-toolbar .eyebrow {
+html.dark #main-app-content .users-toolbar .eyebrow,
+html.dark body .users-toolbar .eyebrow {
   color: #38bdf8 !important;
 }
 
-#main-app-content .users-summary > div,
-html body .users-summary > div {
+html.dark #main-app-content .users-summary > div,
+html.dark body .users-summary > div {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 10px !important;
@@ -2873,18 +2816,18 @@ html body .users-summary > div {
   color: #94a3b8 !important;
 }
 
-#main-app-content .users-summary svg,
-html body .users-summary svg {
+html.dark #main-app-content .users-summary svg,
+html.dark body .users-summary svg {
   color: #38bdf8 !important;
 }
 
-#main-app-content .users-summary b,
-html body .users-summary b {
+html.dark #main-app-content .users-summary b,
+html.dark body .users-summary b {
   color: #ffffff !important;
 }
 
-#main-app-content .table-card,
-html body .table-card {
+html.dark #main-app-content .table-card,
+html.dark body .table-card {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 12px !important;
@@ -2892,78 +2835,78 @@ html body .table-card {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
-#main-app-content .table-card .table-scroll,
-html body .table-card .table-scroll,
-#main-app-content .table-scroll,
-html body .table-scroll {
+html.dark #main-app-content .table-card .table-scroll,
+html.dark body .table-card .table-scroll,
+html.dark #main-app-content .table-scroll,
+html.dark body .table-scroll {
   margin: 0 !important;
   overflow-x: auto !important;
   width: 100% !important;
   padding: 0 !important;
 }
 
-#main-app-content .table-tools,
-html body .table-tools {
+html.dark #main-app-content .table-tools,
+html.dark body .table-tools {
   background: #0f172a !important;
   border-bottom: 1px solid #1e293b !important;
   padding: 14px 16px !important;
 }
 
-#main-app-content .table-search,
-html body .table-search {
+html.dark #main-app-content .table-search,
+html.dark body .table-search {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   border-radius: 8px !important;
 }
 
-#main-app-content .table-search svg,
-html body .table-search svg {
+html.dark #main-app-content .table-search svg,
+html.dark body .table-search svg {
   color: #64748b !important;
 }
 
-#main-app-content .table-search input,
-html body .table-search input {
+html.dark #main-app-content .table-search input,
+html.dark body .table-search input {
   background: transparent !important;
   color: #ffffff !important;
 }
 
-#main-app-content .table-search input::placeholder,
-html body .table-search input::placeholder {
+html.dark #main-app-content .table-search input::placeholder,
+html.dark body .table-search input::placeholder {
   color: #64748b !important;
 }
 
-#main-app-content .users-table th,
-html body .users-table th {
+html.dark #main-app-content .users-table th,
+html.dark body .users-table th {
   background: #131b2e !important;
   color: #94a3b8 !important;
   border-bottom: 1px solid #1e293b !important;
   padding: 14px 20px !important;
 }
 
-#main-app-content .users-table td,
-html body .users-table td {
+html.dark #main-app-content .users-table td,
+html.dark body .users-table td {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
   padding: 15px 20px !important;
 }
 
-#main-app-content .users-table tr:hover td,
-html body .users-table tr:hover td {
+html.dark #main-app-content .users-table tr:hover td,
+html.dark body .users-table tr:hover td {
   background: #131b2e !important;
 }
 
-#main-app-content .users-table td b,
-html body .users-table td b {
+html.dark #main-app-content .users-table td b,
+html.dark body .users-table td b {
   color: #ffffff !important;
 }
 
-#main-app-content .users-table td small,
-html body .users-table td small {
+html.dark #main-app-content .users-table td small,
+html.dark body .users-table td small {
   color: #64748b !important;
 }
 
-#main-app-content .secondary-small,
-html body .secondary-small {
+html.dark #main-app-content .secondary-small,
+html.dark body .secondary-small {
   background: #1e293b !important;
   border: 1px solid #334155 !important;
   color: #cbd5e1 !important;
@@ -2972,14 +2915,14 @@ html body .secondary-small {
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .secondary-small:hover:not(:disabled),
-html body .secondary-small:hover:not(:disabled) {
+html.dark #main-app-content .secondary-small:hover:not(:disabled),
+html.dark body .secondary-small:hover:not(:disabled) {
   background: #334155 !important;
   color: #ffffff !important;
 }
 
-#main-app-content .tool-btn,
-html body .tool-btn {
+html.dark #main-app-content .tool-btn,
+html.dark body .tool-btn {
   background: #1e293b !important;
   border: 1px solid #334155 !important;
   color: #cbd5e1 !important;
@@ -2992,19 +2935,19 @@ html body .tool-btn {
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .tool-btn:hover,
-html body .tool-btn:hover {
+html.dark #main-app-content .tool-btn:hover,
+html.dark body .tool-btn:hover {
   background: #334155 !important;
   color: #ffffff !important;
 }
 
 /* Modais de Usuário e Produtora */
-.modal-backdrop {
+html.dark .modal-backdrop {
   background: rgba(3, 7, 18, 0.75) !important;
   backdrop-filter: blur(4px) !important;
 }
 
-.user-modal {
+html.dark .user-modal {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 14px !important;
@@ -3012,34 +2955,34 @@ html body .tool-btn:hover {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
 }
 
-.user-modal h3 {
+html.dark .user-modal h3 {
   color: #ffffff !important;
 }
 
-.user-modal > p {
+html.dark .user-modal > p {
   color: #94a3b8 !important;
 }
 
-.user-modal label {
+html.dark .user-modal label {
   color: #cbd5e1 !important;
 }
 
-.user-modal input,
-.user-modal select {
+html.dark .user-modal input,
+html.dark .user-modal select {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
   border-radius: 8px !important;
 }
 
-.user-modal input:focus,
-.user-modal select:focus {
+html.dark .user-modal input:focus,
+html.dark .user-modal select:focus {
   border-color: #38bdf8 !important;
   outline: none !important;
   box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
 }
 
-.modal-close {
+html.dark .modal-close {
   background: #1e293b !important;
   color: #94a3b8 !important;
   border-radius: 50% !important;
@@ -3047,122 +2990,122 @@ html body .tool-btn:hover {
   transition: all 0.15s ease !important;
 }
 
-.modal-close:hover {
+html.dark .modal-close:hover {
   background: #334155 !important;
   color: #ffffff !important;
 }
 
 /* 3. PERFIS E PERMISSÕES (admin-permissions) */
-#main-app-content .permissions-page,
-html body .permissions-page {
+html.dark #main-app-content .permissions-page,
+html.dark body .permissions-page {
   padding-bottom: 32px !important;
 }
 
-#main-app-content .permissions-layout,
-html body .permissions-layout {
+html.dark #main-app-content .permissions-layout,
+html.dark body .permissions-layout {
   gap: 18px !important;
 }
 
-#main-app-content .role-list,
-html body .role-list {
+html.dark #main-app-content .role-list,
+html.dark body .role-list {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 10px !important;
   padding: 8px !important;
 }
 
-#main-app-content .role-list button,
-html body .role-list button {
+html.dark #main-app-content .role-list button,
+html.dark body .role-list button {
   color: #94a3b8 !important;
   border-radius: 8px !important;
   transition: all 0.15s ease !important;
 }
 
-#main-app-content .role-list button:hover,
-html body .role-list button:hover {
+html.dark #main-app-content .role-list button:hover,
+html.dark body .role-list button:hover {
   background: #131b2e !important;
   color: #ffffff !important;
 }
 
-#main-app-content .role-list button.active,
-html body .role-list button.active {
+html.dark #main-app-content .role-list button.active,
+html.dark body .role-list button.active {
   background: rgba(56, 189, 248, 0.12) !important;
   color: #38bdf8 !important;
   border: 1px solid rgba(56, 189, 248, 0.3) !important;
   font-weight: 700 !important;
 }
 
-#main-app-content .permission-table-wrap,
-html body .permission-table-wrap {
+html.dark #main-app-content .permission-table-wrap,
+html.dark body .permission-table-wrap {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 10px !important;
   overflow: hidden !important;
 }
 
-#main-app-content .permission-heading,
-html body .permission-heading {
+html.dark #main-app-content .permission-heading,
+html.dark body .permission-heading {
   background: #0f172a !important;
   border-bottom: 1px solid #1e293b !important;
   padding: 17px 18px !important;
 }
 
-#main-app-content .permission-heading strong,
-html body .permission-heading strong {
+html.dark #main-app-content .permission-heading strong,
+html.dark body .permission-heading strong {
   color: #ffffff !important;
 }
 
-#main-app-content .permission-heading span,
-html body .permission-heading span {
+html.dark #main-app-content .permission-heading span,
+html.dark body .permission-heading span {
   color: #94a3b8 !important;
 }
 
-#main-app-content .permission-table th,
-html body .permission-table th {
+html.dark #main-app-content .permission-table th,
+html.dark body .permission-table th {
   background: #131b2e !important;
   color: #94a3b8 !important;
   border-bottom: 1px solid #1e293b !important;
 }
 
-#main-app-content .permission-table td,
-html body .permission-table td {
+html.dark #main-app-content .permission-table td,
+html.dark body .permission-table td {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content .permission-table tr:hover td,
-html body .permission-table tr:hover td {
+html.dark #main-app-content .permission-table tr:hover td,
+html.dark body .permission-table tr:hover td {
   background: #131b2e !important;
 }
 
-#main-app-content .permission-table td b,
-html body .permission-table td b {
+html.dark #main-app-content .permission-table td b,
+html.dark body .permission-table td b {
   color: #ffffff !important;
 }
 
-#main-app-content .perm-check span,
-html body .perm-check span {
+html.dark #main-app-content .perm-check span,
+html.dark body .perm-check span {
   background: #334155 !important;
 }
 
-#main-app-content .perm-check input:checked + span,
-html body .perm-check input:checked + span {
+html.dark #main-app-content .perm-check input:checked + span,
+html.dark body .perm-check input:checked + span {
   background: #3b82f6 !important;
 }
 
 /* 4. CONFIGURAÇÕES DE SEGURANÇA (admin-security) */
-#main-app-content .security-page,
-html body .security-page {
+html.dark #main-app-content .security-page,
+html.dark body .security-page {
   padding-bottom: 32px !important;
 }
 
-#main-app-content .security-grid,
-html body .security-grid {
+html.dark #main-app-content .security-grid,
+html.dark body .security-grid {
   gap: 17px !important;
 }
 
-#main-app-content .security-card,
-html body .security-card {
+html.dark #main-app-content .security-card,
+html.dark body .security-card {
   background: #0f172a !important;
   border: 1px solid #1e293b !important;
   border-radius: 12px !important;
@@ -3170,116 +3113,201 @@ html body .security-card {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
 }
 
-#main-app-content .security-card-title,
-html body .security-card-title {
+html.dark #main-app-content .security-card-title,
+html.dark body .security-card-title {
   border-bottom: 1px solid #1e293b !important;
   padding-bottom: 16px !important;
 }
 
-#main-app-content .security-card-title svg,
-html body .security-card-title svg {
+html.dark #main-app-content .security-card-title svg,
+html.dark body .security-card-title svg {
   color: #38bdf8 !important;
 }
 
-#main-app-content .security-card-title strong,
-html body .security-card-title strong {
+html.dark #main-app-content .security-card-title strong,
+html.dark body .security-card-title strong {
   color: #ffffff !important;
 }
 
-#main-app-content .security-card-title small,
-html body .security-card-title small {
+html.dark #main-app-content .security-card-title small,
+html.dark body .security-card-title small {
   color: #94a3b8 !important;
 }
 
-#main-app-content .security-setting,
-html body .security-setting {
+html.dark #main-app-content .security-setting,
+html.dark body .security-setting {
   border-bottom: 1px solid #1e293b !important;
 }
 
-#main-app-content .security-setting strong,
-html body .security-setting strong {
+html.dark #main-app-content .security-setting strong,
+html.dark body .security-setting strong {
   color: #ffffff !important;
 }
 
-#main-app-content .security-setting small,
-html body .security-setting small {
+html.dark #main-app-content .security-setting small,
+html.dark body .security-setting small {
   color: #94a3b8 !important;
 }
 
-#main-app-content .security-number,
-html body .security-number {
+html.dark #main-app-content .security-number,
+html.dark body .security-number {
   border-bottom: 1px solid #1e293b !important;
   color: #cbd5e1 !important;
 }
 
-#main-app-content .security-number input,
-html body .security-number input {
+html.dark #main-app-content .security-number input,
+html.dark body .security-number input {
   background: #131b2e !important;
   border: 1px solid #1e293b !important;
   color: #ffffff !important;
   border-radius: 6px !important;
 }
 
-#main-app-content .security-note,
-html body .security-note {
+html.dark #main-app-content .security-note,
+html.dark body .security-note {
   background: rgba(245, 158, 11, 0.1) !important;
   border: 1px solid rgba(245, 158, 11, 0.25) !important;
   color: #fbbf24 !important;
   border-radius: 8px !important;
 }
 
-#main-app-content .security-note b,
-html body .security-note b {
+html.dark #main-app-content .security-note b,
+html.dark body .security-note b {
   color: #fde68a !important;
 }
 
 /* 5. CARDS LEGADOS DE OUTROS HUBS (NÃO DEIXAR NADA BRANCO) */
-#main-app-content .hub-card,
-html body .hub-card,
-#main-app-content .finance-module-card,
-html body .finance-module-card,
-#main-app-content .ops-card,
-html body .ops-card,
-#main-app-content .ops-balance,
-html body .ops-balance,
-#main-app-content .placeholder-module,
-html body .placeholder-module {
+html.dark #main-app-content .hub-card,
+html.dark body .hub-card,
+html.dark #main-app-content .finance-module-card,
+html.dark body .finance-module-card,
+html.dark #main-app-content .ops-card,
+html.dark body .ops-card,
+html.dark #main-app-content .ops-balance,
+html.dark body .ops-balance,
+html.dark #main-app-content .placeholder-module,
+html.dark body .placeholder-module {
   background: #0f172a !important;
   border-color: #1e293b !important;
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
 }
 
-#main-app-content .hub-card:hover,
-html body .hub-card:hover,
-#main-app-content .finance-module-card:hover,
-html body .finance-module-card:hover,
-#main-app-content .ops-card:hover,
-html body .ops-card:hover {
+html.dark #main-app-content .hub-card:hover,
+html.dark body .hub-card:hover,
+html.dark #main-app-content .finance-module-card:hover,
+html.dark body .finance-module-card:hover,
+html.dark #main-app-content .ops-card:hover,
+html.dark body .ops-card:hover {
   background: #131b2e !important;
   border-color: #334155 !important;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35) !important;
 }
 
-#main-app-content .hub-card strong,
-html body .hub-card strong,
-#main-app-content .finance-module-card strong,
-html body .finance-module-card strong,
-#main-app-content .ops-card strong,
-html body .ops-card strong,
-#main-app-content .ops-balance strong,
-html body .ops-balance strong {
+html.dark #main-app-content .hub-card strong,
+html.dark body .hub-card strong,
+html.dark #main-app-content .finance-module-card strong,
+html.dark body .finance-module-card strong,
+html.dark #main-app-content .ops-card strong,
+html.dark body .ops-card strong,
+html.dark #main-app-content .ops-balance strong,
+html.dark body .ops-balance strong {
   color: #ffffff !important;
 }
 
-#main-app-content .hub-card small,
-html body .hub-card small,
-#main-app-content .finance-module-card small,
-html body .finance-module-card small,
-#main-app-content .ops-balance span,
-html body .ops-balance span,
-#main-app-content .ops-card span,
-html body .ops-card span {
+html.dark #main-app-content .hub-card small,
+html.dark body .hub-card small,
+html.dark #main-app-content .finance-module-card small,
+html.dark body .finance-module-card small,
+html.dark #main-app-content .ops-balance span,
+html.dark body .ops-balance span,
+html.dark #main-app-content .ops-card span,
+html.dark body .ops-card span {
   color: #94a3b8 !important;
 }
 
+
+
+/* ============================================================================
+   11. SUPORTE COMPLETO MODO CLARO (DESIGN SYSTEM GLOBAL v1.0 — GRAFITE, BRANCO & NEON)
+   Garante que todos os módulos (Event OS, Cockpit, Inventário, Clientes 360,
+   Hub de Atendimento, Central Administrativa, Usuários, Permissões e Segurança)
+   tenham superfícies #FFFFFF, fundo #F5F7FA, bordas #DCE2EA e textos #111827/#526074
+   quando o tema Claro estiver ativo.
+   ============================================================================ */
+html:not(.dark) #main-app-content :is(
+  .event-os-hero, .event-os-toolbar, .cockpit-shortcuts-bar, .event-os-kpi, .event-os-panel,
+  .event-os-launch, .cockpit-eventday-banner, .cockpit-modal-content,
+  .inventory-event-strip, .inventory-toolbar, .inventory-panel, .inventory-kpi, .inventory-modal,
+  .customer360-strip, .customer360-panel, .crm-kpi, .crm-modal,
+  .elo-kpi-card, .elo-flow-section, .elo-panel, .elo-rejections-section,
+  .eic-kpi-card, .eic-filter-bar, .eic-incident-card, .eic-panel,
+  .eri-period-bar, .eri-kpi-card, .eri-panel, .eri-chart-card,
+  .egs-command-bar, .egs-result-card, .egs-panel,
+  .efc-panel, .efc-kpi-card, .efc-filter-bar, .efc-container,
+  .di-kpi, .di-panel, .di-card, .edi-container, .edi-kpi, .edi-panel, .edi-card,
+  .edc-page, .edc-card, .edc-kpi-card, .edc-toolbar, .edc-gate-card, .edc-sector-box,
+  .epe-container, .epe-panel, .epe-kpi-card, .epe-toolbar, .epe-card,
+  .ecd-container, .ecd-kpi-card, .ecd-card, .ecd-panel, .ecd-filter-bar,
+  .activity-stream-page, .activity-stream-card, .activity-card, .eas-item, .eas-filter-bar, .eas-panel,
+  .advanced-panel, .advanced-kpi, .eos-panel, .eos-card, .eosx, .eosx-panel, .eosx-kpis > div,
+  .order-360-investigation-hub, .order-360-master-card, .order-360-card, .order-360-timeline-section,
+  .event-context-page, .event-context-page .growth-panel, .event-context-page .growth-kpi,
+  .event-context-page .context-module-panel, .event-context-page .context-event-strip,
+  .event-context-page .multi-tracking-summary article, .event-context-page .integration-card,
+  .admin-module-card, .users-summary > div, .table-card, .role-list, .permission-table-wrap,
+  .security-card, .hub-card, .finance-module-card, .ops-card, .ops-balance, .placeholder-module,
+  .ds-launcher-bar, .ds-module-card, .ds-stat-card, .ds-cockpit-header, .ds-data-table-wrap,
+  .ds-inbox-conversations-panel, .ds-inbox-chat-panel, .ds-inbox-context-panel
+) {
+  background: #FFFFFF !important;
+  border: 1px solid #DCE2EA !important;
+  color: #111827 !important;
+  box-shadow: 0 1px 3px rgba(17, 24, 39, 0.05), 0 4px 12px rgba(17, 24, 39, 0.03) !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  .event-os-health, .cockpit-lot-row, .cockpit-finance-item, .cockpit-marketing-item,
+  .event-os-check, .event-os-alert-row, .cockpit-drilldown-row, .inventory-panel-head,
+  .inventory-recommendation, .inventory-ok, .customer360-toolbar, .crm-profile-grid > div,
+  .elo-gate-card, .edc-gate-card, .edc-sector-box, .edc-support-stat, .edc-risk-item,
+  .order-360-ticket-item, .order-360-card-highlight, .context-module-card, .traffic-item,
+  .table-tools, .permission-heading, .ds-cockpit-order, .ds-quick-action-pill
+) {
+  background: #F5F7FA !important;
+  border-color: #DCE2EA !important;
+  color: #111827 !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  .event-os-hero h2, .event-os-health strong, .event-os-toolbar strong, .event-os-kpi strong,
+  .event-os-panel h3, .cockpit-finance-item strong, .cockpit-marketing-item strong,
+  .event-os-check strong, .event-os-alert-row strong, .event-os-launch strong,
+  .inventory-head h2, .inventory-event-strip strong, .inventory-kpi strong, .inventory-panel-head h3,
+  .inventory-table td strong, .sector-copy strong, .hold-row strong,
+  .customer360-head h2, .crm-kpi strong, .customer360-toolbar h3, .customer360-table-wrap td strong,
+  .crm-profile-grid strong, .elo-kpi-card strong, .elo-panel-title h3, .eic-kpi-card strong,
+  .eri-kpi-card strong, .eri-panel h3, .egs-scope-bar b, .egs-result-card strong,
+  .efc-panel h3, .di-panel h3, .edi-panel h3, .edc-card-header h3, .epe-panel h3, .ecd-card-title,
+  .advanced-panel h3, .eosx h2, .order-360-master-header h2, .order-360-card-title-wrap h3,
+  .context-page-heading h2, .growth-kpi strong, .panel-head h3, .context-module-copy h3,
+  .admin-intro h2, .admin-module-card strong, .users-toolbar h2, .users-summary b,
+  .users-table td b, .permission-heading strong, .permission-table td b,
+  .security-card-title strong, .security-setting strong, .hub-card strong,
+  .finance-module-card strong, .ops-card strong, .ops-balance strong,
+  .ds-card-text h4, .ds-stat-val, .ds-cockpit-name-block h2, .ds-conv-name
+) {
+  color: #111827 !important;
+}
+
+html:not(.dark) #main-app-content :is(
+  .event-os-hero p, .event-os-health span, .event-os-health small, .event-os-kpi span, .event-os-kpi small,
+  .event-os-panel header p, .cockpit-finance-item span, .cockpit-marketing-item span,
+  .inventory-head p, .inventory-kpi small, .customer360-head p, .context-page-heading > div > p:last-child,
+  .admin-intro p, .admin-module-card small, .users-toolbar p, .users-table td small,
+  .permission-heading span, .security-card-title small, .security-setting small,
+  .hub-card small, .finance-module-card small, .ops-card span, .ops-balance span,
+  .ds-card-text p, .ds-stat-label, .ds-section-title
+) {
+  color: #526074 !important;
+}

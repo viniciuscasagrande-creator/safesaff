@@ -81,11 +81,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </button>
         )}
 
-        <div className="brand global-brand flex items-center gap-2 select-none" title="DiskIngressos Enterprise">
+        <div className="brand global-brand flex items-center gap-2 select-none" title="SafeSaff Enterprise">
           <img
             src="/logo-diskingressos.png"
-            alt="DiskIngressos"
-            className="navbar-logo h-7 w-auto object-contain hidden xs:block"
+            alt="SafeSaff"
+            className="navbar-logo h-7 w-auto object-contain rounded-md bg-[#161D29] px-2 py-0.5 block"
           />
         </div>
 

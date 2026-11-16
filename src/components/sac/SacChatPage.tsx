@@ -3,7 +3,6 @@ import {
   ArrowRightLeft,
   BookOpen,
   Bot,
-  CheckCircle2,
   Clock,
   Headphones,
   MessageSquarePlus,
@@ -270,7 +269,6 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
     }, '📚 Rascunho de artigo salvo na Base de Conhecimento da IA (SAC). Aguardando aprovação do supervisor.')
   }
 
-  // Interação do Cliente com a Assistente Virtual SafeSaff (N1)
   function handleSelectClientTopic(topic: CustomerAiTopicFlow) {
     setActiveClientTopic(topic)
     const now = new Date().toLocaleTimeString('pt-BR', {
@@ -420,9 +418,12 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
   }, [list, filter, activeAgentId])
 
   return (
-    <main className="p-4 md:p-6 space-y-4 text-slate-100" aria-label="Chat do SAC">
-      {/* Barra de Alternância Rápida: Dashboard SAC vs Chat Operacional */}
-      <div className="bg-[#111827] border border-slate-800 rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2">
+    <main
+      className="p-4 md:p-5 space-y-4 text-[#111827] dark:text-[#F7F9FC] transition-colors"
+      aria-label="Chat do SAC"
+    >
+      {/* Barra de Alternância Rápida: Dashboard SAC vs Chat Operacional (Azul Elétrico + Violeta Neon) */}
+      <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -430,8 +431,8 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
             data-testid="tab-sac-dashboard-view"
             className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
               sacView === 'dashboard'
-                ? 'bg-[#157347] text-white shadow'
-                : 'bg-slate-900 text-slate-300 hover:text-white'
+                ? 'bg-[#155EEF] text-white shadow'
+                : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] hover:text-[#111827] dark:hover:text-white'
             }`}
           >
             📊 Dashboard SAC (Eficiência, Fila c/ Alerta Sonoro, SLA/ITIL, Skills & IA)
@@ -443,15 +444,15 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
             data-testid="tab-sac-live-chat-view"
             className={`px-4 py-2 rounded-xl text-xs font-black transition cursor-pointer ${
               sacView === 'chat'
-                ? 'bg-blue-600 text-white shadow'
-                : 'bg-slate-900 text-slate-300 hover:text-white'
+                ? 'bg-gradient-to-r from-[#155EEF] to-[#7942D8] text-white shadow'
+                : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] hover:text-[#111827] dark:hover:text-white'
             }`}
           >
             💬 Operação Chat SAC + IA ({kpis.queued} na fila • {kpis.myActive}/3 ativos)
           </button>
         </div>
 
-        <span className="text-[11px] text-slate-400 pr-2">
+        <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] pr-2 font-medium">
           Central Integrada SAC SafeSaff • IA para o Cliente (N1) + IA Copiloto do Atendente
         </span>
       </div>
@@ -466,19 +467,21 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           {/* =====================================================================
               1. CABEÇALHO E KPIS EM TEMPO REAL DA CENTRAL SAC — CHAT
           ===================================================================== */}
-          <header className="bg-[#111827] border border-slate-800 rounded-2xl p-4 flex flex-wrap justify-between gap-4 items-center shadow-lg">
+          <header className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 flex flex-wrap justify-between gap-4 items-center shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center">
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#155EEF] to-[#7942D8] text-white flex items-center justify-center shadow">
                 <Headphones size={22} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl font-black text-white">Central SAC — Chat</h1>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    IA Cliente N1 + Copiloto Atendente
+                  <h1 className="text-xl font-black text-[#111827] dark:text-[#F7F9FC]">
+                    Central SAC — Chat
+                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40">
+                    Atendimento multicanal com IA
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
                   Distribuição automática ativada • Assumir manualmente • Limite de 3 conversas simultâneas por atendente • Supervisão SAC
                 </p>
               </div>
@@ -486,12 +489,14 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
             <div className="flex flex-wrap items-center gap-2.5">
               {staff && (
-                <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
-                  <span className="text-slate-400 font-semibold">Operador:</span>
+                <div className="flex items-center gap-2 bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3 py-1.5 text-xs">
+                  <span className="text-[#526074] dark:text-[#B5C0D0] font-semibold">
+                    Operador:
+                  </span>
                   <select
                     value={activeAgentId}
                     onChange={e => setActiveAgentId(Number(e.target.value))}
-                    className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white font-bold text-xs"
+                    className="bg-white dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-lg px-2 py-1 text-[#111827] dark:text-[#F7F9FC] font-bold text-xs"
                   >
                     {agents.map(a => (
                       <option key={a.userId} value={a.userId}>
@@ -500,23 +505,19 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     ))}
                   </select>
 
-                  <span className="text-slate-400 font-semibold ml-1">Meu status:</span>
+                  <span className="text-[#526074] dark:text-[#B5C0D0] font-semibold ml-1">
+                    Meu status:
+                  </span>
                   <select
                     aria-label="Disponibilidade SAC"
-                    className={`border rounded-lg px-2.5 py-1 font-bold text-xs ${
-                      availability === 'available'
-                        ? 'bg-emerald-950 border-emerald-500/50 text-emerald-300'
-                        : availability === 'busy'
-                        ? 'bg-amber-950 border-amber-500/50 text-amber-300'
-                        : 'bg-slate-950 border-slate-700 text-slate-400'
-                    }`}
+                    className="bg-white dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-lg px-2.5 py-1 font-bold text-xs text-[#111827] dark:text-[#F7F9FC]"
                     value={availability}
                     onChange={e =>
                       void changeAvailability(e.target.value as typeof availability)
                     }
                   >
-                    <option value="available">🟢 Disponível</option>
-                    <option value="busy">🟡 Ocupado</option>
+                    <option value="available">🟢 Online</option>
+                    <option value="busy">🟠 Ocupado</option>
                     <option value="offline">⚪ Ausente</option>
                   </select>
                 </div>
@@ -526,10 +527,10 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 type="button"
                 onClick={() => setShowCustomerAiAssistant(prev => !prev)}
                 data-testid="btn-toggle-customer-ai"
-                className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer border ${
+                className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer border ${
                   showCustomerAiAssistant
-                    ? 'bg-[#157347] border-emerald-400/50 text-white'
-                    : 'bg-slate-900 border-slate-700 text-emerald-300 hover:bg-slate-800'
+                    ? 'bg-[#7942D8] border-[#7942D8] text-white'
+                    : 'bg-white dark:bg-[#1D2735] border-[#DCE2EA] dark:border-[#344154] text-[#7942D8] dark:text-[#B66CFF]'
                 }`}
               >
                 <Bot size={15} />
@@ -540,7 +541,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowKnowledgePanel(prev => !prev)}
-                  className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-2 rounded-xl bg-white dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] text-[#009AC2] dark:text-[#24DEFF] font-bold text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <BookOpen size={14} />
                   <span>Base IA ({knowledge.filter(k => k.status === 'approved').length})</span>
@@ -550,7 +551,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
               <button
                 type="button"
                 onClick={() => setShowNewClientChatModal(prev => !prev)}
-                className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
+                className="px-3.5 py-2 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold text-xs flex items-center gap-1.5 shadow cursor-pointer"
               >
                 <MessageSquarePlus size={15} />
                 <span>+ Novo Protocolo Direto</span>
@@ -559,28 +560,28 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           </header>
 
           {/* =====================================================================
-              CAMADA 1: ASSISTENTE VIRTUAL SAFESAFF (IA PARA O CLIENTE — TEMAS, PERGUNTAS E RESPOSTAS + ENCAMINHAMENTO AO SAC)
+              CAMADA 1: ASSISTENTE VIRTUAL SAFESAFF (IA PARA O CLIENTE — DESTAQUE VIOLETA NEON #7942D8 / #B66CFF)
           ===================================================================== */}
           {showCustomerAiAssistant && (
             <section
-              className="bg-gradient-to-br from-[#0F291E] via-[#111827] to-[#111827] border border-emerald-500/40 rounded-2xl p-4 shadow-xl space-y-3"
+              className="bg-white dark:bg-[#151C27] border-2 border-[#7942D8]/40 dark:border-[#B66CFF]/45 rounded-2xl p-4 shadow-md space-y-3"
               data-testid="customer-ai-virtual-assistant"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#DCE2EA] dark:border-[#344154] pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#157347] text-white flex items-center justify-center shadow">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7942D8] to-[#155EEF] text-white flex items-center justify-center shadow">
                     <Bot size={22} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-black text-white">
+                      <h2 className="text-sm font-black text-[#111827] dark:text-[#F7F9FC]">
                         Assistente Virtual SafeSaff — IA de Atendimento ao Cliente
                       </h2>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F3E8FF] dark:bg-[#B66CFF]/20 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/40">
                         Online · IA + Equipe SAC
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-300">
+                    <p className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                       O cliente escolhe o tema desejado (ex.: Cancelamento de show, Solicitar reembolso, Ingressos e acesso), recebe orientação imediata da IA e pode transferir para um atendente humano a qualquer momento.
                     </p>
                   </div>
@@ -591,14 +592,14 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     type="text"
                     value={clientName}
                     onChange={e => setClientName(e.target.value)}
-                    className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white w-44"
+                    className="bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-lg px-2.5 py-1 text-xs text-[#111827] dark:text-[#F7F9FC] w-44"
                     placeholder="Nome do Cliente"
                   />
                   <input
                     type="text"
                     value={clientOrderCode}
                     onChange={e => setClientOrderCode(e.target.value)}
-                    className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-mono text-emerald-300 w-28"
+                    className="bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-lg px-2.5 py-1 text-xs font-mono text-[#7942D8] dark:text-[#B66CFF] w-28"
                     placeholder="Pedido"
                   />
                 </div>
@@ -606,8 +607,8 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
                 {/* Coluna Esquerda: Botões de Temas e Perguntas Guiadas */}
-                <div className="lg:col-span-5 space-y-3 bg-slate-950/70 border border-slate-800 rounded-xl p-3.5">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block">
+                <div className="lg:col-span-5 space-y-3 bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#7942D8] dark:text-[#B66CFF] block">
                     1. Temas Rápidos para o Cliente (Clique para testar)
                   </span>
                   <div className="grid grid-cols-2 gap-2">
@@ -621,14 +622,14 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           data-testid={`client-ai-topic-${topic.key}`}
                           className={`text-left p-2.5 rounded-xl border text-xs transition cursor-pointer ${
                             isCurrent
-                              ? 'bg-[#157347]/30 border-emerald-400 text-white shadow'
-                              : 'bg-slate-900 border-slate-800 text-slate-200 hover:border-slate-700'
+                              ? 'bg-[#7942D8]/15 dark:bg-[#7942D8]/25 border-[#7942D8] dark:border-[#B66CFF] text-[#111827] dark:text-white shadow-2xs'
+                              : 'bg-white dark:bg-[#151C27] border-[#DCE2EA] dark:border-[#344154] text-[#111827] dark:text-[#F7F9FC] hover:border-[#7942D8]'
                           }`}
                         >
-                          <strong className="block font-bold text-white">
+                          <strong className="block font-bold">
                             {topic.label}
                           </strong>
-                          <span className="text-[10px] text-emerald-300/90 block mt-0.5">
+                          <span className="text-[10px] text-[#7942D8] dark:text-[#B66CFF] block mt-0.5 font-semibold">
                             {topic.badge} • Skill: {topic.requiredSkill}
                           </span>
                         </button>
@@ -637,8 +638,8 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   </div>
 
                   {activeClientTopic && (
-                    <div className="pt-2 border-t border-slate-800 space-y-2">
-                      <span className="text-[11px] font-bold text-slate-300 block">
+                    <div className="pt-2 border-t border-[#DCE2EA] dark:border-[#344154] space-y-2">
+                      <span className="text-[11px] font-bold text-[#526074] dark:text-[#B5C0D0] block">
                         2. Opções de Continuação do Tema ({activeClientTopic.label}):
                       </span>
                       <div className="flex flex-wrap gap-1.5">
@@ -649,8 +650,8 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                             onClick={() => void handleClientFollowUp(fp)}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border ${
                               fp.triggersHandoff
-                                ? 'bg-amber-500/20 border-amber-400/50 text-amber-200 hover:bg-amber-500/30'
-                                : 'bg-emerald-950 border-emerald-500/40 text-emerald-200 hover:bg-emerald-900'
+                                ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/20 border-[#FED7AA] dark:border-[#FF9A35]/50 text-[#BD5D00] dark:text-[#FF9A35]'
+                                : 'bg-white dark:bg-[#151C27] border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[#7942D8] dark:text-[#B66CFF]'
                             }`}
                           >
                             {fp.label}
@@ -659,7 +660,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                         <button
                           type="button"
                           onClick={handleMarkResolvedByAi}
-                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#7942D8] hover:bg-[#6D28D9] text-white cursor-pointer"
                         >
                           ✓ Dúvida resolvida pela IA
                         </button>
@@ -669,21 +670,21 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 </div>
 
                 {/* Coluna Direita: Conversa Interativa do Cliente com a Assistente Virtual SafeSaff */}
-                <div className="lg:col-span-7 bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 flex flex-col h-72">
+                <div className="lg:col-span-7 bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex flex-col h-72">
                   <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
                     {botTurns.map(turn => (
                       <div
                         key={turn.id}
                         className={`rounded-xl p-2.5 text-xs ${
                           turn.sender === 'ai'
-                            ? 'bg-[#12261E] border border-emerald-500/30 text-slate-100 mr-8'
-                            : 'bg-[#157347] text-white ml-12'
+                            ? 'bg-[#F3E8FF]/80 dark:bg-[#7942D8]/20 border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[#111827] dark:text-[#F7F9FC] mr-8'
+                            : 'bg-[#155EEF] text-white ml-12'
                         }`}
                       >
                         <div className="flex items-center justify-between text-[10px] opacity-80 mb-1">
                           <strong>
                             {turn.sender === 'ai'
-                              ? '🤖 Assistente Virtual SafeSaff (IA)'
+                              ? '✨ Assistente Virtual SafeSaff (IA)'
                               : `👤 ${clientName}`}
                           </strong>
                           <span>{turn.time}</span>
@@ -695,18 +696,18 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
                   <form
                     onSubmit={e => void handleCustomerFreeQuestion(e)}
-                    className="pt-2.5 mt-2 border-t border-slate-800 flex gap-2"
+                    className="pt-2.5 mt-2 border-t border-[#DCE2EA] dark:border-[#344154] flex gap-2"
                   >
                     <input
                       type="text"
                       value={clientCustomQuestion}
                       onChange={e => setClientCustomQuestion(e.target.value)}
                       placeholder="Digite uma dúvida do cliente (ex: O show foi cancelado, como recebo meu PIX de volta?)..."
-                      className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white"
+                      className="flex-1 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3 py-1.5 text-xs text-[#111827] dark:text-[#F7F9FC]"
                     />
                     <button
                       type="submit"
-                      className="px-3.5 py-1.5 rounded-xl bg-[#157347] hover:bg-[#115c39] text-white font-bold text-xs cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#7942D8] hover:bg-[#6D28D9] text-white font-bold text-xs cursor-pointer"
                     >
                       Perguntar à IA
                     </button>
@@ -714,7 +715,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                       type="button"
                       onClick={() => void handleHandoffCustomerAiToHuman(activeClientTopic)}
                       data-testid="btn-handoff-ai-to-sac"
-                      className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold text-xs cursor-pointer"
                     >
                       Falar com Atendente SAC
                     </button>
@@ -724,64 +725,68 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
             </section>
           )}
 
-          {/* Strip de KPIs da Fila e Capacidade (Limite de 3 por Atendente) */}
+          {/* Strip de KPIs da Fila e Capacidade (Laranja SLA | Azul Elétrico | Ciano | Violeta) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-[#111827] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+            <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">
-                  Na Fila SAC
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#BD5D00] dark:text-[#FF9A35] block">
+                  Na Fila SAC (SLA)
                 </span>
-                <strong className="text-2xl font-black text-white">{kpis.queued}</strong>
-                <span className="text-[11px] text-slate-400 block">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  {kpis.queued}
+                </strong>
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block">
                   Aguardando atribuição
                 </span>
               </div>
-              <Clock size={22} className="text-amber-400" />
+              <Clock size={22} className="text-[#BD5D00] dark:text-[#FF9A35]" />
             </div>
 
-            <div className="bg-[#111827] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+            <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#155EEF] dark:text-[#388BFF] block">
                   Meus Atendimentos
                 </span>
-                <strong className="text-2xl font-black text-white">
-                  {kpis.myActive} <span className="text-sm text-slate-400">/ 3 máx</span>
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  {kpis.myActive} <span className="text-sm text-[#526074] dark:text-[#B5C0D0]">/ 3 máx</span>
                 </strong>
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block">
                   {kpis.myActive >= 3
                     ? 'Capacidade máxima atingida'
                     : `${3 - kpis.myActive} vaga(s) livre(s)`}
                 </span>
               </div>
-              <UserCheck size={22} className="text-emerald-400" />
+              <UserCheck size={22} className="text-[#155EEF] dark:text-[#388BFF]" />
             </div>
 
-            <div className="bg-[#111827] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+            <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#009AC2] dark:text-[#24DEFF] block">
                   Ativos no SAC
                 </span>
-                <strong className="text-2xl font-black text-white">{kpis.activeAll}</strong>
-                <span className="text-[11px] text-slate-400 block">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  {kpis.activeAll}
+                </strong>
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block">
                   Conversas em andamento
                 </span>
               </div>
-              <Headphones size={22} className="text-blue-400" />
+              <Headphones size={22} className="text-[#009AC2] dark:text-[#24DEFF]" />
             </div>
 
-            <div className="bg-[#111827] border border-slate-800 rounded-xl p-3.5 flex items-center justify-between">
+            <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-purple-400 block">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7942D8] dark:text-[#B66CFF] block">
                   Atendentes Online
                 </span>
-                <strong className="text-2xl font-black text-white">
+                <strong className="text-2xl font-black text-[#111827] dark:text-[#F7F9FC] tabular-nums">
                   {kpis.onlineAgents}
                 </strong>
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block">
                   Supervisão SAC ativa
                 </span>
               </div>
-              <Users size={22} className="text-purple-400" />
+              <Users size={22} className="text-[#7942D8] dark:text-[#B66CFF]" />
             </div>
           </div>
 
@@ -789,7 +794,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           {error && (
             <div
               role="alert"
-              className="bg-rose-950/90 border border-rose-500/50 text-rose-200 rounded-xl p-3 text-xs flex items-center justify-between"
+              className="bg-[#FFF1F2] dark:bg-[#C1273C]/20 border border-[#FECDD3] dark:border-[#FF5A78]/50 text-[#C1273C] dark:text-[#FF5A78] rounded-xl p-3 text-xs flex items-center justify-between"
             >
               <span>⚠️ {error}</span>
               <button
@@ -803,7 +808,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           )}
 
           {feedback && (
-            <div className="bg-emerald-950/90 border border-emerald-500/40 text-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between">
+            <div className="bg-[#EFF6FF] dark:bg-[#388BFF]/20 border border-[#BFDBFE] dark:border-[#388BFF]/40 text-[#155EEF] dark:text-[#388BFF] rounded-xl p-3 text-xs flex items-center justify-between font-semibold">
               <span>{feedback}</span>
               <button
                 type="button"
@@ -819,17 +824,17 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           {(!staff || showNewClientChatModal) && (
             <form
               onSubmit={e => void create(e)}
-              className="bg-[#111827] border border-blue-500/40 rounded-2xl p-4 space-y-3 shadow-xl"
+              className="bg-white dark:bg-[#151C27] border border-[#155EEF]/50 rounded-2xl p-4 space-y-3 shadow-lg"
             >
               <div className="flex items-center justify-between">
-                <h2 className="font-bold text-sm text-white">
+                <h2 className="font-bold text-sm text-[#111827] dark:text-[#F7F9FC]">
                   Abrir Nova Conversa no Chat SAC (Portal do Cliente ERP)
                 </h2>
                 {staff && (
                   <button
                     type="button"
                     onClick={() => setShowNewClientChatModal(false)}
-                    className="text-xs text-slate-400 hover:text-white cursor-pointer"
+                    className="text-xs text-[#526074] dark:text-[#B5C0D0] hover:text-[#111827] dark:hover:text-white cursor-pointer"
                   >
                     ✕ Fechar
                   </button>
@@ -837,13 +842,13 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <input
-                  className="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
+                  className="bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-2.5 text-xs text-[#111827] dark:text-[#F7F9FC]"
                   value={clientName}
                   onChange={e => setClientName(e.target.value)}
                   placeholder="Nome do Cliente"
                 />
                 <input
-                  className="bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
+                  className="bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-2.5 text-xs text-[#111827] dark:text-[#F7F9FC]"
                   maxLength={160}
                   minLength={3}
                   required
@@ -854,7 +859,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 />
               </div>
               <textarea
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-white"
+                className="w-full bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-2.5 text-xs text-[#111827] dark:text-[#F7F9FC]"
                 rows={2}
                 maxLength={10000}
                 required
@@ -864,12 +869,12 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 aria-label="Mensagem inicial"
               />
               <div className="flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                   Se houver atendente disponível com menos de 3 chats ativos, a conversa será atribuída automaticamente; caso contrário, entrará na Fila SAC.
                 </span>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl px-4 py-2 cursor-pointer"
+                  className="bg-[#155EEF] hover:bg-[#1D4ED8] text-white font-bold text-xs rounded-xl px-4 py-2 cursor-pointer"
                 >
                   Iniciar Chat SAC
                 </button>
@@ -878,21 +883,22 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           )}
 
           {/* =====================================================================
-              2. LAYOUT OPERACIONAL EM 3 COLUNAS (FILA SAC | CHAT + COPILOTO IA | CONTEXTO DO CLIENTE NO ERP)
+              2. LAYOUT OPERACIONAL EM 3 COLUNAS (IDÊNTICO À REFERÊNCIA C APROVADA)
+              (FILA SAC | CONVERSA + COPILOTO VIOLETA IA | CONTEXTO 360° + SLA LARANJA)
           ===================================================================== */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* COLUNA 1 (ESQUERDA - 3 COLUNAS): FILA DE ESPERA & MEUS ATENDIMENTOS */}
             <aside
-              className="lg:col-span-3 bg-[#111827] border border-slate-800 rounded-2xl p-3.5 space-y-3 flex flex-col h-[620px]"
+              className="lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-3.5 space-y-3 flex flex-col h-[620px] shadow-xs"
               aria-label="Lista de atendimentos"
             >
               <div className="flex justify-between items-center">
-                <h2 className="font-bold text-sm text-white">
+                <h2 className="font-bold text-sm text-[#111827] dark:text-[#F7F9FC]">
                   Conversas ({filtered.length})
                 </h2>
                 <button
                   type="button"
-                  className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1 cursor-pointer"
+                  className="text-[#155EEF] dark:text-[#388BFF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
                   onClick={() => void refresh()}
                 >
                   <RefreshCw size={12} /> Atualizar
@@ -900,12 +906,12 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
               </div>
 
               {staff && (
-                <div className="grid grid-cols-5 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
+                <div className="grid grid-cols-5 gap-1 bg-[#F5F7FA] dark:bg-[#101620] p-1 rounded-xl border border-[#DCE2EA] dark:border-[#344154] text-[10px] font-bold">
                   {(
                     [
                       { id: 'all' as const, label: 'Todas' },
                       { id: 'queued' as const, label: `Fila (${kpis.queued})` },
-                      { id: 'mine' as const, label: `Meus (${kpis.myActive})` },
+                      { id: 'mine' as const, label: `Minhas (${kpis.myActive})` },
                       { id: 'active' as const, label: 'Ativas' },
                       { id: 'closed' as const, label: 'Fim' }
                     ] as const
@@ -914,10 +920,10 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                       key={tab.id}
                       type="button"
                       onClick={() => setFilter(tab.id)}
-                      className={`py-1.5 rounded-lg cursor-pointer ${
+                      className={`py-1.5 rounded-lg cursor-pointer transition ${
                         filter === tab.id
-                          ? 'bg-blue-600 text-white'
-                          : 'text-slate-400 hover:text-white'
+                          ? 'bg-[#155EEF] text-white'
+                          : 'text-[#526074] dark:text-[#B5C0D0] hover:text-[#111827] dark:hover:text-white'
                       }`}
                     >
                       {tab.label}
@@ -936,38 +942,38 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                       onClick={() => setSelected(c.id)}
                       className={`block w-full text-left border rounded-xl p-3 transition cursor-pointer ${
                         isSelected
-                          ? 'border-blue-500 bg-blue-950/40 shadow'
-                          : 'border-slate-800 bg-slate-900/70 hover:bg-slate-900'
+                          ? 'border-[#155EEF] dark:border-[#388BFF] bg-[#EFF6FF]/70 dark:bg-[#1D2735] shadow-xs'
+                          : 'border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA]/60 dark:bg-[#101620]/70 hover:border-[#155EEF]/60'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2 mb-1">
-                        <span className="font-mono text-[10px] font-bold text-blue-400">
+                        <span className="font-mono text-[10px] font-bold text-[#155EEF] dark:text-[#388BFF]">
                           {c.ticket.code}
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                             c.status === 'queued'
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40'
                               : c.status === 'active'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-slate-800 text-slate-400'
+                              ? 'bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/40'
+                              : 'bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0]'
                           }`}
                         >
                           {c.status === 'queued'
-                            ? 'Na fila'
+                            ? '⏱ SLA: 8 min'
                             : c.status === 'active'
                             ? 'Em atendimento'
                             : 'Encerrada'}
                         </span>
                       </div>
-                      <span className="block font-bold text-xs text-white truncate">
+                      <span className="block font-bold text-xs text-[#111827] dark:text-[#F7F9FC] truncate">
                         {c.ticket.requesterName}
                       </span>
-                      <span className="block text-[11px] text-slate-400 truncate mt-0.5">
+                      <span className="block text-[11px] text-[#526074] dark:text-[#B5C0D0] truncate mt-0.5">
                         {c.ticket.subject}
                       </span>
                       {c.assignedAgent && (
-                        <span className="block text-[10px] text-emerald-400 mt-1 font-semibold">
+                        <span className="block text-[10px] text-[#7942D8] dark:text-[#B66CFF] mt-1 font-semibold">
                           👤 {c.assignedAgent.name}
                         </span>
                       )}
@@ -975,33 +981,36 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   )
                 })}
                 {!filtered.length && (
-                  <p className="text-xs text-slate-500 text-center py-8">
+                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0] text-center py-8">
                     Nenhuma conversa neste filtro.
                   </p>
                 )}
               </div>
             </aside>
 
-            {/* COLUNA 2 (CENTRO - 6 COLUNAS): CONVERSA EM TEMPO REAL + COPILOTO IA DO ATENDENTE */}
+            {/* COLUNA 2 (CENTRO - 6 COLUNAS): CONVERSA EM TEMPO REAL + COPILOTO VIOLETA IA */}
             <section
-              className="lg:col-span-6 bg-[#111827] border border-slate-800 rounded-2xl p-4 flex flex-col h-[620px]"
+              className="lg:col-span-6 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 flex flex-col h-[620px] shadow-xs"
               aria-label="Conversa selecionada"
             >
               {conversation ? (
                 <>
-                  <div className="flex flex-wrap gap-2 justify-between items-start border-b border-slate-800 pb-3">
+                  <div className="flex flex-wrap gap-2 justify-between items-start border-b border-[#DCE2EA] dark:border-[#344154] pb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs font-black text-blue-400">
+                        <span className="font-mono text-xs font-black text-[#155EEF] dark:text-[#388BFF]">
                           {conversation.ticket.code}
                         </span>
-                        <h2 className="font-bold text-sm text-white">
+                        <h2 className="font-bold text-sm text-[#111827] dark:text-[#F7F9FC]">
                           {conversation.ticket.subject}
                         </h2>
+                        <span className="px-2 py-0.5 rounded-full bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40 text-[10px] font-bold">
+                          ⏱ SLA 8 min
+                        </span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-[#526074] dark:text-[#B5C0D0] mt-0.5">
                         Cliente:{' '}
-                        <strong className="text-slate-200">
+                        <strong className="text-[#111827] dark:text-[#F7F9FC]">
                           {conversation.ticket.requesterName}
                         </strong>
                         {conversation.assignedAgent
@@ -1015,7 +1024,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                         {conversation.status === 'queued' && (
                           <button
                             type="button"
-                            className="rounded-xl bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 text-xs font-bold shadow cursor-pointer"
+                            className="rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] text-white px-3 py-1.5 text-xs font-bold shadow cursor-pointer"
                             onClick={() =>
                               void action(
                                 () => sacChatApi.claim(conversation.id, activeAgentId),
@@ -1031,7 +1040,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           <div className="flex items-center gap-1">
                             <select
                               aria-label="Destino da transferência"
-                              className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white"
+                              className="bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-lg px-2 py-1 text-xs text-[#111827] dark:text-[#F7F9FC]"
                               value={target}
                               onChange={e => setTarget(e.target.value)}
                             >
@@ -1044,7 +1053,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                             </select>
                             <button
                               type="button"
-                              className="border border-slate-700 bg-slate-800 hover:bg-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-200 flex items-center gap-1 cursor-pointer"
+                              className="border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#1D2735] hover:border-[#155EEF] rounded-lg px-2.5 py-1 text-xs font-semibold text-[#111827] dark:text-[#F7F9FC] flex items-center gap-1 cursor-pointer"
                               onClick={() =>
                                 void action(
                                   () =>
@@ -1064,7 +1073,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                         {conversation.status === 'active' && (
                           <button
                             type="button"
-                            className="rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 px-3 py-1.5 text-xs font-bold cursor-pointer"
+                            className="rounded-xl border border-[#C1273C]/40 bg-[#C1273C]/10 hover:bg-[#C1273C]/20 text-[#C1273C] dark:text-[#FF5A78] px-3 py-1.5 text-xs font-bold cursor-pointer"
                             onClick={() =>
                               void action(
                                 () => sacChatApi.close(conversation.id),
@@ -1079,7 +1088,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     )}
                   </div>
 
-                  {/* Histórico de Mensagens */}
+                  {/* Histórico de Mensagens (Cliente Neutro | Humano Azul Elétrico | Sistema Laranja SLA) */}
                   <div
                     className="flex-1 overflow-y-auto space-y-3 py-3 pr-1"
                     aria-live="polite"
@@ -1094,14 +1103,20 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           key={m.id}
                           className={`rounded-xl border p-3 text-xs ${
                             isSystem
-                              ? 'bg-slate-900/60 border-slate-800 text-amber-300 text-center'
+                              ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/15 border-[#FED7AA] dark:border-[#FF9A35]/35 text-[#BD5D00] dark:text-[#FF9A35] text-center'
                               : isClient
-                              ? 'bg-slate-900 border-slate-800 text-slate-200 mr-8'
-                              : 'bg-blue-950/50 border-blue-500/40 text-blue-100 ml-8'
+                              ? 'bg-[#F5F7FA] dark:bg-[#1D2735] border-[#DCE2EA] dark:border-[#344154] text-[#111827] dark:text-[#F7F9FC] mr-8'
+                              : 'bg-gradient-to-r from-[#155EEF] to-[#1D4ED8] border-[#388BFF]/40 text-white ml-8 shadow-xs'
                           }`}
                         >
-                          <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1">
-                            <strong className="text-slate-200">{m.author}</strong>
+                          <div
+                            className={`flex items-center justify-between text-[10px] mb-1 ${
+                              isClient || isSystem
+                                ? 'text-[#526074] dark:text-[#B5C0D0]'
+                                : 'text-blue-100'
+                            }`}
+                          >
+                            <strong>{m.author}</strong>
                             <span>
                               {new Date(m.createdAt).toLocaleTimeString('pt-BR')}
                             </span>
@@ -1115,17 +1130,17 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   </div>
 
                   {/* =================================================================
-                      CAMADA 2: COPILOTO IA DO ATENDENTE SAC (REVISÃO HUMANA OBRIGATÓRIA)
+                      CAMADA 2: COPILOTO IA DO ATENDENTE SAC (DESTAQUE VIOLETA NEON COMO NA REFERÊNCIA C)
                   ================================================================= */}
                   {staff && conversation.status === 'active' && (
-                    <div className="border-t border-slate-800 pt-2.5 space-y-2 text-xs">
+                    <div className="border-t border-[#DCE2EA] dark:border-[#344154] pt-2.5 space-y-2 text-xs">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <button
                           type="button"
                           onClick={() => void suggestWithAi()}
                           disabled={aiLoading}
                           data-testid="btn-suggest-sac-ai"
-                          className="rounded-xl bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white px-3 py-1.5 font-bold flex items-center gap-1.5 shadow cursor-pointer"
+                          className="rounded-xl bg-gradient-to-r from-[#7942D8] to-[#9333EA] hover:opacity-95 disabled:opacity-50 text-white px-3.5 py-1.5 font-bold flex items-center gap-1.5 shadow cursor-pointer"
                         >
                           <Sparkles size={13} />
                           <span>
@@ -1134,21 +1149,21 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                               : 'Sugerir resposta com IA'}
                           </span>
                         </button>
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                           Copiloto: não envia mensagens automaticamente.
                         </span>
                       </div>
 
                       {suggestion && (
                         <div
-                          className="rounded-xl border border-emerald-500/50 bg-emerald-950/80 text-emerald-100 p-3 space-y-2"
+                          className="rounded-xl border border-[#7942D8]/50 dark:border-[#B66CFF]/50 bg-[#F3E8FF]/90 dark:bg-[#7942D8]/20 text-[#111827] dark:text-[#F7F9FC] p-3 space-y-2"
                           aria-label="Sugestão privada da IA"
                         >
                           <div className="flex flex-wrap justify-between gap-2 text-[11px]">
-                            <strong>
-                              🤖 Sugestão privada ao atendente ({suggestion.model})
+                            <strong className="text-[#7942D8] dark:text-[#B66CFF]">
+                              ✨ Sugestão da IA (Copiloto • {suggestion.model})
                             </strong>
-                            <span>
+                            <span className="font-semibold text-[#7942D8] dark:text-[#B66CFF]">
                               Confiança:{' '}
                               {suggestion.confidence === null
                                 ? 'n/d'
@@ -1158,7 +1173,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           <p className="whitespace-pre-wrap leading-relaxed text-xs">
                             {suggestion.suggestionText}
                           </p>
-                          <div className="text-[11px] text-emerald-300">
+                          <div className="text-[11px] text-[#7942D8] dark:text-[#B66CFF] font-medium">
                             Fontes aprovadas:{' '}
                             {suggestion.sources
                               .map(s => `${s.title} (${s.category})`)
@@ -1168,14 +1183,14 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                             <button
                               type="button"
                               onClick={() => void useSuggestionInEditor()}
-                              className="rounded-lg bg-white text-emerald-950 px-3 py-1 font-bold cursor-pointer hover:bg-emerald-100"
+                              className="rounded-lg bg-[#7942D8] hover:bg-[#6D28D9] text-white px-3 py-1 font-bold cursor-pointer"
                             >
                               Copiar para editor
                             </button>
                             <button
                               type="button"
                               onClick={() => void discardSuggestion()}
-                              className="rounded-lg border border-emerald-400/50 px-3 py-1 font-semibold cursor-pointer hover:bg-emerald-900"
+                              className="rounded-lg border border-[#7942D8]/50 dark:border-[#B66CFF]/50 px-3 py-1 font-semibold cursor-pointer text-[#7942D8] dark:text-[#B66CFF]"
                             >
                               Descartar
                             </button>
@@ -1189,18 +1204,20 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   {conversation.status !== 'closed' && (
                     <form
                       onSubmit={e => void send(e)}
-                      className="flex flex-col gap-2 border-t border-slate-800 pt-2.5 mt-2"
+                      className="flex flex-col gap-2 border-t border-[#DCE2EA] dark:border-[#344154] pt-2.5 mt-2"
                     >
                       <div className="flex items-center justify-between text-[11px]">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-slate-400">Enviar como:</span>
+                          <span className="text-[#526074] dark:text-[#B5C0D0]">
+                            Enviar como:
+                          </span>
                           <button
                             type="button"
                             onClick={() => setSenderMode('agent')}
-                            className={`px-2 py-0.5 rounded font-bold cursor-pointer ${
+                            className={`px-2.5 py-0.5 rounded-lg font-bold cursor-pointer ${
                               senderMode === 'agent'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-slate-800 text-slate-400'
+                                ? 'bg-[#155EEF] text-white'
+                                : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0]'
                             }`}
                           >
                             Atendente SAC
@@ -1208,10 +1225,10 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                           <button
                             type="button"
                             onClick={() => setSenderMode('client')}
-                            className={`px-2 py-0.5 rounded font-bold cursor-pointer ${
+                            className={`px-2.5 py-0.5 rounded-lg font-bold cursor-pointer ${
                               senderMode === 'client'
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-slate-800 text-slate-400'
+                                ? 'bg-[#7942D8] text-white'
+                                : 'bg-[#F5F7FA] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0]'
                             }`}
                           >
                             Simular Resposta do Cliente
@@ -1219,7 +1236,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                         </div>
                         {conversation.status === 'queued' &&
                           senderMode === 'agent' && (
-                            <span className="text-amber-400 font-semibold">
+                            <span className="text-[#BD5D00] dark:text-[#FF9A35] font-semibold">
                               Clique em "Assumir atendimento" para responder como atendente
                             </span>
                           )}
@@ -1227,11 +1244,11 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
                       <div className="flex gap-2">
                         <input
-                          className="flex-1 min-w-0 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white"
+                          className="flex-1 min-w-0 bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl px-3 py-2 text-xs text-[#111827] dark:text-[#F7F9FC]"
                           value={draft}
                           onChange={e => setDraft(e.target.value)}
                           maxLength={10000}
-                          placeholder="Escreva sua mensagem ou revise a sugestão do Copiloto IA..."
+                          placeholder="Digite sua mensagem ou revise a sugestão do Copiloto IA..."
                           aria-label="Mensagem"
                         />
                         <button
@@ -1242,7 +1259,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                               staff &&
                               conversation.status !== 'active')
                           }
-                          className="rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white font-bold text-xs px-4 flex items-center gap-1.5 cursor-pointer"
+                          className="rounded-xl bg-[#155EEF] hover:bg-[#1D4ED8] disabled:opacity-40 text-white font-bold text-xs px-4 flex items-center gap-1.5 cursor-pointer"
                         >
                           <Send size={13} /> Enviar
                         </button>
@@ -1251,89 +1268,108 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   )}
                 </>
               ) : (
-                <p className="text-slate-500 text-sm m-auto">
+                <p className="text-[#526074] dark:text-[#B5C0D0] text-sm m-auto">
                   Selecione uma conversa na fila ao lado ou inicie um novo atendimento.
                 </p>
               )}
             </section>
 
-            {/* COLUNA 3 (DIREITA - 3 COLUNAS): CONTEXTO 360° DO CLIENTE NO ERP */}
-            <aside className="lg:col-span-3 bg-[#111827] border border-slate-800 rounded-2xl p-4 space-y-3 h-[620px] overflow-y-auto">
-              <div className="border-b border-slate-800 pb-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+            {/* COLUNA 3 (DIREITA - 3 COLUNAS): CONTEXTO 360° DO CLIENTE + SLA EM LARANJA */}
+            <aside className="lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 space-y-3 h-[620px] overflow-y-auto shadow-xs">
+              <div className="border-b border-[#DCE2EA] dark:border-[#344154] pb-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#009AC2] dark:text-[#24DEFF]">
                   Contexto Operacional ERP
                 </span>
-                <h3 className="text-sm font-black text-white mt-0.5">
-                  Ficha do Cliente & Pedidos
+                <h3 className="text-sm font-black text-[#111827] dark:text-[#F7F9FC] mt-0.5">
+                  Ficha do Cliente & SLA
                 </h3>
               </div>
 
               {conversation ? (
                 <div className="space-y-3 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  {/* Card SLA do Atendimento em Laranja (como na Referência C) */}
+                  <div className="p-3 rounded-xl bg-[#FFF7ED] dark:bg-[#FF9A35]/15 border border-[#FED7AA] dark:border-[#FF9A35]/40 space-y-1.5">
+                    <span className="text-[10px] font-extrabold uppercase text-[#BD5D00] dark:text-[#FF9A35] block">
+                      SLA do atendimento
+                    </span>
+                    <strong className="text-base font-black text-[#BD5D00] dark:text-[#FF9A35] block">
+                      ⏱ 8 min restantes
+                    </strong>
+                    <div className="h-1.5 rounded-full bg-[#FED7AA] dark:bg-[#101620] overflow-hidden">
+                      <div className="h-full bg-[#EA580C] dark:bg-[#FF9A35] w-3/5 rounded-full" />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0]">
+                      <span>Meta: 20 min</span>
+                      <span>Decorrido: 12 min</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-1">
+                    <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] uppercase font-bold">
                       Cliente Autenticado
                     </span>
-                    <strong className="text-sm text-white block">
+                    <strong className="text-sm text-[#111827] dark:text-[#F7F9FC] block">
                       {conversation.ticket.requesterName}
                     </strong>
-                    <span className="text-slate-400 block">
+                    <span className="text-[#526074] dark:text-[#B5C0D0] block">
                       {conversation.ticket.requesterEmail || 'cliente@safesaff.com.br'}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-bold pt-1">
+                    <span className="inline-flex items-center gap-1 text-[10px] text-[#155EEF] dark:text-[#388BFF] font-bold pt-1">
                       <ShieldCheck size={12} /> Identidade Verificada pela Sessão
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1">
-                      <ShoppingBag size={12} className="text-blue-400" /> Pedido Vinculado no ERP
+                  <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-1.5">
+                    <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] uppercase font-bold flex items-center gap-1">
+                      <ShoppingBag size={12} className="text-[#155EEF] dark:text-[#388BFF]" /> Pedido Vinculado no ERP
                     </span>
                     <div className="flex items-center justify-between">
-                      <strong className="font-mono text-white">
+                      <strong className="font-mono text-[#111827] dark:text-[#F7F9FC]">
                         {conversation.ticket.orderCode || 'ORD-928371'}
                       </strong>
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">
+                      <span className="px-2 py-0.5 rounded bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[10px] font-bold">
                         PAGO • PIX
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-300">
+                    <p className="text-[11px] text-[#526074] dark:text-[#B5C0D0]">
                       {conversation.ticket.eventName ||
                         'Whindersson Nunes - SESSÃO EXTRA 19H'}
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1">
-                      <Ticket size={12} className="text-purple-400" /> Ingressos & Assentos
+                  <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-1.5">
+                    <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] uppercase font-bold flex items-center gap-1">
+                      <Ticket size={12} className="text-[#7942D8] dark:text-[#B66CFF]" /> Ingressos & Assentos
                     </span>
-                    <div className="text-[11px] text-slate-200 flex items-center justify-between">
+                    <div className="text-[11px] text-[#111827] dark:text-[#F7F9FC] flex items-center justify-between">
                       <span>Setor VIP Ouro • Fila A05</span>
-                      <span className="font-mono text-cyan-300">#00010481</span>
+                      <span className="font-mono text-[#009AC2] dark:text-[#24DEFF]">#00010481</span>
                     </div>
-                    <div className="text-[11px] text-slate-200 flex items-center justify-between">
+                    <div className="text-[11px] text-[#111827] dark:text-[#F7F9FC] flex items-center justify-between">
                       <span>Setor VIP Ouro • Fila A06</span>
-                      <span className="font-mono text-cyan-300">#00010482</span>
+                      <span className="font-mono text-[#009AC2] dark:text-[#24DEFF]">#00010482</span>
                     </div>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
-                    <span className="text-[10px] text-slate-400 uppercase font-bold">
+                  <div className="p-3 rounded-xl bg-[#F5F7FA] dark:bg-[#1D2735] border border-[#DCE2EA] dark:border-[#344154] space-y-1.5">
+                    <span className="text-[10px] text-[#526074] dark:text-[#B5C0D0] uppercase font-bold">
                       Carga dos Atendentes SAC (Máx 3)
                     </span>
                     {agents.map(a => (
                       <div
                         key={a.userId}
-                        className="flex items-center justify-between text-[11px] py-1 border-b border-slate-800/60 last:border-0"
+                        className="flex items-center justify-between text-[11px] py-1 border-b border-[#DCE2EA]/60 dark:border-[#344154]/60 last:border-0"
                       >
-                        <span className="text-slate-200 truncate">{a.user.name}</span>
+                        <span className="text-[#111827] dark:text-[#F7F9FC] truncate">
+                          {a.user.name}
+                        </span>
                         <span
                           className={`font-bold ${
                             (a.activeChatsCount ?? 0) >= 3
-                              ? 'text-rose-400'
+                              ? 'text-[#C1273C] dark:text-[#FF5A78]'
                               : a.status === 'available'
-                              ? 'text-emerald-400'
-                              : 'text-amber-400'
+                              ? 'text-[#155EEF] dark:text-[#388BFF]'
+                              : 'text-[#BD5D00] dark:text-[#FF9A35]'
                           }`}
                         >
                           {a.activeChatsCount ?? 0}/3 ({a.status})
@@ -1343,7 +1379,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
                   Selecione um atendimento para carregar os dados do cliente no ERP.
                 </p>
               )}
@@ -1355,19 +1391,19 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           ===================================================================== */}
           {staff && (showKnowledgePanel || supervisor) && (
             <section
-              className="bg-[#111827] border border-slate-800 rounded-2xl p-4 space-y-4"
+              className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 space-y-4 shadow-xs"
               aria-label="Base de conhecimento da IA"
             >
               <div className="flex flex-wrap justify-between gap-2 items-center">
                 <div>
-                  <h2 className="font-bold text-sm text-white">
+                  <h2 className="font-bold text-sm text-[#111827] dark:text-[#F7F9FC]">
                     Base de Conhecimento da IA (SAC)
                   </h2>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[#526074] dark:text-[#B5C0D0]">
                     Apenas artigos aprovados pelo supervisor são usados tanto pela Assistente Virtual do Cliente quanto pelo Copiloto dos Atendentes.
                   </p>
                 </div>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[11px] font-bold">
+                <span className="px-2.5 py-1 rounded-full bg-[#F3E8FF] dark:bg-[#B66CFF]/20 border border-[#D8B4FE] dark:border-[#B66CFF]/40 text-[#7942D8] dark:text-[#B66CFF] text-[11px] font-bold">
                   {knowledge.filter(k => k.status === 'approved').length} artigos aprovados
                 </span>
               </div>
@@ -1375,10 +1411,10 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
               {supervisor && (
                 <form
                   onSubmit={e => void createArticle(e)}
-                  className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs bg-slate-950/70 border border-slate-800 rounded-xl p-3"
+                  className="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs bg-[#F5F7FA] dark:bg-[#101620] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3"
                 >
                   <input
-                    className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"
+                    className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-lg p-2 text-[#111827] dark:text-[#F7F9FC]"
                     value={kbTitle}
                     onChange={e => setKbTitle(e.target.value)}
                     placeholder="Título do artigo (ex: Cancelamento por Chuva Forte)"
@@ -1387,7 +1423,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     required
                   />
                   <select
-                    className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"
+                    className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-lg p-2 text-[#111827] dark:text-[#F7F9FC]"
                     value={kbCategory}
                     onChange={e => setKbCategory(e.target.value)}
                   >
@@ -1399,14 +1435,14 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     <option value="Reclamações">Reclamações</option>
                   </select>
                   <input
-                    className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"
+                    className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-lg p-2 text-[#111827] dark:text-[#F7F9FC]"
                     value={kbTags}
                     onChange={e => setKbTags(e.target.value)}
                     placeholder="Tags separadas por vírgula"
                     maxLength={240}
                   />
                   <textarea
-                    className="md:col-span-2 bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"
+                    className="md:col-span-2 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-lg p-2 text-[#111827] dark:text-[#F7F9FC]"
                     rows={2}
                     value={kbContent}
                     onChange={e => setKbContent(e.target.value)}
@@ -1417,7 +1453,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   />
                   <button
                     type="submit"
-                    className="rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3 py-2 cursor-pointer"
+                    className="rounded-lg bg-[#7942D8] hover:bg-[#6D28D9] text-white font-bold px-3 py-2 cursor-pointer"
                   >
                     Salvar rascunho de artigo
                   </button>
@@ -1428,39 +1464,39 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                 {knowledge.map(article => (
                   <div
                     key={article.id}
-                    className="border border-slate-800 bg-slate-900/80 rounded-xl p-3 space-y-1.5 flex flex-col justify-between"
+                    className="border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#1D2735] rounded-xl p-3 space-y-1.5 flex flex-col justify-between"
                   >
                     <div className="space-y-1">
                       <div className="flex justify-between gap-2 items-start">
-                        <strong className="text-white leading-snug">
+                        <strong className="text-[#111827] dark:text-[#F7F9FC] leading-snug">
                           {article.title}
                         </strong>
                         <span
                           className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                             article.status === 'approved'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              ? 'bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/40'
                               : article.status === 'draft'
-                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                              : 'bg-slate-800 text-slate-400'
+                              ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] border border-[#FED7AA] dark:border-[#FF9A35]/40'
+                              : 'bg-[#EEF2F6] dark:bg-[#101620] text-[#526074] dark:text-[#B5C0D0]'
                           }`}
                         >
                           {article.status}
                         </span>
                       </div>
-                      <div className="text-[11px] text-cyan-300 font-semibold">
+                      <div className="text-[11px] text-[#7942D8] dark:text-[#B66CFF] font-semibold">
                         {article.category} {article.tags ? `· ${article.tags}` : ''}
                       </div>
-                      <p className="text-slate-300 line-clamp-3 leading-relaxed">
+                      <p className="text-[#526074] dark:text-[#B5C0D0] line-clamp-3 leading-relaxed">
                         {article.content}
                       </p>
                     </div>
 
                     {supervisor && (
-                      <div className="flex gap-2 pt-2 border-t border-slate-800">
+                      <div className="flex gap-2 pt-2 border-t border-[#DCE2EA] dark:border-[#344154]">
                         {article.status !== 'approved' && (
                           <button
                             type="button"
-                            className="rounded bg-emerald-700 hover:bg-emerald-600 text-white px-2.5 py-1 font-bold cursor-pointer"
+                            className="rounded bg-[#155EEF] hover:bg-[#1D4ED8] text-white px-2.5 py-1 font-bold cursor-pointer"
                             onClick={() =>
                               void action(
                                 () =>
@@ -1479,7 +1515,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                         {article.status !== 'archived' && (
                           <button
                             type="button"
-                            className="rounded border border-slate-700 hover:bg-slate-800 text-slate-300 px-2.5 py-1 cursor-pointer"
+                            className="rounded border border-[#DCE2EA] dark:border-[#344154] hover:bg-white dark:hover:bg-[#151C27] text-[#526074] dark:text-[#B5C0D0] px-2.5 py-1 cursor-pointer"
                             onClick={() =>
                               void action(
                                 () =>

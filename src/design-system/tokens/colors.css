@@ -1,235 +1,268 @@
 /* ==========================================================================
-   DISK INGRESSOS DESIGN SYSTEM — CORES & TEMAS
-   Tokens Oficiais: Claro / Escuro / Sistema
-   Cor Institucional Principal: Laranja Disk (#F97316 / 24 95% 53%)
+   SAFESAFF ERP — DESIGN SYSTEM GLOBAL v1.0 (CORES & TEMAS OFICIAIS)
+   Direção Visual Aprovada: Moderno e Corporativo (Grafite, Branco e Neon)
+   Sem verde como cor de marca; destaques em Azul Elétrico, Violeta, Ciano e Laranja
    ========================================================================== */
 
-:root {
-  /* Marca Institucional Disk */
-  --disk-color-primary: #F97316;
-  --disk-color-primary-hover: #EA580C;
-  --disk-color-primary-active: #C2410C;
-  --disk-color-primary-subtle: #FFF7ED;
-  --disk-color-primary-subtle-border: #FED7AA;
+:root,
+html.light,
+html[data-theme="light"] {
+  /* ---- Tokens Primitivos & Semânticos Aprovados (Modo Claro) ---- */
+  --safesaff-canvas: #F5F7FA;
+  --safesaff-surface: #FFFFFF;
+  --safesaff-surface-raised: #FFFFFF;
+  --safesaff-surface-muted: #EEF2F6;
+  --safesaff-surface-hover: #F1F5F9;
+  --safesaff-sidebar: #161D29;
+  --safesaff-sidebar-deep: #111827;
+  --safesaff-text-primary: #111827;
+  --safesaff-text-secondary: #526074;
+  --safesaff-text-muted: #64748B;
+  --safesaff-border: #DCE2EA;
+  --safesaff-border-strong: #C5CEDB;
+
+  /* Acentos Corporativos & Neon Controlado (Modo Claro) */
+  --safesaff-action-primary: #155EEF;
+  --safesaff-action-primary-hover: #1D4ED8;
+  --safesaff-action-primary-active: #1E40AF;
+  --safesaff-accent-cyan: #009AC2;
+  --safesaff-accent-violet: #7942D8;
+  --safesaff-accent-orange: #BD5D00;
+  --safesaff-danger: #C1273C;
+  --safesaff-success: #16734A;
+
+  /* ---- Mapeamento para Variáveis do Sistema Disk / SafeSaff ---- */
+  --disk-color-primary: #155EEF;
+  --disk-color-primary-hover: #1D4ED8;
+  --disk-color-primary-active: #1E40AF;
+  --disk-color-primary-subtle: #EFF6FF;
+  --disk-color-primary-subtle-border: #BFDBFE;
   --disk-color-primary-foreground: #FFFFFF;
 
-  /* Superfícies & Fundos (Modo Claro) */
-  --disk-bg-app: #F8FAFC;
+  --disk-bg-app: #F5F7FA;
   --disk-bg-surface: #FFFFFF;
   --disk-bg-elevated: #FFFFFF;
-  --disk-bg-muted: #F1F5F9;
-  --disk-bg-hover: #F8FAFC;
-  --disk-bg-active: #F1F5F9;
+  --disk-bg-muted: #EEF2F6;
+  --disk-bg-hover: #F1F5F9;
+  --disk-bg-active: #E2E8F0;
 
-  /* Bordas & Divisores */
-  --disk-border-default: #E2E8F0;
-  --disk-border-subtle: #F1F5F9;
-  --disk-border-strong: #CBD5E1;
-  --disk-border-focus: #F97316;
+  --disk-border-default: #DCE2EA;
+  --disk-border-subtle: #E8ECF2;
+  --disk-border-strong: #C5CEDB;
+  --disk-border-focus: #155EEF;
 
-  /* Tipografia & Contrastes */
-  --disk-text-primary: #0F172A;
-  --disk-text-secondary: #334155;
+  --disk-text-primary: #111827;
+  --disk-text-secondary: #526074;
   --disk-text-muted: #64748B;
   --disk-text-disabled: #94A3B8;
   --disk-text-inverse: #FFFFFF;
 
   /* Estados Semânticos Unificados */
-  --disk-color-success: #10B981;
-  --disk-color-success-hover: #059669;
+  --disk-color-success: #16734A;
+  --disk-color-success-hover: #15803D;
   --disk-color-success-subtle: #ECFDF5;
   --disk-color-success-border: #A7F3D0;
-  --disk-color-success-text: #065F46;
+  --disk-color-success-text: #166534;
 
-  --disk-color-warning: #F59E0B;
-  --disk-color-warning-hover: #D97706;
-  --disk-color-warning-subtle: #FFFBEB;
-  --disk-color-warning-border: #FDE68A;
-  --disk-color-warning-text: #92400E;
+  --disk-color-warning: #BD5D00;
+  --disk-color-warning-hover: #9A3412;
+  --disk-color-warning-subtle: #FFF7ED;
+  --disk-color-warning-border: #FED7AA;
+  --disk-color-warning-text: #9A3412;
 
-  --disk-color-danger: #EF4444;
-  --disk-color-danger-hover: #DC2626;
-  --disk-color-danger-subtle: #FEF2F2;
-  --disk-color-danger-border: #FECACA;
-  --disk-color-danger-text: #991B1B;
+  --disk-color-danger: #C1273C;
+  --disk-color-danger-hover: #9F1239;
+  --disk-color-danger-subtle: #FFF1F2;
+  --disk-color-danger-border: #FECDD3;
+  --disk-color-danger-text: #9F1239;
 
-  --disk-color-info: #3B82F6;
-  --disk-color-info-hover: #2563EB;
-  --disk-color-info-subtle: #EFF6FF;
-  --disk-color-info-border: #BFDBFE;
-  --disk-color-info-text: #1E40AF;
+  --disk-color-info: #009AC2;
+  --disk-color-info-hover: #0284C7;
+  --disk-color-info-subtle: #ECFEFF;
+  --disk-color-info-border: #A5F3FC;
+  --disk-color-info-text: #0E7490;
 
-  /* Tokens HSL Padrão Komposo / shadcn / Tailwind (Modo Claro) */
-  --background: 210 40% 98%;
-  --foreground: 222 47% 11%;
+  --disk-color-ai: #7942D8;
+  --disk-color-ai-subtle: #F3E8FF;
+  --disk-color-ai-border: #D8B4FE;
 
+  /* Tokens HSL Padrão shadcn / Tailwind (Modo Claro) */
+  --background: 216 33% 97%;
+  --foreground: 221 39% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-
+  --card-foreground: 221 39% 11%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-
-  --primary: 24 95% 53%;
+  --popover-foreground: 221 39% 11%;
+  --primary: 220 87% 51%;
   --primary-foreground: 0 0% 100%;
-
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222 47% 11%;
-
-  --muted: 210 40% 96%;
-  --muted-foreground: 215 16% 47%;
-
-  --accent: 210 40% 94%;
-  --accent-foreground: 222 47% 11%;
-
-  --destructive: 0 72% 51%;
+  --secondary: 214 32% 95%;
+  --secondary-foreground: 221 39% 11%;
+  --muted: 214 32% 95%;
+  --muted-foreground: 215 17% 39%;
+  --accent: 214 32% 95%;
+  --accent-foreground: 221 39% 11%;
+  --destructive: 352 66% 45%;
   --destructive-foreground: 0 0% 100%;
+  --border: 214 24% 89%;
+  --input: 214 24% 89%;
+  --ring: 220 87% 51%;
 
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 24 95% 53%;
+  --success: 154 68% 27%;
+  --warning: 30 100% 37%;
+  --info: 192 100% 38%;
 
-  /* Semânticos adicionais */
-  --success: 142 71% 45%;
-  --warning: 38 92% 50%;
-  --info: 217 91% 60%;
+  /* Sidebar Grafite Unificada em ambos os temas */
+  --sidebar: 218 30% 12%;
+  --sidebar-foreground: 216 33% 97%;
+  --sidebar-hover: 217 28% 18%;
+  --sidebar-active: 220 87% 51%;
+  --sidebar-border: 217 24% 20%;
 
-  /* Sidebar (Preparação para Fase 29.14.1.2) */
-  --sidebar: 0 0% 100%;
-  --sidebar-foreground: 222 47% 11%;
-  --sidebar-hover: 210 40% 96%;
-  --sidebar-active: 24 95% 53%;
-  --sidebar-border: 214 32% 91%;
+  /* Paleta Unificada de Gráficos (Azul, Violeta, Ciano, Laranja) */
+  --chart-1: 220 87% 51%;
+  --chart-2: 262 66% 55%;
+  --chart-3: 192 100% 38%;
+  --chart-4: 30 100% 37%;
+  --chart-5: 352 66% 45%;
 
-  /* Paleta Unificada de Gráficos (Modo Claro) */
-  --chart-1: 24 95% 53%;
-  --chart-2: 217 91% 60%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 38 92% 50%;
-  --chart-5: 262 83% 58%;
-
-  --disk-chart-1: #F97316;
-  --disk-chart-2: #10B981;
-  --disk-chart-3: #3B82F6;
-  --disk-chart-4: #8B5CF6;
-  --disk-chart-5: #EC4899;
-  --disk-chart-6: #06B6D4;
-  --disk-chart-grid: #E2E8F0;
-  --disk-chart-axis: #64748B;
+  --disk-chart-1: #155EEF;
+  --disk-chart-2: #7942D8;
+  --disk-chart-3: #009AC2;
+  --disk-chart-4: #EA580C;
+  --disk-chart-5: #C1273C;
+  --disk-chart-6: #16734A;
+  --disk-chart-grid: #DCE2EA;
+  --disk-chart-axis: #526074;
 }
 
-/* Modo Escuro (.dark ou [data-theme="dark"]) */
+/* ==========================================================================
+   Modo Escuro (.dark ou [data-theme="dark"]) — Grafite Profundo & Neon
+   ========================================================================== */
 .dark,
+html.dark,
 [data-theme="dark"] {
-  /* Marca Institucional Disk — referência visual oficial de 21/09/2026 */
-  --disk-color-primary: #FF8047;
-  --disk-color-primary-hover: #FF9568;
-  --disk-color-primary-active: #F36B32;
-  --disk-color-primary-subtle: rgba(255, 128, 71, 0.14);
-  --disk-color-primary-subtle-border: rgba(255, 128, 71, 0.38);
+  --safesaff-canvas: #0B1018;
+  --safesaff-surface: #151C27;
+  --safesaff-surface-raised: #1D2735;
+  --safesaff-surface-muted: #101620;
+  --safesaff-surface-hover: #1C2636;
+  --safesaff-sidebar: #0B1018;
+  --safesaff-sidebar-deep: #080C12;
+  --safesaff-text-primary: #F7F9FC;
+  --safesaff-text-secondary: #B5C0D0;
+  --safesaff-text-muted: #8E9BAE;
+  --safesaff-border: #344154;
+  --safesaff-border-strong: #46566E;
+
+  /* Acentos Neon Controlados (Modo Escuro) */
+  --safesaff-action-primary: #388BFF;
+  --safesaff-action-primary-hover: #589EFF;
+  --safesaff-action-primary-active: #1F6FEB;
+  --safesaff-accent-cyan: #24DEFF;
+  --safesaff-accent-violet: #B66CFF;
+  --safesaff-accent-orange: #FF9A35;
+  --safesaff-danger: #FF5A78;
+  --safesaff-success: #43D9A3;
+
+  --disk-color-primary: #388BFF;
+  --disk-color-primary-hover: #589EFF;
+  --disk-color-primary-active: #1F6FEB;
+  --disk-color-primary-subtle: rgba(56, 139, 255, 0.16);
+  --disk-color-primary-subtle-border: rgba(56, 139, 255, 0.38);
   --disk-color-primary-foreground: #FFFFFF;
 
-  /* Superfícies & Fundos — quatro níveis realmente distinguíveis */
-  --disk-bg-app: #0B0E14;
+  --disk-bg-app: #0B1018;
   --disk-bg-surface: #151C27;
-  --disk-bg-elevated: #1F2736;
-  --disk-bg-muted: #111721;
-  --disk-bg-hover: #1C2432;
-  --disk-bg-active: #242E3F;
+  --disk-bg-elevated: #1D2735;
+  --disk-bg-muted: #101620;
+  --disk-bg-hover: #1C2636;
+  --disk-bg-active: #243044;
 
-  /* Bordas & Divisores — contraste nítido de 1px garantido conforme vídeo oficial */
-  --disk-border-default: #283548;
-  --disk-card-border: #283548;
-  --disk-border-subtle: #1E293B;
-  --disk-border-strong: #3B4B63;
-  --disk-border-focus: #FF8047;
+  --disk-border-default: #344154;
+  --disk-card-border: #344154;
+  --disk-border-subtle: #253041;
+  --disk-border-strong: #46566E;
+  --disk-border-focus: #388BFF;
 
-  /* Tipografia & Contrastes */
-  --disk-text-primary: #F4F7FB;
-  --disk-text-secondary: #C4CCD7;
-  --disk-text-muted: #8995A5;
+  --disk-text-primary: #F7F9FC;
+  --disk-text-secondary: #B5C0D0;
+  --disk-text-muted: #8E9BAE;
   --disk-text-disabled: #5F6B7A;
-  --disk-text-inverse: #0F172A;
+  --disk-text-inverse: #0B1018;
 
   /* Estados Semânticos Unificados */
-  --disk-color-success: #10B981;
-  --disk-color-success-hover: #34D399;
-  --disk-color-success-subtle: rgba(16, 185, 129, 0.14);
-  --disk-color-success-border: rgba(16, 185, 129, 0.3);
-  --disk-color-success-text: #34D399;
+  --disk-color-success: #43D9A3;
+  --disk-color-success-hover: #6EE7B7;
+  --disk-color-success-subtle: rgba(67, 217, 163, 0.14);
+  --disk-color-success-border: rgba(67, 217, 163, 0.32);
+  --disk-color-success-text: #43D9A3;
 
-  --disk-color-warning: #F59E0B;
-  --disk-color-warning-hover: #FBBF24;
-  --disk-color-warning-subtle: rgba(245, 158, 11, 0.14);
-  --disk-color-warning-border: rgba(245, 158, 11, 0.3);
-  --disk-color-warning-text: #FBBF24;
+  --disk-color-warning: #FF9A35;
+  --disk-color-warning-hover: #FFB060;
+  --disk-color-warning-subtle: rgba(255, 154, 53, 0.14);
+  --disk-color-warning-border: rgba(255, 154, 53, 0.34);
+  --disk-color-warning-text: #FF9A35;
 
-  --disk-color-danger: #EF4444;
-  --disk-color-danger-hover: #F87171;
-  --disk-color-danger-subtle: rgba(239, 68, 68, 0.14);
-  --disk-color-danger-border: rgba(239, 68, 68, 0.3);
-  --disk-color-danger-text: #F87171;
+  --disk-color-danger: #FF5A78;
+  --disk-color-danger-hover: #FF7A93;
+  --disk-color-danger-subtle: rgba(255, 90, 120, 0.14);
+  --disk-color-danger-border: rgba(255, 90, 120, 0.34);
+  --disk-color-danger-text: #FF5A78;
 
-  --disk-color-info: #3B82F6;
-  --disk-color-info-hover: #60A5FA;
-  --disk-color-info-subtle: rgba(59, 130, 246, 0.14);
-  --disk-color-info-border: rgba(59, 130, 246, 0.3);
-  --disk-color-info-text: #60A5FA;
+  --disk-color-info: #24DEFF;
+  --disk-color-info-hover: #67E8F9;
+  --disk-color-info-subtle: rgba(36, 222, 255, 0.14);
+  --disk-color-info-border: rgba(36, 222, 255, 0.32);
+  --disk-color-info-text: #24DEFF;
 
-  /* Tokens HSL Padrão Komposo / shadcn / Tailwind (Modo Escuro) */
-  --background: 213 30% 7%;
-  --foreground: 210 40% 98%;
+  --disk-color-ai: #B66CFF;
+  --disk-color-ai-subtle: rgba(182, 108, 255, 0.15);
+  --disk-color-ai-border: rgba(182, 108, 255, 0.36);
 
-  --card: 215 24% 12%;
-  --card-foreground: 210 40% 98%;
-
-  --popover: 214 22% 16%;
-  --popover-foreground: 210 40% 98%;
-
-  --primary: 18 100% 64%;
+  /* Tokens HSL Padrão shadcn / Tailwind (Modo Escuro) */
+  --background: 217 37% 7%;
+  --foreground: 216 33% 98%;
+  --card: 217 30% 12%;
+  --card-foreground: 216 33% 98%;
+  --popover: 215 29% 16%;
+  --popover-foreground: 216 33% 98%;
+  --primary: 215 100% 61%;
   --primary-foreground: 0 0% 100%;
-
-  --secondary: 215 22% 17%;
-  --secondary-foreground: 210 40% 96%;
-
-  --muted: 214 27% 10%;
-  --muted-foreground: 215 20% 65%;
-
-  --accent: 215 22% 17%;
-  --accent-foreground: 210 40% 98%;
-
-  --destructive: 0 72% 51%;
+  --secondary: 215 29% 16%;
+  --secondary-foreground: 216 33% 98%;
+  --muted: 218 33% 9%;
+  --muted-foreground: 216 19% 76%;
+  --accent: 215 29% 16%;
+  --accent-foreground: 216 33% 98%;
+  --destructive: 349 100% 68%;
   --destructive-foreground: 0 0% 100%;
+  --border: 216 24% 27%;
+  --border-strong: 216 22% 35%;
+  --input: 216 24% 27%;
+  --ring: 215 100% 61%;
 
-  --border: 215 20% 22%;
-  --border-strong: 215 25% 30%;
-  --input: 215 20% 22%;
-  --ring: 18 100% 64%;
+  --success: 158 66% 56%;
+  --warning: 30 100% 60%;
+  --info: 189 100% 57%;
 
-  /* Semânticos adicionais */
-  --success: 142 71% 45%;
-  --warning: 38 92% 50%;
-  --info: 217 91% 60%;
+  --sidebar: 217 37% 7%;
+  --sidebar-foreground: 216 33% 98%;
+  --sidebar-hover: 217 30% 12%;
+  --sidebar-active: 215 100% 61%;
+  --sidebar-border: 216 24% 27%;
 
-  /* Sidebar (Preparação para Fase 29.14.1.2) */
-  --sidebar: 213 24% 7%;
-  --sidebar-foreground: 210 40% 98%;
-  --sidebar-hover: 215 22% 17%;
-  --sidebar-active: 18 100% 64%;
-  --sidebar-border: 214 19% 22%;
+  --chart-1: 215 100% 61%;
+  --chart-2: 270 100% 71%;
+  --chart-3: 189 100% 57%;
+  --chart-4: 30 100% 60%;
+  --chart-5: 349 100% 68%;
 
-  /* Paleta Unificada de Gráficos (Modo Escuro) */
-  --chart-1: 24 95% 58%;
-  --chart-2: 217 91% 60%;
-  --chart-3: 142 71% 45%;
-  --chart-4: 43 96% 56%;
-  --chart-5: 263 90% 66%;
-
-  --disk-chart-1: #FF8047;
-  --disk-chart-2: #34D399;
-  --disk-chart-3: #60A5FA;
-  --disk-chart-4: #A78BFA;
-  --disk-chart-5: #F472B6;
-  --disk-chart-6: #22D3EE;
-  --disk-chart-grid: #29323D;
-  --disk-chart-axis: #8995A5;
+  --disk-chart-1: #388BFF;
+  --disk-chart-2: #B66CFF;
+  --disk-chart-3: #24DEFF;
+  --disk-chart-4: #FF9A35;
+  --disk-chart-5: #FF5A78;
+  --disk-chart-6: #43D9A3;
+  --disk-chart-grid: #344154;
+  --disk-chart-axis: #B5C0D0;
 }

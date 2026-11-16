@@ -169,8 +169,8 @@ function Nav({ item, page, onNavigate }: { item: Item; page: PageKey; onNavigate
       onClick={() => onNavigate(item.key)}
       data-testid={`event-nav-${item.key}`}
     >
-      <Icon size={18} />
-      <span>{item.label}</span>
+      <span className="module-nav-icon" aria-hidden="true"><Icon size={18} /></span>
+      <span className="module-nav-label">{item.label}</span>
     </button>
   )
 }

@@ -36,6 +36,7 @@ import type {
   SeatmapSeatPoint,
   SeatmapZoneElement
 } from '../../data/events'
+import { SeatsIoChartEngine, type SeatsIoMode } from './SeatsIoChartEngine'
 
 interface Props {
   seatingMap: EventSeatingMapConfig
@@ -583,6 +584,7 @@ function buildMaristaCanvasSeats(shape: SeatShapeType = 'armchair'): SeatmapSeat
 export const SeatmapStudioBuilder: React.FC<Props> = ({
   seatingMap,
   onChange,
+  basePriceBRL = 140,
   eventCode = '4088',
   eventTitle = 'Whindersson Nunes - Isso Definitivamente Não é um Culto - SESSÃO EXTRA 19H',
   eventVenue = 'Teatro Marista Maringá',
@@ -680,6 +682,10 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
   const [scheduleBlockModalOpen, setScheduleBlockModalOpen] = useState<boolean>(false)
   const [scheduleBlockDate, setScheduleBlockDate] = useState<string>('2026-11-20T18:00')
   const [tipsModalOpen, setTipsModalOpen] = useState<boolean>(false)
+
+  // Motor Principal: Seats.io (Padrão Global de Bilheteria Online) vs Estrutura Visual Clássica
+  const [studioExperience, setStudioExperience] = useState<'seatsio' | 'classic_estrutura'>('seatsio')
+  const [seatsIoMode, setSeatsIoMode] = useState<SeatsIoMode>('designer')
 
   // Parâmetros rápidos de criação em lote
   const [rowPrefix, setRowPrefix] = useState('A')
@@ -1257,6 +1263,46 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
       data-testid="seatmap-studio-builder"
     >
       {/* =====================================================================
+          0. SELETOR DE MOTOR DE MAPA: SEATS.IO ENGINE (PADRÃO MERCADO) VS ESTRUTURA CLÁSSICA
+      ===================================================================== */}
+      <div className="bg-[#0F172A] text-white px-3.5 py-2 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-black uppercase tracking-wider text-indigo-400">
+            Motor de Mapa de Assentos:
+          </span>
+          <button
+            type="button"
+            onClick={() => setStudioExperience('seatsio')}
+            data-testid="btn-engine-seatsio"
+            className={`px-3 py-1 rounded-lg text-xs font-black flex items-center gap-1.5 border transition cursor-pointer ${
+              studioExperience === 'seatsio'
+                ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white border-indigo-400 shadow-lg'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+            }`}
+          >
+            <span>⚡ Modelo Referência Seats.io (Designer + Event Manager + Checkout)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStudioExperience('classic_estrutura')}
+            data-testid="btn-engine-classic"
+            className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition cursor-pointer ${
+              studioExperience === 'classic_estrutura'
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+            }`}
+          >
+            <span>🏛️ Estrutura Visual Clássica (Árvore M/L & Vídeo)</span>
+          </button>
+        </div>
+
+        <span className="text-[11px] text-slate-400">
+          Sincronização Bidirecional Ativa • <strong>{stats.total}</strong> lugares mapeados
+        </span>
+      </div>
+
+      {/* =====================================================================
           1. BARRA DE TOPO DO EVENTO & ABAS CLÁSSICAS (IDÊNTICA AO VÍDEO)
       ===================================================================== */}
       <div className="bg-gradient-to-b from-[#D8E6F7] to-[#C2D5EE] border-b border-slate-400 px-3 py-1.5 flex items-center justify-between">
@@ -1522,9 +1568,34 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
       )}
 
       {/* =====================================================================
+          2.9 MOTOR SEATS.IO (PADRÃO REFERÊNCIA DE MERCADO PARA VENDA DE INGRESSOS ONLINE)
+      ===================================================================== */}
+      {studioExperience === 'seatsio' && (
+        <div className="p-2.5 bg-[#0B0F19] border-b border-slate-700">
+          <SeatsIoChartEngine
+            mode={seatsIoMode}
+            onModeChange={setSeatsIoMode}
+            seats={seats}
+            zones={zones}
+            onCommitSeats={commitSeats}
+            onCommitZones={nextZones => onChange({ canvasZones: nextZones })}
+            bgDataUrl={bgDataUrl}
+            bgWidthPx={bgWidthPx}
+            bgHeightPx={bgHeightPx}
+            bgOpacity={bgOpacity}
+            seatShape={seatShape}
+            onShapeChange={handleShapeChange}
+            basePriceBRL={basePriceBRL}
+            onOpenBgModal={() => setBgSearchModalOpen(true)}
+            onSwitchToClassicMode={() => setStudioExperience('classic_estrutura')}
+          />
+        </div>
+      )}
+
+      {/* =====================================================================
           3. ÁREA DE TRABALHO EM 3 COLUNAS (ESTRUTURA | MAPA REACT | INFORMAÇÕES)
       ===================================================================== */}
-      <div className="flex items-stretch h-[700px] bg-[#E2E8F0] relative">
+      <div className={studioExperience === 'seatsio' ? 'hidden' : 'flex items-stretch h-[700px] bg-[#E2E8F0] relative'}>
         {/* -----------------------------------------------------------------
             COLUNA 1 (ESQUERDA): ÁRVORE "ESTRUTURA" (M = Master / L = Lugar)
         ----------------------------------------------------------------- */}

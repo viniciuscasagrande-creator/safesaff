@@ -270,7 +270,7 @@ export default function FinanceNegotiationsPage({ events: sourceEvents = [], eve
               onClick={() => setActiveTab(key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                 activeTab === key
-                  ? 'bg-sky-600 text-slate-900 shadow-xs'
+                  ? 'bg-sky-600 text-white shadow-xs'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
@@ -326,7 +326,7 @@ export default function FinanceNegotiationsPage({ events: sourceEvents = [], eve
                       <td className="py-2.5 px-2 text-center"><input aria-label={`Taxa pagamento ${r.metodo}`} type="number" min="0" step="0.01" value={r.taxa_pagamento} onChange={e=>updateReceita(i,{taxa_pagamento:Number(e.target.value)})} className="w-20 bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-center font-mono text-sky-700 focus:border-sky-500 outline-none" /></td>
                       <td className="py-2.5 px-2 text-center">
                         <div className="inline-flex rounded-md border border-slate-200 overflow-hidden">
-                          {(['inclusa','produtor'] as const).map(opt=><button key={opt} type="button" onClick={()=>updateReceita(i,{pgto_taxa_servico:opt})} className={`px-2 py-1 text-[10px] font-bold ${r.pgto_taxa_servico===opt?'bg-sky-600 text-slate-900':'bg-white text-slate-500'}`}>{opt==='inclusa'?'Inclusa':'Produtor'}</button>)}
+                          {(['inclusa','produtor'] as const).map(opt=><button key={opt} type="button" onClick={()=>updateReceita(i,{pgto_taxa_servico:opt})} className={`px-2 py-1 text-[10px] font-bold ${r.pgto_taxa_servico===opt?'bg-sky-600 text-white':'bg-white text-slate-500'}`}>{opt==='inclusa'?'Inclusa':'Produtor'}</button>)}
                         </div>
                       </td>
                       <td className="py-2.5 px-2 text-center"><input aria-label={`Taxa antecipação ${r.metodo}`} type="number" min="0" step="0.01" value={r.tx_ant_am} onChange={e=>updateReceita(i,{tx_ant_am:Number(e.target.value)})} className="w-20 bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-center font-mono text-amber-800 focus:border-amber-500 outline-none" /></td>

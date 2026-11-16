@@ -877,7 +877,7 @@ export default function FinanceDisputesHubPage({
             </div>
 
             <div className="estcc-drawer-footer">
-              <button className="estcc-btn" onClick={handleRejectRefund} style={{ color: 'var(--est-red)' }}>
+              <button className="estcc-btn estcc-btn-danger" onClick={handleRejectRefund}>
                 Reprovar
               </button>
               <button className="estcc-btn" onClick={() => showToast('Solicitação de parecer encaminhada ao supervisor.')}>

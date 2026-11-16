@@ -824,55 +824,216 @@
   .estcc-form-grid .full { grid-column: auto; }
 }
 
-/* Disk Design System — tema claro/escuro real sem alterar contratos do módulo */
+/* SafeSaff Design System Global v1.0 — Tema Claro e Escuro 100% Harmonizado para Estornos */
+#disk-estornos-module.estcc-page,
 .estcc-page {
-  --est-orange: var(--disk-color-primary);
-  --est-orange-dark: var(--disk-color-primary-hover);
-  --est-navy: var(--disk-text-primary);
-  --est-bg: var(--disk-bg-app);
-  --est-border: var(--disk-border-default);
-  --est-text: var(--disk-text-primary);
-  --est-muted: var(--disk-text-muted);
-  --est-green: var(--disk-color-success);
-  --est-yellow: var(--disk-color-warning);
-  --est-red: var(--disk-color-danger);
-  --est-blue: var(--disk-color-info);
-  background: var(--disk-bg-app);
-  color: var(--disk-text-primary);
+  --est-orange: var(--disk-color-primary, #155EEF);
+  --est-orange-dark: var(--disk-color-primary-hover, #1D4ED8);
+  --est-navy: var(--disk-text-primary, #111827);
+  --est-bg: var(--disk-bg-app, #F5F7FA);
+  --est-border: var(--disk-border-default, #DCE2EA);
+  --est-text: var(--disk-text-primary, #111827);
+  --est-muted: var(--disk-text-muted, #64748B);
+  --est-green: var(--disk-color-success, #16734A);
+  --est-yellow: var(--disk-color-warning, #BD5D00);
+  --est-red: var(--disk-color-danger, #C1273C);
+  --est-blue: var(--disk-color-info, #009AC2);
+  background: var(--disk-bg-app, #F5F7FA) !important;
+  color: var(--disk-text-primary, #111827) !important;
 }
+
 .estcc-page .estcc-page-head h1,
 .estcc-page .estcc-card-title,
+.estcc-page .estcc-client,
+.estcc-page .estcc-drawer-head h2,
+.estcc-page .estcc-modal-head h2,
+.estcc-page .estcc-info strong,
+.estcc-page .estcc-tl,
+.estcc-page .estcc-gauge strong,
+.estcc-page .estcc-risk-copy strong,
+.estcc-page .estcc-metric strong,
 .estcc-page strong,
-.estcc-page td { color: var(--disk-text-primary); }
+.estcc-page td {
+  color: var(--disk-text-primary) !important;
+}
+
 .estcc-page .estcc-page-head p,
 .estcc-page .estcc-card-desc,
+.estcc-page .estcc-event,
+.estcc-page .estcc-info span,
+.estcc-page .estcc-tl time,
+.estcc-page .estcc-section h3,
+.estcc-page .estcc-form-grid label,
 .estcc-page .label,
-.estcc-page .sub { color: var(--disk-text-muted); }
-.estcc-page .estcc-btn,
+.estcc-page .sub {
+  color: var(--disk-text-secondary) !important;
+}
+
+/* Superfícies de cards, filtros, modais e drawers */
 .estcc-page .estcc-filters,
 .estcc-page .estcc-kpi,
 .estcc-page .estcc-card,
-.estcc-page .estcc-modal,
-.estcc-page .estcc-modal-content,
-.estcc-page input,
-.estcc-page select,
-.estcc-page textarea {
+.estcc-page .estcc-drawer,
+.estcc-page .estcc-drawer-head,
+.estcc-page .estcc-drawer-footer,
+.estcc-page .estcc-modal-box,
+.estcc-page .estcc-modal-head,
+.estcc-page .estcc-modal-footer,
+.estcc-page .estcc-gauge::after {
   background: var(--disk-bg-surface) !important;
   color: var(--disk-text-primary) !important;
   border-color: var(--disk-border-default) !important;
 }
-.estcc-page .estcc-btn:hover,
-.estcc-page tbody tr:hover { background: var(--disk-bg-hover) !important; }
-.estcc-page .estcc-btn-primary {
-  background: var(--disk-color-primary) !important;
-  color: var(--disk-color-primary-foreground) !important;
+
+.estcc-page .estcc-info,
+.estcc-page .estcc-track,
+.estcc-page .estcc-mini-bar,
+.estcc-page input,
+.estcc-page select,
+.estcc-page textarea {
+  background: var(--disk-bg-muted) !important;
+  color: var(--disk-text-primary) !important;
+  border: 1px solid var(--disk-border-default) !important;
+}
+
+/* KPIs 1 e 2 (Primary & Orange) com contraste total no Claro e Escuro */
+.estcc-page .estcc-kpi.primary {
+  border-left: 4px solid var(--disk-color-primary) !important;
+}
+.estcc-page .estcc-kpi.orange {
+  border-left: 4px solid var(--disk-color-warning) !important;
+}
+.estcc-page .estcc-kpi .value,
+.estcc-page .estcc-kpi.primary .value,
+.estcc-page .estcc-kpi.orange .value {
+  color: var(--disk-text-primary) !important;
+}
+.estcc-page .estcc-kpi .label,
+.estcc-page .estcc-kpi.primary .label,
+.estcc-page .estcc-kpi.orange .label {
+  color: var(--disk-text-secondary) !important;
+}
+.estcc-page .estcc-kpi .sub,
+.estcc-page .estcc-kpi.primary .sub,
+.estcc-page .estcc-kpi.orange .sub {
+  color: var(--disk-text-muted) !important;
+}
+
+/* Botões Secundários (.estcc-btn) — Nunca branco com fonte branca */
+#disk-estornos-module .estcc-btn:not(.estcc-btn-primary),
+.estcc-page .estcc-btn:not(.estcc-btn-primary) {
+  background: var(--disk-bg-surface) !important;
+  color: var(--disk-text-primary) !important;
+  border: 1px solid var(--disk-border-strong, var(--disk-border-default)) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06) !important;
+}
+
+html.dark #disk-estornos-module .estcc-btn:not(.estcc-btn-primary),
+html.dark .estcc-page .estcc-btn:not(.estcc-btn-primary) {
+  background: #1D2735 !important;
+  color: #F7F9FC !important;
+  border: 1px solid #344154 !important;
+}
+
+#disk-estornos-module .estcc-btn:not(.estcc-btn-primary):hover,
+.estcc-page .estcc-btn:not(.estcc-btn-primary):hover {
+  background: var(--disk-bg-hover) !important;
+  color: var(--disk-color-primary) !important;
   border-color: var(--disk-color-primary) !important;
 }
+
+/* Botões Primários (.estcc-btn-primary: "+ Novo Estorno", "Aprovar estorno", "Confirmar") */
+#disk-estornos-module .estcc-btn.estcc-btn-primary,
+#disk-estornos-module .estcc-btn-primary,
+.estcc-page .estcc-btn.estcc-btn-primary,
+.estcc-page .estcc-btn-primary {
+  background: #155EEF !important;
+  color: #FFFFFF !important;
+  border: 1px solid #155EEF !important;
+  box-shadow: 0 2px 8px rgba(21, 94, 239, 0.28) !important;
+}
+
+html.dark #disk-estornos-module .estcc-btn.estcc-btn-primary,
+html.dark #disk-estornos-module .estcc-btn-primary,
+html.dark .estcc-page .estcc-btn.estcc-btn-primary,
+html.dark .estcc-page .estcc-btn-primary {
+  background: #388BFF !important;
+  color: #FFFFFF !important;
+  border: 1px solid #388BFF !important;
+  box-shadow: 0 2px 10px rgba(56, 139, 255, 0.32) !important;
+}
+
+#disk-estornos-module .estcc-btn.estcc-btn-primary:hover,
+#disk-estornos-module .estcc-btn-primary:hover,
+.estcc-page .estcc-btn.estcc-btn-primary:hover,
+.estcc-page .estcc-btn-primary:hover {
+  background: #1D4ED8 !important;
+  color: #FFFFFF !important;
+  border-color: #1D4ED8 !important;
+}
+
+/* Botão "Analisar" da Tabela (.estcc-btn-analyze) — Destaque Azul Nítido em Claro e Escuro */
+#disk-estornos-module .estcc-btn-analyze,
+.estcc-page .estcc-btn-analyze {
+  background: #EFF6FF !important;
+  color: #155EEF !important;
+  border: 1px solid #BFDBFE !important;
+  font-weight: 700 !important;
+}
+
+html.dark #disk-estornos-module .estcc-btn-analyze,
+html.dark .estcc-page .estcc-btn-analyze {
+  background: rgba(56, 139, 255, 0.16) !important;
+  color: #388BFF !important;
+  border: 1px solid rgba(56, 139, 255, 0.38) !important;
+}
+
+#disk-estornos-module .estcc-btn-analyze:hover,
+.estcc-page .estcc-btn-analyze:hover,
+html.dark #disk-estornos-module .estcc-btn-analyze:hover,
+html.dark .estcc-page .estcc-btn-analyze:hover {
+  background: #155EEF !important;
+  color: #FFFFFF !important;
+  border-color: #155EEF !important;
+}
+
+/* Botão Fechar Modal/Drawer (.estcc-close) */
+#disk-estornos-module .estcc-close,
+.estcc-page .estcc-close {
+  background: var(--disk-bg-muted) !important;
+  color: var(--disk-text-secondary) !important;
+  border: 1px solid var(--disk-border-default) !important;
+}
+#disk-estornos-module .estcc-close:hover,
+.estcc-page .estcc-close:hover {
+  background: var(--disk-bg-hover) !important;
+  color: var(--disk-text-primary) !important;
+}
+
+/* Abas de Navegação (.estcc-tab-btn) */
+#disk-estornos-module .estcc-tab-btn,
+.estcc-page .estcc-tab-btn {
+  background: transparent !important;
+  color: var(--disk-text-secondary) !important;
+}
+#disk-estornos-module .estcc-tab-btn:hover,
+.estcc-page .estcc-tab-btn:hover {
+  color: var(--disk-text-primary) !important;
+}
+#disk-estornos-module .estcc-tab-btn.active,
+.estcc-page .estcc-tab-btn.active {
+  color: var(--disk-color-primary) !important;
+  border-bottom-color: var(--disk-color-primary) !important;
+}
+
+/* Tabela e Hover de Linhas */
 .estcc-page table,
 .estcc-page thead,
 .estcc-page tbody,
 .estcc-page tr,
-.estcc-page td { border-color: var(--disk-border-subtle) !important; }
+.estcc-page td {
+  border-color: var(--disk-border-subtle) !important;
+}
 .estcc-page thead,
 .estcc-page th {
   background: var(--disk-bg-muted) !important;
@@ -880,5 +1041,28 @@
 }
 .estcc-page tbody,
 .estcc-page tr,
-.estcc-page td { background: var(--disk-bg-surface); }
-.estcc-page .estcc-alert { background: var(--disk-color-warning-subtle); border-color: var(--disk-color-warning-border); color: var(--disk-color-warning-text); }
+.estcc-page td {
+  background: var(--disk-bg-surface) !important;
+}
+#disk-estornos-module tbody tr:hover td,
+.estcc-page tbody tr:hover td {
+  background: var(--disk-bg-hover) !important;
+}
+.estcc-page .estcc-alert {
+  background: var(--disk-color-warning-subtle) !important;
+  border-color: var(--disk-color-warning-border) !important;
+  color: var(--disk-color-warning-text) !important;
+}
+
+#disk-estornos-module .estcc-btn.estcc-btn-danger,
+.estcc-page .estcc-btn.estcc-btn-danger {
+  background: var(--disk-color-danger-subtle, #FFF1F2) !important;
+  color: var(--disk-color-danger, #C1273C) !important;
+  border: 1px solid var(--disk-color-danger-border, #FECDD3) !important;
+}
+#disk-estornos-module .estcc-btn.estcc-btn-danger:hover,
+.estcc-page .estcc-btn.estcc-btn-danger:hover {
+  background: var(--disk-color-danger, #C1273C) !important;
+  color: #FFFFFF !important;
+  border-color: var(--disk-color-danger, #C1273C) !important;
+}

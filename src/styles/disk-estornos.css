@@ -1,20 +1,20 @@
 :root {
-  --di-orange: #ff5a2a;
-  --di-orange-dark: #e74719;
-  --di-navy: #111a2e;
-  --di-navy-2: #18233a;
-  --di-bg: #f4f6fa;
-  --di-border: #dfe4ec;
-  --di-text: #172033;
-  --di-muted: #718096;
-  --di-green: #11b981;
-  --di-yellow: #f59e0b;
-  --di-red: #ef4444;
-  --di-blue: #3b82f6;
-  --di-purple: #635bff;
-  --di-white: #fff;
+  --di-orange: var(--disk-color-primary, #155EEF);
+  --di-orange-dark: var(--disk-color-primary-hover, #1D4ED8);
+  --di-navy: var(--disk-text-primary, #111827);
+  --di-navy-2: var(--disk-bg-elevated, #1D2735);
+  --di-bg: var(--disk-bg-app, #F5F7FA);
+  --di-border: var(--disk-border-default, #DCE2EA);
+  --di-text: var(--disk-text-primary, #111827);
+  --di-muted: var(--disk-text-secondary, #526074);
+  --di-green: var(--disk-color-success, #16734A);
+  --di-yellow: var(--disk-color-warning, #BD5D00);
+  --di-red: var(--disk-color-danger, #C1273C);
+  --di-blue: var(--disk-color-primary, #155EEF);
+  --di-purple: var(--disk-color-ai, #7942D8);
+  --di-white: var(--disk-bg-surface, #FFFFFF);
   --di-radius: 14px;
-  --di-shadow: 0 8px 28px rgba(17,26,46,.08);
+  --di-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
 }
 
 #disk-estornos-module,
@@ -76,7 +76,7 @@
 #disk-estornos-module .di-btn,
 .disk-estornos-wrapper .di-btn {
   border: 1px solid var(--di-border) !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   color: var(--di-text) !important;
   padding: 11px 16px !important;
   border-radius: 9px !important;
@@ -100,14 +100,15 @@
 
 #disk-estornos-module .di-btn-primary,
 .disk-estornos-wrapper .di-btn-primary {
-  background: var(--di-orange) !important;
-  border-color: var(--di-orange) !important;
-  color: #fff !important;
+  background: var(--disk-color-primary, #155EEF) !important;
+  border-color: var(--disk-color-primary, #155EEF) !important;
+  color: #FFFFFF !important;
 }
 
 #disk-estornos-module .di-btn-primary:hover,
 .disk-estornos-wrapper .di-btn-primary:hover {
-  background: var(--di-orange-dark) !important;
+  background: var(--disk-color-primary-hover, #1D4ED8) !important;
+  color: #FFFFFF !important;
 }
 
 #disk-estornos-module .di-btn-danger,
@@ -132,7 +133,7 @@
 
 #disk-estornos-module .di-filters,
 .disk-estornos-wrapper .di-filters {
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border: 1px solid var(--di-border) !important;
   border-radius: var(--di-radius) !important;
   padding: 13px !important;
@@ -163,7 +164,7 @@
   border: 1px solid var(--di-border) !important;
   border-radius: 8px !important;
   padding: 9px 10px !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   color: var(--di-text) !important;
   outline: none !important;
   font-size: 12.5px !important;
@@ -188,7 +189,7 @@
 
 #disk-estornos-module .di-kpi,
 .disk-estornos-wrapper .di-kpi {
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border: 1px solid var(--di-border) !important;
   border-radius: var(--di-radius) !important;
   padding: 10px 14px !important;
@@ -270,7 +271,7 @@
 
 #disk-estornos-module .di-card,
 .disk-estornos-wrapper .di-card {
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border: 1px solid var(--di-border) !important;
   border-radius: var(--di-radius) !important;
   box-shadow: var(--di-shadow) !important;
@@ -325,8 +326,8 @@
 #disk-estornos-module th,
 .disk-estornos-wrapper th {
   text-align: left !important;
-  background: #f7f8fb !important;
-  color: #586579 !important;
+  background: var(--disk-bg-muted, #EEF2F6) !important;
+  color: var(--disk-text-secondary, #526074) !important;
   font-size: 10px !important;
   text-transform: uppercase !important;
   letter-spacing: .04em !important;
@@ -339,14 +340,14 @@
 #disk-estornos-module td,
 .disk-estornos-wrapper td {
   padding: 12px 11px !important;
-  border-bottom: 1px solid #edf0f4 !important;
+  border-bottom: 1px solid var(--disk-border-subtle, #E8ECF2) !important;
   font-size: 12px !important;
   vertical-align: middle !important;
 }
 
 #disk-estornos-module tr:hover td,
 .disk-estornos-wrapper tr:hover td {
-  background: #fbfcfe !important;
+  background: var(--disk-bg-hover, #F1F5F9) !important;
 }
 
 #disk-estornos-module .di-order,
@@ -384,7 +385,7 @@
 #disk-estornos-module .di-badge.green, .disk-estornos-wrapper .di-badge.green { background: #ecfdf5 !important; color: #047857 !important; }
 #disk-estornos-module .di-badge.red, .disk-estornos-wrapper .di-badge.red { background: #fef2f2 !important; color: #b91c1c !important; }
 #disk-estornos-module .di-badge.blue, .disk-estornos-wrapper .di-badge.blue { background: #eff6ff !important; color: #1d4ed8 !important; }
-#disk-estornos-module .di-badge.gray, .disk-estornos-wrapper .di-badge.gray { background: #f1f5f9 !important; color: #475569 !important; }
+#disk-estornos-module .di-badge.gray, .disk-estornos-wrapper .di-badge.gray { background: var(--disk-bg-muted, #EEF2F6) !important; color: #475569 !important; }
 
 #disk-estornos-module .di-risk,
 .disk-estornos-wrapper .di-risk {
@@ -410,7 +411,7 @@
   content: "" !important;
   position: absolute !important;
   inset: 10px !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border-radius: 50% !important;
 }
 
@@ -564,7 +565,7 @@
   top: 0 !important;
   height: 100% !important;
   width: min(560px, 94vw) !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   box-shadow: -15px 0 45px rgba(0,0,0,.18) !important;
   overflow: auto !important;
 }
@@ -578,7 +579,7 @@
   align-items: center !important;
   position: sticky !important;
   top: 0 !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   z-index: 2 !important;
 }
 
@@ -593,7 +594,7 @@
 #disk-estornos-module .di-close,
 .disk-estornos-wrapper .di-close {
   border: 0 !important;
-  background: #f1f5f9 !important;
+  background: var(--disk-bg-muted, #EEF2F6) !important;
   border-radius: 8px !important;
   width: 34px !important;
   height: 34px !important;
@@ -632,7 +633,7 @@
 
 #disk-estornos-module .di-info,
 .disk-estornos-wrapper .di-info {
-  background: #f8fafc !important;
+  background: var(--disk-bg-muted, #EEF2F6) !important;
   border-radius: 9px !important;
   padding: 10px !important;
 }
@@ -688,7 +689,7 @@
 .disk-estornos-wrapper .di-footer-actions {
   position: sticky !important;
   bottom: 0 !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border-top: 1px solid var(--di-border) !important;
   padding: 14px 20px !important;
   display: flex !important;
@@ -718,7 +719,7 @@
   width: min(720px, 96vw) !important;
   max-height: 90vh !important;
   overflow: auto !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
   border-radius: 16px !important;
   box-shadow: 0 25px 70px rgba(0,0,0,.25) !important;
 }
@@ -812,7 +813,7 @@
   border-radius: 8px !important;
   outline: none !important;
   font-size: 12.5px !important;
-  background: #fff !important;
+  background: var(--disk-bg-surface, #FFFFFF) !important;
 }
 
 #disk-estornos-module .di-form-grid textarea,

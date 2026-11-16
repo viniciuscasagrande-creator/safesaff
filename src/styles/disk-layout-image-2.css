@@ -643,7 +643,7 @@ html.dark :is(.finance-tabs,.finance360-tabs,.finance-erp-tabs,.finance-accounti
 }
 
 html.dark :is(.finance-dashboard-wrapper,.finance-erp-ui,.finance-command,.finance360-page)
-  :is(input,select,textarea,button:not(.primary):not(.btn-primary)) {
+  :is(input,select,textarea,button:not(.primary):not(.btn-primary):not(.estcc-btn-primary):not(.estcc-btn-analyze):not(.di-btn-primary)) {
   background-color: var(--disk-bg-muted) !important;
   border-color: var(--disk-border-default) !important;
   color: var(--disk-text-primary) !important;
@@ -654,7 +654,7 @@ html.dark #disk-estornos-module,
 html.dark .disk-estornos-wrapper {
   --di-orange: var(--disk-color-primary);
   --di-orange-dark: var(--disk-color-primary-active);
-  --di-navy: var(--disk-bg-elevated);
+  --di-navy: var(--disk-text-primary);
   --di-navy-2: var(--disk-bg-hover);
   --di-bg: var(--disk-bg-app);
   --di-border: var(--disk-border-default);
@@ -666,7 +666,9 @@ html.dark .disk-estornos-wrapper {
 
 html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(
   .di-filters,.di-kpi,.di-card,.di-panel,.di-table-wrap,.di-modal-content,
-  .di-drawer,.di-section,.di-summary,.di-toolbar
+  .di-drawer,.di-section,.di-summary,.di-toolbar,
+  .estcc-filters,.estcc-kpi,.estcc-card,.estcc-drawer,.estcc-drawer-head,.estcc-drawer-footer,
+  .estcc-modal-box,.estcc-modal-head,.estcc-modal-footer
 ) {
   background: var(--disk-bg-surface) !important;
   border-color: var(--disk-border-default) !important;
@@ -678,14 +680,51 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(h1,h2,h3,h4,stro
   color: var(--disk-text-primary) !important;
 }
 
-html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(p,small,label,.di-label,.di-sub,.muted) {
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(p,small,label,.di-label,.di-sub,.muted,.label,.sub) {
   color: var(--disk-text-muted) !important;
 }
 
-html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(input,select,textarea,.di-btn:not(.di-btn-primary):not(.di-btn-danger):not(.di-btn-success)) {
-  background: var(--disk-bg-muted) !important;
-  border-color: var(--disk-border-default) !important;
-  color: var(--disk-text-primary) !important;
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(input,select,textarea,.di-btn:not(.di-btn-primary):not(.di-btn-danger):not(.di-btn-success),.estcc-btn:not(.estcc-btn-primary)) {
+  background: #1D2735 !important;
+  border-color: #344154 !important;
+  color: #F7F9FC !important;
+}
+
+html:not(.dark) :is(#disk-estornos-module,.disk-estornos-wrapper) :is(.di-btn:not(.di-btn-primary):not(.di-btn-danger):not(.di-btn-success),.estcc-btn:not(.estcc-btn-primary)) {
+  background: #FFFFFF !important;
+  border-color: #C5CEDB !important;
+  color: #111827 !important;
+}
+
+:is(#disk-estornos-module,.disk-estornos-wrapper) :is(.di-btn-primary,.estcc-btn-primary,.estcc-btn.estcc-btn-primary) {
+  background: #155EEF !important;
+  border-color: #155EEF !important;
+  color: #FFFFFF !important;
+}
+
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(.di-btn-primary,.estcc-btn-primary,.estcc-btn.estcc-btn-primary) {
+  background: #388BFF !important;
+  border-color: #388BFF !important;
+  color: #FFFFFF !important;
+}
+
+:is(#disk-estornos-module,.disk-estornos-wrapper) .estcc-btn-analyze {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: #155EEF !important;
+}
+
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) .estcc-btn-analyze {
+  background: rgba(56, 139, 255, 0.16) !important;
+  border-color: rgba(56, 139, 255, 0.38) !important;
+  color: #388BFF !important;
+}
+
+:is(#disk-estornos-module,.disk-estornos-wrapper) .estcc-btn-analyze:hover,
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) .estcc-btn-analyze:hover {
+  background: #155EEF !important;
+  border-color: #155EEF !important;
+  color: #FFFFFF !important;
 }
 
 html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) :is(table,thead,tbody,tr,th,td) {
@@ -698,6 +737,10 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) thead,
 html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) th {
   background: var(--disk-bg-muted) !important;
   color: var(--disk-text-muted) !important;
+}
+
+html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) tbody tr:hover td {
+  background: var(--disk-bg-hover) !important;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {

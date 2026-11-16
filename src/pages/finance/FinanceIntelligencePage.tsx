@@ -43,7 +43,7 @@ export default function FinanceIntelligencePage({ notify, onBack, onNavigate }: 
       <div className="flex items-center gap-2">
         <button
           onClick={() => (onBack ? onBack() : onNavigate ? onNavigate('finance-dashboard') : window.history.back())}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white hover:bg-[#334155] text-slate-700 hover:text-slate-900 border border-slate-200 transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-[#1D2735] hover:bg-[#F1F5F9] dark:hover:bg-[#243044] text-[#111827] dark:text-[#F7F9FC] border border-[#DCE2EA] dark:border-[#344154] transition cursor-pointer"
         >
           <ArrowLeft size={14} className="text-[#06B6D4]" />
           <span>Voltar ao Dashboard Financeiro</span>

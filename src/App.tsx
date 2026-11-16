@@ -80,6 +80,7 @@ import OperationsPage from './pages/OperationsPage'
 import MarketingPage from './pages/MarketingPage'
 import RemarketingPage from './pages/RemarketingPage'
 import SupportPage from './pages/SupportPage'
+import { SacChatPage } from './components/sac/SacChatPage'
 import CommunicationPage from './pages/CommunicationPage'
 import EventContextPage from './pages/EventContextPage'
 import GlobalDashboardPage from './pages/GlobalDashboardPage'
@@ -315,6 +316,7 @@ const titleMap: Partial<Record<PageKey, string>> = {
   // SAC
   'sac-hub': 'Hub de Atendimento',
   'sac-dashboard': 'Dashboard SAC',
+  'sac-chat': 'Chat SAC',
   'sac-tickets': 'Chamados',
   'sac-new': 'Abrir Chamado',
   'sac-sla': 'SLA & ITIL',
@@ -1444,7 +1446,8 @@ export default function App() {
         )}
 
         {/* SAC */}
-        {page.startsWith('sac-') && (
+        {page === 'sac-chat' && <SacChatPage producerId={scopedProducerId} />}
+        {page.startsWith('sac-') && page !== 'sac-chat' && (
           <SupportPage
             events={visibleEvents}
             producerId={scopedProducerId}

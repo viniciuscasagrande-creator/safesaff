@@ -40,6 +40,9 @@ model Producer {
   recoveryAttempts      RecoveryAttempt[]
   serviceTickets        ServiceTicket[]
   ticketMessages        TicketMessage[]
+  sacChatConversations SacChatConversation[]
+  sacAgentStates SacAgentState[]
+  sacAssignmentEvents SacAssignmentEvent[]
   slaPolicies           SlaPolicy[]
   supportIntegrations   SupportIntegration[]
   communicationChannels CommunicationChannel[]
@@ -74,6 +77,10 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   audits       AuditLog[]
+  sacOwnedConversations SacChatConversation[] @relation("SacChatClient")
+  sacAssignedConversations SacChatConversation[] @relation("SacChatAgent")
+  sacAgentStates SacAgentState[]
+  sacAssignmentEvents SacAssignmentEvent[]
 }
 
 model Event {
@@ -1097,6 +1104,7 @@ model ServiceTicket {
   producer         Producer  @relation(fields: [producerId], references: [id])
   event            Event?    @relation(fields: [eventId], references: [id])
   messages         TicketMessage[]
+  sacChatConversation SacChatConversation?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   @@index([producerId, status])
@@ -1709,3 +1717,52 @@ model CommercialAgreementAuditLog {
   @@index([eventId])
 }
 
+
+// Chat SAC: conversas vinculadas aos tickets existentes, sem duplicar histórico.
+model SacChatConversation {
+  id Int @id @default(autoincrement())
+  producerId Int
+  producer Producer @relation(fields: [producerId], references: [id])
+  ticketId Int @unique
+  ticket ServiceTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  clientUserId Int
+  client User @relation("SacChatClient", fields: [clientUserId], references: [id])
+  assignedAgentId Int?
+  assignedAgent User? @relation("SacChatAgent", fields: [assignedAgentId], references: [id])
+  status String @default("queued") // queued | active | closed
+  assignedAt DateTime?
+  closedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  assignmentEvents SacAssignmentEvent[]
+  @@index([producerId, status, createdAt])
+  @@index([assignedAgentId, status])
+  @@index([clientUserId, createdAt])
+}
+
+model SacAgentState {
+  id Int @id @default(autoincrement())
+  producerId Int
+  producer Producer @relation(fields: [producerId], references: [id])
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  status String @default("offline") // available | busy | offline
+  lastSeenAt DateTime @default(now())
+  lastAssignedAt DateTime?
+  updatedAt DateTime @updatedAt
+  @@unique([producerId, userId])
+  @@index([producerId, status, lastSeenAt])
+}
+
+model SacAssignmentEvent {
+  id Int @id @default(autoincrement())
+  producerId Int
+  producer Producer @relation(fields: [producerId], references: [id])
+  conversationId Int
+  conversation SacChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  agentUserId Int
+  agent User @relation(fields: [agentUserId], references: [id])
+  action String // automatic | manual | transfer | close
+  createdAt DateTime @default(now())
+  @@index([conversationId, createdAt])
+}

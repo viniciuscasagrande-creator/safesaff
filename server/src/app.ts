@@ -29,6 +29,7 @@ import { marketingRouter } from './routes/marketing.js'
 import { spotifyAdsRouter } from './routes/spotifyAds.js'
 import { automationRouter } from './routes/automation.js'
 import { supportRouter } from './routes/support.js'
+import { sacChatRouter } from './routes/sacChat.js'
 import { communicationRouter } from './routes/communication.js'
 import { trackingPublicRouter } from './routes/trackingPublic.js'
 import { conversionsRouter } from './routes/conversions.js'
@@ -141,6 +142,7 @@ app.use('/api/marketing/spotify', spotifyAdsRouter)
 app.use('/api/marketing/conversions', conversionsRouter)
 app.use('/api/marketing', marketingRouter)
 app.use('/api/automation', automationRouter)
+app.use('/api/sac/chat', sacChatRouter)
 app.use('/api/support', supportRouter)
 app.use('/api/service', supportRouter)
 app.use('/api/v1/event-support', eventSupportRouter)

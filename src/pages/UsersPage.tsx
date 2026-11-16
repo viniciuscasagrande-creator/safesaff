@@ -81,6 +81,8 @@ export function getDefaultPermissionsForRole(role: Role): Record<string, boolean
       p[item.key] = true
     } else if (role === 'producer-admin') {
       p[item.key] = !item.key.startsWith('admin.') || item.key === 'admin.users'
+    } else if (role === 'sac-agent' || role === 'sac-supervisor') {
+      p[item.key] = item.module === 'Atendimento / SAC'
     } else if (role === 'producer-finance') {
       p[item.key] = item.module === 'Financeiro' || item.module === 'Estornos' || item.key === 'eventos.view'
     } else if (role === 'producer-operation') {
@@ -869,6 +871,8 @@ export default function UsersPage({ users, setUsers, currentUser, producers, not
               <option value="producer-admin">Produtor Admin</option>
               <option value="producer-finance">Produtor Financeiro</option>
               <option value="producer-operation">Produtor Operacional</option>
+                    <option value="sac-agent">Atendente SAC</option>
+                    <option value="sac-supervisor">Supervisor SAC</option>
               <option value="producer-marketing">Produtor Marketing</option>
               <option value="commercial">Comercial</option>
               <option value="viewer">Somente Leitura</option>
@@ -1055,6 +1059,8 @@ export default function UsersPage({ users, setUsers, currentUser, producers, not
                     className="w-full bg-[#151c27] text-white px-3 py-2 text-xs rounded-lg border border-[#283548] focus:outline-hidden focus:border-blue-500"
                   >
                     <option value="producer-operation">Produtor Operacional</option>
+                    <option value="sac-agent">Atendente SAC</option>
+                    <option value="sac-supervisor">Supervisor SAC</option>
                     <option value="producer-finance">Produtor Financeiro</option>
                     <option value="producer-marketing">Produtor Marketing</option>
                     <option value="commercial">Comercial</option>

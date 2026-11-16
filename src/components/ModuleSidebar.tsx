@@ -50,7 +50,7 @@ export type PageKey =
   | 'admin-hub' | 'admin-users' | 'admin-producers' | 'admin-permissions' | 'admin-audit' | 'admin-security'
   | 'marketing-hub' | 'marketing-dashboard' | 'marketing-status-real' | 'marketing-real-status' | 'marketing-campaigns' | 'marketing-ready-campaigns' | 'marketing-create' | 'marketing-meta-ads' | 'marketing-google-ads' | 'marketing-google-analytics' | 'marketing-tiktok-ads' | 'marketing-spotify-ads' | 'marketing-spotify' | 'marketing-influencers' | 'marketing-automations' | 'marketing-whatsapp' | 'marketing-email' | 'marketing-crm' | 'marketing-audiences' | 'marketing-coupons' | 'marketing-cashback' | 'marketing-coins' | 'marketing-gamification' | 'marketing-referral' | 'marketing-affiliates' | 'marketing-utm-central' | 'marketing-links' | 'marketing-tracking' | 'marketing-attribution' | 'marketing-conversions' | 'marketing-remarketing' | 'marketing-recovery' | 'marketing-reports' | 'marketing-channel-performance' | 'marketing-campaign-ranking' | 'marketing-funnel-insights' | 'marketing-communications'
   | 'remarketing-hub' | 'remarketing-dashboard' | 'remarketing-carts' | 'remarketing-audiences' | 'remarketing-segments' | 'remarketing-flows' | 'remarketing-whatsapp' | 'remarketing-email' | 'remarketing-payments' | 'remarketing-inactive' | 'remarketing-postevent' | 'remarketing-automation' | 'remarketing-reports'
-  | 'sac-hub' | 'sac-dashboard' | 'sac-tickets' | 'sac-new' | 'sac-sla' | 'sac-integrations' | 'sac-knowledge' | 'sac-reports'
+  | 'sac-chat' | 'sac-hub' | 'sac-dashboard' | 'sac-tickets' | 'sac-new' | 'sac-sla' | 'sac-integrations' | 'sac-knowledge' | 'sac-reports'
 
 type Props = {
   module: ModuleKey
@@ -88,6 +88,7 @@ const mainItems: Item[] = [
   { key: 'facial', label: 'Status Faciais', icon: ScanFace },
   { key: 'pos', label: 'Terminais POS', icon: MonitorSmartphone },
   { key: 'sac-hub', label: 'Atendimento / SAC', icon: Headphones },
+  { key: 'sac-chat', label: 'Chat SAC', icon: Headphones },
   { key: 'admin-hub', label: 'Administração', icon: Building2 },
 ]
 
@@ -251,7 +252,7 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
 
   const getActiveSection = (): SectionKey => {
     if (['events', 'commercial-hub', 'new-event', 'lots', 'participants', 'edit-event', 'event-dashboard'].includes(page)) return 'events'
-    if (['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-dashboard', 'sac-tickets', 'sac-new', 'sac-sla', 'sac-integrations', 'sac-knowledge', 'sac-reports'].includes(page)) return 'sales'
+    if (['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-chat', 'sac-dashboard', 'sac-tickets', 'sac-new', 'sac-sla', 'sac-integrations', 'sac-knowledge', 'sac-reports'].includes(page)) return 'sales'
     if (['operations', 'developer-center'].includes(page)) return 'operations'
     if (isFinanceActive) return 'finance'
     if (isAccountingActive) return 'accounting'
@@ -355,7 +356,7 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
         </CollapsibleSection>
 
         <CollapsibleSection label="Vendas e Atendimento" icon={ShoppingCart} open={openSection === 'sales'} onToggle={() => handleSectionToggle('sales')}>
-          {mainItems.filter(it => ['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'sac-hub' && page.startsWith('sac-'))} onNavigate={onNavigate} indent />)}
+          {mainItems.filter(it => ['commerce-orders', 'event-support', 'pos', 'facial', 'sac-hub', 'sac-chat'].includes(it.key)).map(it => <NavItem key={it.key} item={it} active={page === it.key || (it.key === 'sac-hub' && page.startsWith('sac-'))} onNavigate={onNavigate} indent />)}
         </CollapsibleSection>
 
         <CollapsibleSection label="Operações e Tecnologia" icon={Terminal} open={openSection === 'operations'} onToggle={() => handleSectionToggle('operations')}>

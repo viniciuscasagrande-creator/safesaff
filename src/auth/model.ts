@@ -1,4 +1,4 @@
-export type Role = 'admin-master' | 'admin' | 'producer-admin' | 'producer-finance' | 'producer-operation' | 'producer-marketing' | 'commercial' | 'viewer'
+export type Role = 'admin-master' | 'admin' | 'producer-admin' | 'producer-finance' | 'producer-operation' | 'producer-marketing' | 'commercial' | 'viewer' | 'sac-agent' | 'sac-supervisor'
 export type Producer = { id:number; name:string; document:string; status:'ativo'|'inativo' }
 export type AppUser = {
   id:number; name:string; email:string; password?:string; role:Role; producerId:number|null;
@@ -22,7 +22,7 @@ export const seedUsers:AppUser[] = [
 
 export const roleLabel:Record<Role,string> = {
   'admin-master':'Admin Master','admin':'Admin','producer-admin':'Produtor Admin','producer-finance':'Produtor Financeiro',
-  'producer-operation':'Produtor Operacional','producer-marketing':'Produtor Marketing','commercial':'Comercial','viewer':'Somente leitura'
+  'producer-operation':'Produtor Operacional','producer-marketing':'Produtor Marketing','commercial':'Comercial','viewer':'Somente leitura','sac-agent':'Atendente SAC','sac-supervisor':'Supervisor SAC'
 }
 
 export function isGlobalAdmin(user:AppUser){return user.role==='admin-master'||user.role==='admin'}
@@ -32,7 +32,7 @@ export function canAccess(user:AppUser, area:'events'|'finance'|'pos'|'admin'|'m
   if(area==='finance') return ['producer-admin','producer-finance','viewer'].includes(user.role)
   if(area==='pos') return ['producer-admin','producer-operation','viewer'].includes(user.role)
   if(area==='marketing'||area==='remarketing') return ['producer-admin','producer-marketing','viewer'].includes(user.role)
-  if(area==='sac') return ['producer-admin','producer-operation','viewer'].includes(user.role)
+  if(area==='sac') return ['producer-admin','producer-operation','viewer','sac-agent','sac-supervisor'].includes(user.role)
   if(area==='commercial') return ['producer-admin','commercial','viewer'].includes(user.role)
   return ['producer-admin','producer-operation','producer-marketing','viewer'].includes(user.role)
 }

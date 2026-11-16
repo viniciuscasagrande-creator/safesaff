@@ -2000,13 +2000,13 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
             </button>
           </div>
 
-          {/* Viewport Principal do Mapa com Pan + Zoom */}
+          {/* Viewport Principal do Mapa com Pan + Zoom Centralizado e Fundo Neutro */}
           <div
             onMouseDown={handleCanvasMouseDown}
             onMouseMove={handleCanvasMouseMove}
             onMouseUp={stopDragging}
             onMouseLeave={stopDragging}
-            className="flex-1 overflow-auto flex items-start justify-center p-6 bg-white"
+            className="flex-1 overflow-hidden flex items-center justify-center p-4 bg-[#E5E7EB]"
             style={{
               cursor:
                 activeTool === 'pan'
@@ -2022,12 +2022,12 @@ export const SeatmapStudioBuilder: React.FC<Props> = ({
               ref={canvasRef}
               onClick={handleCanvasClick}
               data-testid="seatmap-96dpi-canvas"
-              className="relative select-none shadow-sm"
+              className="relative select-none shadow-md bg-[#F8FAFC] rounded-xl border border-slate-300"
               style={{
                 width: `${bgWidthPx}px`,
                 height: `${bgHeightPx}px`,
                 transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100})`,
-                transformOrigin: 'top center'
+                transformOrigin: 'center center'
               }}
             >
               {/* Fundo da Planta em 96 DPI (Teatro Marista Maringá ou Upload PNG/SVG/JPEG) */}

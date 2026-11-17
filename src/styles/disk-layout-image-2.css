@@ -822,17 +822,49 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) tbody tr:hover td {
     transform: translateX(0) !important;
   }
 
+  html,
+  body,
+  #root {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  body.mobile-nav-open,
+  body.sidebar-mobile-expanded {
+    overflow: hidden !important;
+  }
+
+  .login-page {
+    min-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    padding-bottom: 32px !important;
+  }
+
+  .global-topbar .navbar-logo {
+    height: 22px !important;
+    max-height: 22px !important;
+    max-width: 105px !important;
+    padding: 2px 6px !important;
+  }
+
   .app-shell,
   html[data-ui-framework='limitless'] .app-shell {
-    height: 100dvh !important;
-    max-height: 100dvh !important;
+    height: auto !important;
+    max-height: none !important;
     min-height: 100dvh !important;
+    overflow: visible !important;
   }
 
   .app-shell > div.flex.flex-1 {
-    height: calc(100dvh - var(--disk-layout-header-height)) !important;
-    max-height: calc(100dvh - var(--disk-layout-header-height)) !important;
-    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: calc(100dvh - var(--disk-layout-header-height)) !important;
+    overflow: visible !important;
   }
 
   html :is(#main-app-content, .disk-main-content),
@@ -841,7 +873,9 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) tbody tr:hover td {
     width: 100% !important;
     max-width: 100vw !important;
     min-width: 0 !important;
-    overflow-y: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
     overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch !important;
   }

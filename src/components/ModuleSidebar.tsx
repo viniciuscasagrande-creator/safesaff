@@ -309,9 +309,16 @@ export default function ModuleSidebar({ module, page, onNavigate, onHome, canAdm
     }
   }
 
+  useEffect(() => {
+    if (mobileNavOpen && collapsed) {
+      setCollapsed(false)
+      setOpenSection(getActiveSection())
+    }
+  }, [mobileNavOpen, collapsed])
+
   return (
     <aside
-      className={`module-sidebar safesaff-sidebar ${collapsed ? 'safesaff-sidebar--collapsed' : ''} ${mobileNavOpen ? 'sidebar-mobile-expanded' : ''}`}
+      className={`module-sidebar safesaff-sidebar ${collapsed && !mobileNavOpen ? 'safesaff-sidebar--collapsed' : ''} ${mobileNavOpen ? 'sidebar-mobile-expanded' : ''}`}
       id="main-module-sidebar"
       data-testid="main-module-sidebar"
       aria-label="Navegação principal"

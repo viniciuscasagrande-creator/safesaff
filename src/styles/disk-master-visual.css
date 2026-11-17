@@ -280,16 +280,18 @@ html.dark .growth-table td {
 .global-topbar .navbar-logo { max-height: 28px !important; }
 
 /* Sidebar canônica: o próprio componente funcional recebe o visual aprovado */
-#main-module-sidebar.module-sidebar {
-  width: var(--sidebar-width) !important;
-  flex: 0 0 var(--sidebar-width) !important;
-  background: var(--disk-bg-surface) !important;
-  border-right: 1px solid var(--disk-border-default) !important;
-  box-shadow: none !important;
-}
-#main-module-sidebar.safesaff-sidebar--collapsed {
-  width: var(--sidebar-collapsed-width) !important;
-  flex-basis: var(--sidebar-collapsed-width) !important;
+@media (min-width: 768px) {
+  #main-module-sidebar.module-sidebar {
+    width: var(--sidebar-width) !important;
+    flex: 0 0 var(--sidebar-width) !important;
+    background: var(--disk-bg-surface) !important;
+    border-right: 1px solid var(--disk-border-default) !important;
+    box-shadow: none !important;
+  }
+  #main-module-sidebar.safesaff-sidebar--collapsed {
+    width: var(--sidebar-collapsed-width) !important;
+    flex-basis: var(--sidebar-collapsed-width) !important;
+  }
 }
 #main-module-sidebar .safesaff-sidebar-header {
   min-height: 52px !important;

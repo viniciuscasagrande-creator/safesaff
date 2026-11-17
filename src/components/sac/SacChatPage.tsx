@@ -70,6 +70,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
   const [error, setError] = useState('')
   const [feedback, setFeedback] = useState('')
   const [filter, setFilter] = useState<'all' | 'queued' | 'mine' | 'active' | 'closed'>('all')
+  const [mobileChatStep, setMobileChatStep] = useState<'list' | 'chat' | 'context'>('list')
   const [agents, setAgents] = useState<SacAgentInfo[]>(initialSnap.agents)
   const [target, setTarget] = useState('')
 
@@ -609,7 +610,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#7942D8] dark:text-[#B66CFF] block">
                     1. Temas Rápidos para o Cliente (Clique para testar)
                   </span>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {CUSTOMER_AI_TOPICS.map(topic => {
                       const isCurrent = activeClientTopic?.key === topic.key
                       return (
@@ -694,7 +695,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
                   <form
                     onSubmit={e => void handleCustomerFreeQuestion(e)}
-                    className="pt-2.5 mt-2 border-t border-[#DCE2EA] dark:border-[#344154] flex gap-2"
+                    className="pt-2.5 mt-2 border-t border-[#DCE2EA] dark:border-[#344154] flex flex-col sm:flex-row gap-2"
                   >
                     <input
                       type="text"
@@ -724,7 +725,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           )}
 
           {/* Strip de KPIs da Fila e Capacidade (Laranja SLA | Azul Elétrico | Ciano | Violeta) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-3.5 flex items-center justify-between shadow-2xs">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-[#BD5D00] dark:text-[#FF9A35] block">
@@ -881,13 +882,61 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
           )}
 
           {/* =====================================================================
-              2. LAYOUT OPERACIONAL EM 3 COLUNAS (IDÊNTICO À REFERÊNCIA C APROVADA)
+              2. LAYOUT OPERACIONAL EM 3 COLUNAS NO DESKTOP E 1 TELA POR ETAPA NO MOBILE
               (FILA SAC | CONVERSA + COPILOTO VIOLETA IA | CONTEXTO 360° + SLA LARANJA)
           ===================================================================== */}
+          <div
+            className="lg:hidden grid grid-cols-3 gap-1.5 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-xl p-1.5 shadow-2xs"
+            role="tablist"
+            aria-label="Etapas do atendimento mobile"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mobileChatStep === 'list'}
+              onClick={() => setMobileChatStep('list')}
+              className={`py-2 px-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                mobileChatStep === 'list'
+                  ? 'bg-[#155EEF] text-white shadow-2xs'
+                  : 'text-[#526074] dark:text-[#B5C0D0]'
+              }`}
+            >
+              1. Fila ({filtered.length})
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mobileChatStep === 'chat'}
+              onClick={() => setMobileChatStep('chat')}
+              className={`py-2 px-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                mobileChatStep === 'chat'
+                  ? 'bg-[#155EEF] text-white shadow-2xs'
+                  : 'text-[#526074] dark:text-[#B5C0D0]'
+              }`}
+            >
+              2. Conversa
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mobileChatStep === 'context'}
+              onClick={() => setMobileChatStep('context')}
+              className={`py-2 px-2 rounded-lg text-xs font-bold transition cursor-pointer ${
+                mobileChatStep === 'context'
+                  ? 'bg-[#155EEF] text-white shadow-2xs'
+                  : 'text-[#526074] dark:text-[#B5C0D0]'
+              }`}
+            >
+              3. Ficha & SLA
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             {/* COLUNA 1 (ESQUERDA - 3 COLUNAS): FILA DE ESPERA & MEUS ATENDIMENTOS */}
             <aside
-              className="lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-3.5 space-y-3 flex flex-col h-[620px] shadow-xs"
+              className={`lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-3.5 space-y-3 flex-col h-[520px] lg:h-[620px] shadow-xs ${
+                mobileChatStep === 'list' ? 'flex' : 'hidden lg:flex'
+              }`}
               aria-label="Lista de atendimentos"
             >
               <div className="flex justify-between items-center">
@@ -937,7 +986,10 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                     <button
                       type="button"
                       key={c.id}
-                      onClick={() => setSelected(c.id)}
+                      onClick={() => {
+                        setSelected(c.id)
+                        setMobileChatStep('chat')
+                      }}
                       className={`block w-full text-left border rounded-xl p-3 transition cursor-pointer ${
                         isSelected
                           ? 'border-[#155EEF] dark:border-[#388BFF] bg-[#EFF6FF]/70 dark:bg-[#1D2735] shadow-xs'
@@ -988,7 +1040,9 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
 
             {/* COLUNA 2 (CENTRO - 6 COLUNAS): CONVERSA EM TEMPO REAL + COPILOTO VIOLETA IA */}
             <section
-              className="lg:col-span-6 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 flex flex-col h-[620px] shadow-xs"
+              className={`lg:col-span-6 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 flex-col min-h-[480px] lg:h-[620px] shadow-xs ${
+                mobileChatStep === 'chat' ? 'flex' : 'hidden lg:flex'
+              }`}
               aria-label="Conversa selecionada"
             >
               {conversation ? (
@@ -1204,7 +1258,7 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
                       onSubmit={e => void send(e)}
                       className="flex flex-col gap-2 border-t border-[#DCE2EA] dark:border-[#344154] pt-2.5 mt-2"
                     >
-                      <div className="flex items-center justify-between text-[11px]">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
                         <div className="flex items-center gap-1.5">
                           <span className="text-[#526074] dark:text-[#B5C0D0]">
                             Enviar como:
@@ -1273,7 +1327,11 @@ export function SacChatPage({ producerId, initialView = 'dashboard' }: Props) {
             </section>
 
             {/* COLUNA 3 (DIREITA - 3 COLUNAS): CONTEXTO 360° DO CLIENTE + SLA EM LARANJA */}
-            <aside className="lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 space-y-3 h-[620px] overflow-y-auto shadow-xs">
+            <aside
+              className={`lg:col-span-3 bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] rounded-2xl p-4 space-y-3 h-auto lg:h-[620px] overflow-y-auto shadow-xs ${
+                mobileChatStep === 'context' ? 'block' : 'hidden lg:block'
+              }`}
+            >
               <div className="border-b border-[#DCE2EA] dark:border-[#344154] pb-2.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#009AC2] dark:text-[#24DEFF]">
                   Contexto Operacional ERP

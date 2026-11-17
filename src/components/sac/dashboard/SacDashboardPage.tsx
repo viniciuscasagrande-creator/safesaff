@@ -391,22 +391,22 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
       </section>
 
       {/* ===================================================================
-          LINHA 2: FAIXA OPERACIONAL GRAFITE DE ALTO CONTRASTE
+          LINHA 2: FAIXA OPERACIONAL DE ALTO CONTRASTE (CLARO BRANCO / ESCURO GRAFITE)
           (FILA REAL COM ALERTA SONORO | ATENDENTES REAIS | OCUPAÇÃO & IA)
       =================================================================== */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
         {/* Bloco 1: Fila de Atendimento Real + Alerta Sonoro por Limiar */}
-        <div className="lg:col-span-5 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
-              <BellRing size={16} className="text-[#FF9A35]" />
+        <div className="lg:col-span-5 rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 text-[#111827] dark:text-[#F7F9FC] flex flex-col justify-between gap-3 shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#526074] dark:text-[#B5C0D0]">
+              <BellRing size={16} className="text-[#EA580C] dark:text-[#FF9A35]" />
               <span>Fila de Atendimento (Tempo Real)</span>
             </div>
             <span
               className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold flex items-center gap-1.5 border ${
                 queuedCount >= queueThreshold
-                  ? 'bg-[#FF9A35]/20 text-[#FF9A35] border-[#FF9A35]/40'
-                  : 'bg-white/10 text-[#B5C0D0] border-white/15'
+                  ? 'bg-[#FFF7ED] dark:bg-[#FF9A35]/20 text-[#BD5D00] dark:text-[#FF9A35] border-[#FED7AA] dark:border-[#FF9A35]/40'
+                  : 'bg-[#F5F7FA] dark:bg-white/10 text-[#526074] dark:text-[#B5C0D0] border-[#DCE2EA] dark:border-white/15'
               }`}
             >
               <Volume2 size={12} />
@@ -418,73 +418,73 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 items-center pt-1">
-            <div className="border-r border-white/10 pr-3">
-              <div className="flex items-baseline gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center pt-1">
+            <div className="sm:border-r border-[#DCE2EA] dark:border-white/10 sm:pr-3">
+              <div className="flex flex-wrap items-baseline gap-2">
                 <strong
-                  className="text-3xl font-black text-white tabular-nums"
+                  className="text-3xl font-black text-[#111827] dark:text-white tabular-nums"
                   data-testid="kpi-queue-current"
                 >
                   {queuedCount}
                 </strong>
-                <span className="px-2 py-0.5 rounded-full bg-[#388BFF]/20 text-[#388BFF] text-[10px] font-extrabold">
+                <span className="px-2 py-0.5 rounded-full bg-[#EFF6FF] dark:bg-[#388BFF]/20 text-[#155EEF] dark:text-[#388BFF] text-[10px] font-extrabold">
                   {activeCount} em atendimento
                 </span>
               </div>
-              <span className="text-[11px] text-[#B5C0D0] block mt-0.5">
+              <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block mt-0.5">
                 aguardando na fila central do SAC
               </span>
             </div>
 
-            <div className="pl-1 space-y-1">
-              <span className="text-[11px] text-[#B5C0D0] flex items-center gap-1.5">
-                <Clock size={12} className="text-[#24DEFF]" /> Limiar sonoro:{' '}
+            <div className="sm:pl-1 space-y-1">
+              <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] flex items-center gap-1.5">
+                <Clock size={12} className="text-[#009AC2] dark:text-[#24DEFF]" /> Limiar sonoro:{' '}
                 <input
                   type="number"
                   min={1}
                   max={50}
                   value={queueThreshold}
                   onChange={e => setQueueThreshold(Math.max(1, Number(e.target.value)))}
-                  className="w-12 px-1.5 py-0.5 rounded border border-[#344154] bg-[#0B1018] text-center font-bold text-white text-xs"
+                  className="w-14 px-1.5 py-0.5 rounded border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#0B1018] text-center font-bold text-[#111827] dark:text-white text-xs"
                 />
               </span>
-              <span className="text-[11px] text-[#8E9BAE] block">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] block">
                 Último alerta:{' '}
-                <strong className="text-white">{lastSoundAlertAt || 'Nenhum'}</strong>
+                <strong className="text-[#111827] dark:text-white">{lastSoundAlertAt || 'Nenhum'}</strong>
               </span>
             </div>
           </div>
         </div>
 
         {/* Bloco 2: Atendentes Reais (Disponíveis / Ocupados / Ausentes) */}
-        <div className="lg:col-span-4 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-3 shadow-md">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#B5C0D0]">
-            <Users size={16} className="text-[#388BFF]" />
+        <div className="lg:col-span-4 rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 text-[#111827] dark:text-[#F7F9FC] flex flex-col justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#526074] dark:text-[#B5C0D0]">
+            <Users size={16} className="text-[#155EEF] dark:text-[#388BFF]" />
             <span>Equipe SAC ({agents.length} operadores • Máx 3 chats)</span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center pt-1">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-              <strong className="text-2xl font-black text-white block tabular-nums">
+            <div className="p-2 rounded-xl bg-[#F5F7FA] dark:bg-white/5 border border-[#DCE2EA] dark:border-white/10">
+              <strong className="text-2xl font-black text-[#111827] dark:text-white block tabular-nums">
                 {agents.filter(a => a.status === 'available').length}
               </strong>
-              <span className="text-[11px] text-[#43D9A3] font-semibold">
+              <span className="text-[11px] text-[#16734A] dark:text-[#43D9A3] font-semibold">
                 ● Disponíveis
               </span>
             </div>
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-              <strong className="text-2xl font-black text-white block tabular-nums">
+            <div className="p-2 rounded-xl bg-[#F5F7FA] dark:bg-white/5 border border-[#DCE2EA] dark:border-white/10">
+              <strong className="text-2xl font-black text-[#111827] dark:text-white block tabular-nums">
                 {agents.filter(a => a.status === 'busy').length}
               </strong>
-              <span className="text-[11px] text-[#FF9A35] font-semibold">
+              <span className="text-[11px] text-[#BD5D00] dark:text-[#FF9A35] font-semibold">
                 ● Ocupados
               </span>
             </div>
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10">
-              <strong className="text-2xl font-black text-white block tabular-nums">
+            <div className="p-2 rounded-xl bg-[#F5F7FA] dark:bg-white/5 border border-[#DCE2EA] dark:border-white/10">
+              <strong className="text-2xl font-black text-[#111827] dark:text-white block tabular-nums">
                 {agents.filter(a => a.status === 'offline').length}
               </strong>
-              <span className="text-[11px] text-[#8E9BAE] font-semibold">
+              <span className="text-[11px] text-[#526074] dark:text-[#8E9BAE] font-semibold">
                 ● Ausentes
               </span>
             </div>
@@ -492,16 +492,16 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
         </div>
 
         {/* Bloco 3: Capacidade Operacional & Modo IA */}
-        <div className="lg:col-span-3 rounded-2xl bg-[#161D29] dark:bg-[#151C27] border border-[#263142] dark:border-[#344154] p-4 text-white flex flex-col justify-between gap-2 shadow-md">
-          <div className="flex items-center justify-between text-xs font-bold text-[#B5C0D0]">
+        <div className="lg:col-span-3 rounded-2xl bg-white dark:bg-[#151C27] border border-[#DCE2EA] dark:border-[#344154] p-4 text-[#111827] dark:text-[#F7F9FC] flex flex-col justify-between gap-2 shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#526074] dark:text-[#B5C0D0]">
             <span className="flex items-center gap-1.5">
-              <Sparkles size={15} className="text-[#B66CFF]" />
+              <Sparkles size={15} className="text-[#7942D8] dark:text-[#B66CFF]" />
               Capacidade & IA
             </span>
             <select
               value={aiMode}
               onChange={e => setAiMode(e.target.value as typeof aiMode)}
-              className="px-2 py-0.5 rounded-lg border border-[#344154] bg-[#0B1018] text-[11px] text-white font-bold cursor-pointer"
+              className="px-2 py-0.5 rounded-lg border border-[#DCE2EA] dark:border-[#344154] bg-[#F5F7FA] dark:bg-[#0B1018] text-[11px] text-[#111827] dark:text-white font-bold cursor-pointer"
             >
               <option value="copiloto">IA Copiloto + N1</option>
               <option value="triagem">IA Triagem</option>
@@ -509,12 +509,12 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </select>
           </div>
 
-          <div className="flex items-end justify-between gap-2 pt-1">
+          <div className="flex flex-wrap items-end justify-between gap-2 pt-1">
             <div>
-              <strong className="text-2xl font-black text-white tabular-nums">
+              <strong className="text-2xl font-black text-[#111827] dark:text-white tabular-nums">
                 {activeCount} / {agents.length * 3}
               </strong>
-              <span className="text-[11px] text-[#B5C0D0] block">
+              <span className="text-[11px] text-[#526074] dark:text-[#B5C0D0] block">
                 Slots simultâneos em uso
               </span>
             </div>
@@ -549,17 +549,19 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
 
           <div className="space-y-3.5">
             {/* Canal 1: Chat SafeSaff (Integrado e Ativo) */}
-            <div className="grid grid-cols-12 items-center gap-2 text-xs">
-              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                <span className="w-7 h-7 rounded-lg bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 flex items-center justify-center">
-                  <MessageSquare size={14} />
-                </span>
-                <span>Chat SafeSaff</span>
+            <div className="flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2 text-xs">
+              <div className="flex items-center justify-between sm:col-span-7">
+                <div className="flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#EFF6FF] dark:bg-[#388BFF]/15 text-[#155EEF] dark:text-[#388BFF] border border-[#BFDBFE] dark:border-[#388BFF]/30 flex items-center justify-center shrink-0">
+                    <MessageSquare size={14} />
+                  </span>
+                  <span>Chat SafeSaff</span>
+                </div>
+                <div className="font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
+                  {totalToday}
+                </div>
               </div>
-              <div className="col-span-2 text-right font-black text-sm text-[#111827] dark:text-[#F7F9FC] tabular-nums">
-                {totalToday}
-              </div>
-              <div className="col-span-5">
+              <div className="sm:col-span-5">
                 <div className="flex justify-between text-[10px] text-[#526074] dark:text-[#B5C0D0] font-semibold mb-1">
                   <span>100% dos chamados ativos</span>
                   <span className="text-[#155EEF] dark:text-[#388BFF] font-bold">Integrado</span>
@@ -574,17 +576,19 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </div>
 
             {/* Canal 2: WhatsApp (Status transparente conforme Onda 0 da Auditoria) */}
-            <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
-              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                <span className="w-7 h-7 rounded-lg bg-[#ECFEFF] dark:bg-[#24DEFF]/15 text-[#009AC2] dark:text-[#24DEFF] border border-[#A5F3FC] dark:border-[#24DEFF]/30 flex items-center justify-center">
-                  <MessageCircle size={14} />
-                </span>
-                <span>WhatsApp</span>
+            <div className="flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+              <div className="flex items-center justify-between sm:col-span-7">
+                <div className="flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#ECFEFF] dark:bg-[#24DEFF]/15 text-[#009AC2] dark:text-[#24DEFF] border border-[#A5F3FC] dark:border-[#24DEFF]/30 flex items-center justify-center shrink-0">
+                    <MessageCircle size={14} />
+                  </span>
+                  <span>WhatsApp</span>
+                </div>
+                <div className="font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
+                  0
+                </div>
               </div>
-              <div className="col-span-2 text-right font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
-                0
-              </div>
-              <div className="col-span-5">
+              <div className="sm:col-span-5">
                 <span className="px-2 py-0.5 rounded bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] text-[10px] font-semibold block text-center">
                   Não integrado (aguardando webhook)
                 </span>
@@ -592,17 +596,19 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </div>
 
             {/* Canal 3: E-mail (Status transparente conforme Onda 0 da Auditoria) */}
-            <div className="grid grid-cols-12 items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
-              <div className="col-span-5 flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
-                <span className="w-7 h-7 rounded-lg bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 flex items-center justify-center">
-                  <Mail size={14} />
-                </span>
-                <span>E-mail</span>
+            <div className="flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2 text-xs pt-2 border-t border-[#DCE2EA]/60 dark:border-[#344154]/60">
+              <div className="flex items-center justify-between sm:col-span-7">
+                <div className="flex items-center gap-2.5 font-bold text-[#111827] dark:text-[#F7F9FC]">
+                  <span className="w-7 h-7 rounded-lg bg-[#F3E8FF] dark:bg-[#B66CFF]/15 text-[#7942D8] dark:text-[#B66CFF] border border-[#D8B4FE] dark:border-[#B66CFF]/30 flex items-center justify-center shrink-0">
+                    <Mail size={14} />
+                  </span>
+                  <span>E-mail</span>
+                </div>
+                <div className="font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
+                  0
+                </div>
               </div>
-              <div className="col-span-2 text-right font-black text-sm text-[#526074] dark:text-[#B5C0D0] tabular-nums">
-                0
-              </div>
-              <div className="col-span-5">
+              <div className="sm:col-span-5">
                 <span className="px-2 py-0.5 rounded bg-[#EEF2F6] dark:bg-[#1D2735] text-[#526074] dark:text-[#B5C0D0] text-[10px] font-semibold block text-center">
                   Não integrado (aguardando SMTP/IMAP)
                 </span>
@@ -712,7 +718,7 @@ export const SacDashboardPage: React.FC<Props> = ({ producerId, onOpenLiveChat }
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             {(
               [
                 {

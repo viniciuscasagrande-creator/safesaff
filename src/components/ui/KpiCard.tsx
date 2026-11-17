@@ -25,19 +25,19 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   className = '',
 }) => {
   const accentStyles = {
-    green: { bg: 'bg-emerald-50 text-[#10B981] dark:bg-emerald-950/40 dark:text-emerald-400', border: 'bg-[#10B981]' },
-    blue: { bg: 'bg-blue-50 text-[#1677FF] dark:bg-blue-950/40 dark:text-blue-400', border: 'bg-[#1677FF]' },
-    cyan: { bg: 'bg-cyan-50 text-[#06B6D4] dark:bg-cyan-950/40 dark:text-cyan-400', border: 'bg-[#06B6D4]' },
-    orange: { bg: 'bg-orange-50 text-[#F97316] dark:bg-orange-950/40 dark:text-orange-400', border: 'bg-[#F97316]' },
-    purple: { bg: 'bg-purple-50 text-[#7C3AED] dark:bg-purple-950/40 dark:text-purple-400', border: 'bg-[#7C3AED]' },
-    red: { bg: 'bg-rose-50 text-[#EF4444] dark:bg-rose-950/40 dark:text-rose-400', border: 'bg-[#EF4444]' },
-    slate: { bg: 'bg-slate-100 text-[#64748B] dark:bg-slate-800 dark:text-slate-300', border: 'bg-[#64748B]' },
+    green: { bg: 'bg-[#ECFDF5] text-[#16734A] dark:bg-[#43D9A3]/15 dark:text-[#43D9A3]', border: 'bg-[#16734A]' },
+    blue: { bg: 'bg-[#EFF6FF] text-[#155EEF] dark:bg-[#388BFF]/15 dark:text-[#388BFF]', border: 'bg-[#155EEF]' },
+    cyan: { bg: 'bg-[#ECFEFF] text-[#009AC2] dark:bg-[#24DEFF]/15 dark:text-[#24DEFF]', border: 'bg-[#009AC2]' },
+    orange: { bg: 'bg-[#FFF7ED] text-[#BD5D00] dark:bg-[#FF9A35]/15 dark:text-[#FF9A35]', border: 'bg-[#EA580C]' },
+    purple: { bg: 'bg-[#F3E8FF] text-[#7942D8] dark:bg-[#B66CFF]/15 dark:text-[#B66CFF]', border: 'bg-[#7942D8]' },
+    red: { bg: 'bg-[#FFF1F2] text-[#C1273C] dark:bg-[#FF5A78]/15 dark:text-[#FF5A78]', border: 'bg-[#C1273C]' },
+    slate: { bg: 'bg-[#EEF2F6] text-[#526074] dark:bg-[#1D2735] dark:text-[#B5C0D0]', border: 'bg-[#526074]' },
   }[accent];
 
   return (
-    <div className={`rounded-card border border-border bg-card text-card-foreground p-4 sm:p-5 shadow-card transition-all duration-200 hover:shadow-cardHover hover:-translate-y-[1px] flex flex-col justify-between ${className}`}>
+    <div className={`rounded-xl border border-[#DCE2EA] dark:border-[#344154] bg-white dark:bg-[#151C27] text-[#111827] dark:text-[#F7F9FC] p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-[1px] flex flex-col justify-between ${className}`}>
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-[#526074] dark:text-[#B5C0D0] block">
           {label}
         </span>
         {icon && (
@@ -48,7 +48,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
       </div>
 
       <div className="mt-3">
-        <strong className="text-[20px] sm:text-[24px] font-bold tracking-tight text-foreground block leading-tight font-mono tabular-nums">
+        <strong className="text-[20px] sm:text-[24px] font-bold tracking-tight text-[#111827] dark:text-[#F7F9FC] block leading-tight font-mono tabular-nums">
           {value}
         </strong>
 

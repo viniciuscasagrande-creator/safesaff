@@ -51,3 +51,11 @@ test('MOB-001 (P0): Mobile layout (<768px) does not lock 350px sticky sidebar wi
   assert.doesNotMatch(shellV6, /@media\(max-width:1023px\)/)
   assert.doesNotMatch(appShell, /<MobileNavigation/)
 })
+
+test('MOB-002 (P0): SAC Dashboard operational cards respect Light/Dark theme and responsive mobile grids', () => {
+  const sacDash = read('src/components/sac/dashboard/SacDashboardPage.tsx')
+  assert.doesNotMatch(sacDash, /lg:col-span-5 rounded-2xl bg-\[#161D29\]/)
+  assert.doesNotMatch(sacDash, /lg:col-span-4 rounded-2xl bg-\[#161D29\]/)
+  assert.doesNotMatch(sacDash, /lg:col-span-3 rounded-2xl bg-\[#161D29\]/)
+  assert.match(sacDash, /grid-cols-1 sm:grid-cols-3 gap-3 pt-1/)
+})

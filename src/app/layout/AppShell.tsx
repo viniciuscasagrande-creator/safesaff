@@ -11,10 +11,7 @@ import type { PageKey, ModuleKey } from '../../components/ModuleSidebar'
 import type { BreadcrumbCrumb } from '../navigation/navigation.types'
 import { AppHeader } from './AppHeader'
 import { AppSidebar } from './AppSidebar'
-import { MobileNavigation } from './MobileNavigation'
 import { MainContent } from './MainContent'
-import { NAVIGATION_GROUPS } from '../navigation/navigation.config'
-import { filterNavigation } from '../navigation/navigation.utils'
 import type { EventItem } from '../../data/events'
 import type { ProducerEvent } from '../../types/context.types'
 
@@ -137,22 +134,6 @@ export const AppShell: React.FC<AppShellProps> = ({
     }
   }, [page, isMobileNavControlled])
 
-  // Grupos de navegação filtrados para o drawer mobile
-  const filteredGroups = filterNavigation(NAVIGATION_GROUPS, {
-    user,
-    scope: selectedEventId ? 'event' : 'producer',
-    producerId: selectedProducerId === 'all' ? null : selectedProducerId,
-    eventId: selectedEventId
-  })
-
-  const currentProducer =
-    selectedProducerId !== 'all'
-      ? producers.find((p) => p.id === selectedProducerId)
-      : null
-  const producerDisplayName = currentProducer ? currentProducer.name : null
-  const currentEventItem = events.find((e) => e.id === selectedEventId)
-  const eventDisplayName = currentEventItem ? currentEventItem.title : null
-
   return (
     <div
       className={`app-shell h-screen max-h-screen bg-background text-foreground flex flex-col font-sans antialiased transition-colors w-full max-w-full overflow-hidden ${
@@ -220,20 +201,6 @@ export const AppShell: React.FC<AppShellProps> = ({
           {children}
         </MainContent>
       </div>
-
-      {/* Gaveta de Navegação Mobile (Vertical, sem carrossel) */}
-      <MobileNavigation
-        isOpen={effectiveMobileNavOpen}
-        onClose={handleCloseMobileNav}
-        groups={filteredGroups}
-        currentPage={page}
-        onNavigate={(p) => {
-          onNavigate(p)
-          handleCloseMobileNav()
-        }}
-        producerName={producerDisplayName}
-        eventName={eventDisplayName}
-      />
     </div>
   )
 }

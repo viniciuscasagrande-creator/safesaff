@@ -39,3 +39,15 @@ test('UI-005 & UI-006 (P1): Estornos and Finance pages do not use text-slate-900
   assert.doesNotMatch(refunds, /hover:bg-\[#334155\] text-slate-700 hover:text-slate-900/)
   assert.doesNotMatch(styles, /var\(--card,\s*#fff\)/)
 })
+
+test('MOB-001 (P0): Mobile layout (<768px) does not lock 350px sticky sidebar width or render duplicate mobile drawers', () => {
+  const layoutCss = read('src/styles/disk-layout-image-2.css')
+  const shellV6 = read('src/styles/disk-limitless-shell-v6.css')
+  const appShell = read('src/app/layout/AppShell.tsx')
+
+  assert.match(layoutCss, /@media \(min-width: 768px\)[\s\S]*?#main-module-sidebar\.module-sidebar\.safesaff-sidebar/)
+  assert.match(layoutCss, /@media \(max-width: 767px\)[\s\S]*?z-index: 1005 !important/)
+  assert.match(layoutCss, /@media \(max-width: 767px\)[\s\S]*?#main-app-content[\s\S]*?width: 100% !important/)
+  assert.doesNotMatch(shellV6, /@media\(max-width:1023px\)/)
+  assert.doesNotMatch(appShell, /<MobileNavigation/)
+})

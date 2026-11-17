@@ -17,6 +17,7 @@ type Props = {
   onBack: () => void
   onSelectOtherEvent?: (event: ProducerEvent) => void
   canAdmin?: boolean
+  mobileNavOpen?: boolean
 }
 
 const eventItems: Item[] = [
@@ -70,7 +71,8 @@ export default function EventContextSidebar({
   onNavigate,
   onBack,
   onSelectOtherEvent,
-  canAdmin = true
+  canAdmin = true,
+  mobileNavOpen = false
 }: Props) {
   const getActiveEventGroup = (currentPage: PageKey): string => {
     if (['event-inventory', 'event-customer-360', 'event-revenue-intel', 'event-global-search', 'event-intelligence', 'event-forecast', 'event-producer-executive', 'event-reports'].includes(currentPage)) return 'gestao'
@@ -86,7 +88,7 @@ export default function EventContextSidebar({
   }, [page])
   const toggleGroup = (key: string) => setOpenGroup(current => current === key ? '' : key)
   return (
-    <aside className="module-sidebar event-context-sidebar" data-testid="event-context-sidebar">
+    <aside className={`module-sidebar event-context-sidebar ${mobileNavOpen ? 'sidebar-mobile-expanded' : ''}`} data-testid="event-context-sidebar">
       <button className="back-module event-back" onClick={onBack} title="Voltar a Todos os Eventos" data-testid="event-sidebar-back">
         <ArrowLeft size={18} />
         <span>← Todos os Eventos</span>

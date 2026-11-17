@@ -191,65 +191,88 @@ html[data-theme='dark'] {
   border-color: var(--disk-layout-border) !important;
 }
 
-/* Sidebar corporativa: FIXA com SCROLL interno, 100% até o rodapé sem vão vazio */
-html :is(
-  .safesaff-sidebar.module-sidebar,
-  .safesaff-sidebar,
-  #main-module-sidebar,
-  #main-module-sidebar.module-sidebar.safesaff-sidebar
-):not(.safesaff-sidebar--collapsed) {
-  flex: 0 0 var(--disk-layout-sidebar-width) !important;
-  width: var(--disk-layout-sidebar-width) !important;
-  min-width: var(--disk-layout-sidebar-width) !important;
-  max-width: var(--disk-layout-sidebar-width) !important;
-  height: calc(100vh - var(--disk-layout-header-height)) !important;
-  min-height: calc(100vh - var(--disk-layout-header-height)) !important;
-  max-height: calc(100vh - var(--disk-layout-header-height)) !important;
-  align-self: stretch !important;
-  position: sticky !important;
-  top: var(--disk-layout-header-height) !important;
-  background: var(--disk-layout-sidebar-bg) !important;
-  border-right: 1px solid var(--disk-layout-border-soft) !important;
-  box-shadow: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  z-index: 30 !important;
-}
+/* Sidebar corporativa (Desktop/Tablet >= 768px): FIXA com SCROLL interno, 100% até o rodapé sem vão vazio */
+@media (min-width: 768px) {
+  html :is(
+    .safesaff-sidebar.module-sidebar,
+    .safesaff-sidebar,
+    #main-module-sidebar,
+    #main-module-sidebar.module-sidebar.safesaff-sidebar
+  ):not(.safesaff-sidebar--collapsed) {
+    flex: 0 0 var(--disk-layout-sidebar-width) !important;
+    width: var(--disk-layout-sidebar-width) !important;
+    min-width: var(--disk-layout-sidebar-width) !important;
+    max-width: var(--disk-layout-sidebar-width) !important;
+    height: calc(100vh - var(--disk-layout-header-height)) !important;
+    min-height: calc(100vh - var(--disk-layout-header-height)) !important;
+    max-height: calc(100vh - var(--disk-layout-header-height)) !important;
+    align-self: stretch !important;
+    position: sticky !important;
+    top: var(--disk-layout-header-height) !important;
+    transform: none !important;
+    background: var(--disk-layout-sidebar-bg) !important;
+    border-right: 1px solid var(--disk-layout-border-soft) !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    z-index: 30 !important;
+  }
 
-/* ============================================================================
-   BARRA DO EVENTO (EVENT CONTEXT SIDEBAR): ROLAGEM VERTICAL COMPLETA (SCROLL)
-   Permite acessar todas as mais de 35 abas e seções sem bloqueio de tela
-   ============================================================================ */
-html :is(
-  .event-context-sidebar,
-  aside.event-context-sidebar,
-  .module-sidebar.event-context-sidebar
-),
-html[data-ui-framework='limitless'] .event-context-sidebar {
-  flex: 0 0 var(--disk-layout-sidebar-width) !important;
-  width: var(--disk-layout-sidebar-width) !important;
-  min-width: var(--disk-layout-sidebar-width) !important;
-  max-width: var(--disk-layout-sidebar-width) !important;
-  height: calc(100vh - var(--disk-layout-header-height)) !important;
-  min-height: calc(100vh - var(--disk-layout-header-height)) !important;
-  max-height: calc(100vh - var(--disk-layout-header-height)) !important;
-  align-self: stretch !important;
-  position: sticky !important;
-  top: var(--disk-layout-header-height) !important;
-  background: var(--disk-layout-sidebar-bg, #ffffff) !important;
-  border-right: 1px solid var(--disk-layout-border-soft, #e2e8f0) !important;
-  color: var(--disk-layout-text, #0f172a) !important;
-  box-shadow: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: #94a3b8 transparent !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior-y: contain !important;
-  z-index: 30 !important;
+  /* ============================================================================
+     BARRA DO EVENTO (EVENT CONTEXT SIDEBAR): ROLAGEM VERTICAL COMPLETA (SCROLL)
+     Permite acessar todas as mais de 35 abas e seções sem bloqueio de tela
+     ============================================================================ */
+  html :is(
+    .event-context-sidebar,
+    aside.event-context-sidebar,
+    .module-sidebar.event-context-sidebar
+  ),
+  html[data-ui-framework='limitless'] .event-context-sidebar {
+    flex: 0 0 var(--disk-layout-sidebar-width) !important;
+    width: var(--disk-layout-sidebar-width) !important;
+    min-width: var(--disk-layout-sidebar-width) !important;
+    max-width: var(--disk-layout-sidebar-width) !important;
+    height: calc(100vh - var(--disk-layout-header-height)) !important;
+    min-height: calc(100vh - var(--disk-layout-header-height)) !important;
+    max-height: calc(100vh - var(--disk-layout-header-height)) !important;
+    align-self: stretch !important;
+    position: sticky !important;
+    top: var(--disk-layout-header-height) !important;
+    transform: none !important;
+    background: var(--disk-layout-sidebar-bg, #ffffff) !important;
+    border-right: 1px solid var(--disk-layout-border-soft, #e2e8f0) !important;
+    color: var(--disk-layout-text, #0f172a) !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #94a3b8 transparent !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    z-index: 30 !important;
+  }
+
+  html[data-ui-framework='limitless'] #main-module-sidebar.module-sidebar:not(.safesaff-sidebar--collapsed) {
+    flex: 0 0 var(--disk-layout-sidebar-width) !important;
+    width: var(--disk-layout-sidebar-width) !important;
+    min-width: var(--disk-layout-sidebar-width) !important;
+    max-width: var(--disk-layout-sidebar-width) !important;
+  }
+
+  html :is(
+    .safesaff-sidebar--collapsed.module-sidebar,
+    .safesaff-sidebar--collapsed,
+    #main-module-sidebar.safesaff-sidebar--collapsed
+  ) {
+    flex: 0 0 var(--disk-layout-sidebar-collapsed) !important;
+    flex-basis: var(--disk-layout-sidebar-collapsed) !important;
+    width: var(--disk-layout-sidebar-collapsed) !important;
+    min-width: var(--disk-layout-sidebar-collapsed) !important;
+    max-width: var(--disk-layout-sidebar-collapsed) !important;
+  }
 }
 
 /* Scrollbar estilizada da barra do evento */
@@ -282,25 +305,6 @@ html[data-ui-framework='limitless'] .event-context-sidebar {
 .event-context-sidebar .module-nav {
   padding-bottom: 90px !important;
   overflow: visible !important;
-}
-
-html[data-ui-framework='limitless'] #main-module-sidebar.module-sidebar:not(.safesaff-sidebar--collapsed) {
-  flex: 0 0 var(--disk-layout-sidebar-width) !important;
-  width: var(--disk-layout-sidebar-width) !important;
-  min-width: var(--disk-layout-sidebar-width) !important;
-  max-width: var(--disk-layout-sidebar-width) !important;
-}
-
-html :is(
-  .safesaff-sidebar--collapsed.module-sidebar,
-  .safesaff-sidebar--collapsed,
-  #main-module-sidebar.safesaff-sidebar--collapsed
-) {
-  flex: 0 0 var(--disk-layout-sidebar-collapsed) !important;
-  flex-basis: var(--disk-layout-sidebar-collapsed) !important;
-  width: var(--disk-layout-sidebar-collapsed) !important;
-  min-width: var(--disk-layout-sidebar-collapsed) !important;
-  max-width: var(--disk-layout-sidebar-collapsed) !important;
 }
 
 .safesaff-sidebar-header {
@@ -743,6 +747,12 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) tbody tr:hover td {
   background: var(--disk-bg-hover) !important;
 }
 
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
 @media (max-width: 1199px) and (min-width: 768px) {
   :root { --disk-layout-sidebar-width: 310px; }
   .disk-content-container { padding: 20px !important; }
@@ -757,28 +767,146 @@ html.dark :is(#disk-estornos-module,.disk-estornos-wrapper) tbody tr:hover td {
     padding-inline: 12px !important;
   }
 
-  .safesaff-sidebar.module-sidebar,
-  .safesaff-sidebar.module-sidebar.safesaff-sidebar--collapsed,
-  .event-context-sidebar {
+  html :is(
+    #main-module-sidebar,
+    #main-module-sidebar.module-sidebar,
+    #main-module-sidebar.module-sidebar.safesaff-sidebar,
+    #main-module-sidebar.module-sidebar.safesaff-sidebar.safesaff-sidebar--collapsed,
+    .safesaff-sidebar.module-sidebar,
+    .safesaff-sidebar.module-sidebar.safesaff-sidebar--collapsed,
+    .event-context-sidebar,
+    aside.event-context-sidebar
+  ),
+  html[data-ui-framework='limitless'] :is(
+    #main-module-sidebar,
+    #main-module-sidebar.module-sidebar,
+    #main-module-sidebar.module-sidebar.safesaff-sidebar,
+    .event-context-sidebar
+  ) {
     position: fixed !important;
     inset: 0 auto 0 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    flex: 0 0 auto !important;
     width: min(88vw, 330px) !important;
     min-width: 0 !important;
     max-width: 330px !important;
     height: 100dvh !important;
     min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    z-index: 1005 !important;
     overflow-y: auto !important;
     transform: translateX(-105%) !important;
   }
 
-  .mobile-nav-open .safesaff-sidebar.module-sidebar,
-  .sidebar-mobile-expanded .safesaff-sidebar.module-sidebar,
-  .mobile-nav-open .event-context-sidebar,
-  .sidebar-mobile-expanded .event-context-sidebar {
+  html :is(
+    .mobile-nav-open #main-module-sidebar,
+    .sidebar-mobile-expanded #main-module-sidebar,
+    #main-module-sidebar.sidebar-mobile-expanded,
+    .mobile-nav-open .safesaff-sidebar.module-sidebar,
+    .sidebar-mobile-expanded .safesaff-sidebar.module-sidebar,
+    .safesaff-sidebar.module-sidebar.sidebar-mobile-expanded,
+    .mobile-nav-open .event-context-sidebar,
+    .sidebar-mobile-expanded .event-context-sidebar,
+    .event-context-sidebar.sidebar-mobile-expanded
+  ),
+  html[data-ui-framework='limitless'] :is(
+    .mobile-nav-open #main-module-sidebar.module-sidebar,
+    .sidebar-mobile-expanded #main-module-sidebar.module-sidebar,
+    #main-module-sidebar.module-sidebar.sidebar-mobile-expanded,
+    .mobile-nav-open .event-context-sidebar,
+    .sidebar-mobile-expanded .event-context-sidebar,
+    .event-context-sidebar.sidebar-mobile-expanded
+  ) {
     transform: translateX(0) !important;
   }
 
-  .disk-content-container { padding: 14px !important; }
+  .app-shell,
+  html[data-ui-framework='limitless'] .app-shell {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+  }
+
+  .app-shell > div.flex.flex-1 {
+    height: calc(100dvh - var(--disk-layout-header-height)) !important;
+    max-height: calc(100dvh - var(--disk-layout-header-height)) !important;
+    min-height: 0 !important;
+  }
+
+  html :is(#main-app-content, .disk-main-content),
+  html[data-ui-framework='limitless'] #main-app-content {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .disk-content-container,
+  #main-app-content > .disk-content-container,
+  html[data-ui-framework='limitless'] #main-app-content > .disk-content-container {
+    padding: 12px 12px calc(84px + env(safe-area-inset-bottom, 0px)) 12px !important;
+  }
+
+  /* Barra inferior mobile harmonizada para temas Claro e Escuro */
+  html:not(.dark) .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border-top: 1px solid #DCE2EA !important;
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06) !important;
+  }
+
+  html:not(.dark) .mobile-bottom-nav button {
+    color: #526074 !important;
+  }
+
+  html:not(.dark) .mobile-bottom-nav button:active,
+  html:not(.dark) .mobile-bottom-nav button:hover {
+    color: #155EEF !important;
+    background: #EFF6FF !important;
+  }
+
+  html.dark .mobile-bottom-nav {
+    background: rgba(14, 19, 27, 0.96) !important;
+    border-top: 1px solid #1E293B !important;
+  }
+
+  /* Botão hambúrguer visível com alto contraste nos temas Claro e Escuro */
+  html:not(.dark) :is(.mobile-menu-button, .sidebar-mobile-main-toggle) {
+    background: #F5F7FA !important;
+    border: 1px solid #DCE2EA !important;
+    color: #111827 !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+
+  html.dark :is(.mobile-menu-button, .sidebar-mobile-main-toggle) {
+    background: #151C27 !important;
+    border: 1px solid #283548 !important;
+    color: #F7F9FC !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+
+  /* Evitar que botões compactos do header estiquem para 44px no mobile */
+  .global-topbar [data-testid='disk-theme-toggle-compact'] button {
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 4px 7px !important;
+  }
+
+  .global-topbar [data-testid='header-notifications-button'],
+  .global-topbar [data-testid='header-user-menu-trigger'] {
+    min-height: 36px !important;
+    height: 36px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

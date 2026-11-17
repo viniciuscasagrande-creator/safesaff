@@ -103,7 +103,7 @@ export const NotificationMenu: React.FC<{ className?: string }> = ({ className =
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-84 sm:w-96 rounded-2xl bg-surface-elevated text-foreground border border-border shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+          className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-96 rounded-2xl bg-surface-elevated text-foreground border border-border shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100"
           role="dialog"
           aria-label="Central de Notificações Rápidas"
         >

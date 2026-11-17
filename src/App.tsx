@@ -1473,11 +1473,11 @@ export default function App() {
       </AppShell>
 
       <nav className="mobile-bottom-nav" aria-label="Navegação mobile">
-        <button onClick={() => { navigate(isGlobalAdmin(user) ? 'global-dashboard' : 'profile-dashboard'); setMobileNavOpen(false) }}><Home size={20}/><span>Início</span></button>
-        <button onClick={() => { navigate('events'); setMobileNavOpen(false) }}><CalendarDays size={20}/><span>Eventos</span></button>
-        <button onClick={() => { navigate('finance-dashboard'); setMobileNavOpen(false) }}><WalletCards size={20}/><span>Financeiro</span></button>
-        <button onClick={() => { navigate('marketing-dashboard'); setMobileNavOpen(false) }}><Megaphone size={20}/><span>Marketing</span></button>
-        <button onClick={() => setMobileNavOpen(true)}><Menu size={20}/><span>Mais</span></button>
+        <button onClick={() => { navigate(isGlobalAdmin(user) ? 'global-dashboard' : 'profile-dashboard'); MobileNavigationController.close() }}><Home size={20}/><span>Início</span></button>
+        <button onClick={() => { navigate('events'); MobileNavigationController.close() }}><CalendarDays size={20}/><span>Eventos</span></button>
+        <button onClick={() => { navigate('finance-dashboard'); MobileNavigationController.close() }}><WalletCards size={20}/><span>Financeiro</span></button>
+        <button onClick={() => { navigate('marketing-dashboard'); MobileNavigationController.close() }}><Megaphone size={20}/><span>Marketing</span></button>
+        <button onClick={() => MobileNavigationController.toggle()}><Menu size={20}/><span>Mais</span></button>
       </nav>
 
       <AppFooter />

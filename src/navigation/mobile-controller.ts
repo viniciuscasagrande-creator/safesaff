@@ -49,7 +49,7 @@ export const MobileNavigationController = {
         }
 
         // Não fechar se clicar no cabeçalho de um submenu recolhível (accordion)
-        if (target.closest('.collapsible-section-head, [data-testid^="collapsible-"]')) {
+        if (target.closest('.collapsible-section-head, [data-testid^="collapsible-"], .safesaff-event-mega-trigger, [data-testid^="event-mega-"]')) {
           return
         }
 
